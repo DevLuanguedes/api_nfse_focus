@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login • SIG</title>
+  <link rel="stylesheet" href="/css/style_login.css">
+
+  <!-- Ícones (Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Vídeo de fundo -->
+  <div class="bg-video">
+    <video autoplay muted loop>
+      <source src="/img/background_login5.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Card de Login -->
+  <div class="login-box">
+    <h2>Entrar</h2>
+
+    <form id="login-form">
+      <div class="input-group">
+        <i class="fa fa-envelope"></i>
+        <input type="email" id="email" placeholder="E-mail" required>
+      </div>
+
+      <div class="input-group">
+        <i class="fa fa-lock"></i>
+        <input type="password" id="senha" placeholder="Senha" required>
+      </div>
+
+      <div id="login-error" class="login-error" style="display:none;"></div>
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

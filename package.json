@@ -1,0 +1,33 @@
+{
+  "name": "api_sig",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "tunnel": "ngrok http 3000",
+    "create-admin": "node scripts/criar_usuario_admin.js",
+    "transformar-planilha": "node scripts/transformar_planilha_cliente.js",
+    "extrair-municipios": "node scripts/extrair_municipios_planilha.js",
+    "criar-tabela-aliquotas": "node scripts/criar_tabela_municipio_aliquota_iss.js",
+    "backup": "node scripts/backup_db.js",
+    "restore": "node scripts/restore_db.js",
+    "verificar-tabelas": "node scripts/verificar_tabelas.js",
+    "criar-tabelas": "node scripts/criar_todas_tabelas.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "csv-parse": "^6.1.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,34 @@
+# Fly.io - API SIG Premcell
+# Ajuste "app" se o nome já existir: fly apps list
+app = "api-sig-premcell"
+primary_region = "gru"
+
+[build]
+
+[env]
+  PORT = "3000"
+
+# Serviço HTTP
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 25
+    soft_limit = 20
+
+# Máquina (plano gratuito)
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Disco persistente para uploads e planilhas transformadas
+[mounts]
+  source = "uploads_data"
+  destination = "/app/uploads"

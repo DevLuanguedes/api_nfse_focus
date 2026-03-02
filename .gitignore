@@ -1,0 +1,31 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (credenciais)
+.env
+.env.local
+.env.*.local
+
+# Uploads e arquivos gerados
+uploads/*.xlsx
+uploads/*.xls
+!uploads/.gitkeep
+
+# Backups do banco (contêm dados sensíveis)
+backups/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build / cache
+dist/
+.cache/

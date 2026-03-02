@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SIG - Painel</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <button id="btn-toggle" class="btn-toggle" aria-label="Alternar menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <img src="/img/images.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+      </div>
+
+      <div class="header-right">
+        <div id="versao-app" class="versao-app" title="Versão da API em execução" style="margin-right:16px;font-size:12px;color:#888;display:flex;align-items:center;">
+          <i class="fa-solid fa-code-branch"></i>
+          <span id="versao-numero">—</span>
+        </div>
+        <div class="user-box" title="Usuário logado">
+          <img src="/img/pedro.png" alt="Avatar" class="avatar" onerror="this.src='https://pic.onlinewebfonts.com/thumbnails/icons_569206.svg';this.onerror=null">
+
+          <div class="user-info">
+            <div class="user-name">Usuário</div>
+            <div class="user-role">Operador</div>
+          </div>
+
+          <i class="fa-solid fa-caret-down user-caret"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- LAYOUT -->
+    <div class="layout">
+
+      <!-- SIDEBAR -->
+      <nav class="sidebar" id="sidebar">
+        <ul>
+          <li data-target="home" class="active">
+            <i class="fa-solid fa-house"></i>
+            <span class="label">Home</span>
+          </li>
+
+          <li data-target="consultar">
+            <i class="fa-solid fa-file-invoice"></i>
+            <span class="label">Consultar Notas</span>
+          </li>
+
+          <li data-target="emitir">
+            <i class="fa-solid fa-file-circle-plus"></i>
+            <span class="label">Emitir Notas</span>
+          </li>
+
+          <li data-target="aliquotas">
+            <i class="fa-solid fa-percent"></i>
+            <span class="label">Alíquotas ISS</span>
+          </li>
+
+          <li data-target="enderecos-obra">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span class="label">Endereços Obra</span>
+          </li>
+
+          <li data-target="relatorios">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="label">Relatórios</span>
+          </li>
+
+          <li data-target="admin" class="admin-only" style="display:none;">
+            <i class="fa-solid fa-user-shield"></i>
+            <span class="label">Admin</span>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- MAIN CONTENT -->
+      <main class="main">
+        <div class="breadcrumbs" id="breadcrumbs">Home</div>
+
+        <section id="view" class="view"></section>
+      </main>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // ===== AUTENTICAÇÃO BÁSICA (localStorage) =====
+    const usuarioLogadoRaw = localStorage.getItem("usuario_logado");
+    let usuarioLogado = null;
+
+    try {
+      if (usuarioLogadoRaw) {
+        usuarioLogado = JSON.parse(usuarioLogadoRaw);
+      }
+    } catch (e) {
+      console.error("Erro ao ler usuario_logado:", e);
+    }
+
+    // Se não tiver usuário logado, volta para a tela de login
+    if (!usuarioLogado) {
+      window.location.href = "/login.html";
+    }
+
+    // Preenche nome/cargo e mostra menu Admin para role=admin
+    document.addEventListener("DOMContentLoaded", () => {
+      const nomeEl = document.querySelector(".user-name");
+      const roleEl = document.querySelector(".user-role");
+      if (nomeEl) nomeEl.textContent = usuarioLogado?.nome || "Usuário";
+      if (roleEl) roleEl.textContent = usuarioLogado?.role || "Operador";
+
+      const adminItem = document.querySelector('li[data-target="admin"]');
+      if (adminItem && usuarioLogado?.role === "admin") {
+        adminItem.style.display = "";
+      }
+    });
+
+    // ===== ELEMENTOS PRINCIPAIS =====
+    const sidebar = document.getElementById("sidebar");
+    const btn = document.getElementById("btn-toggle");
+    const view = document.getElementById("view");
+    const breadcrumbs = document.getElementById("breadcrumbs");
+
+    // Alternar Sidebar
+    btn.addEventListener("click", () => {
+      sidebar.classList.toggle("collapsed");
+    });
+
+    // ===== UTILITÁRIOS =====
+    function formatCurrency(value) {
+      const num = Number(value || 0);
+      return num.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+    }
+
+    function formatDate(isoDate) {
+      if (!isoDate) return '-';
+      const d = new Date(isoDate);
+      if (isNaN(d.getTime())) return '-';
+      return d.toLocaleDateString('pt-BR');
+    }
+
+    function statusToBadge(status) {
+      if (!status) return `<span class="badge badge-blue">Desconhecido</span>`;
+      const s = status.toLowerCase();
+
+      if (s === 'autorizada' || s === 'emitida') {
+        return `<span class="badge badge-green">Autorizada</span>`;
+      }
+      if (s === 'pendente' || s === 'processando') {
+        return `<span class="badge badge-blue">Pendente</span>`;
+      }
+      if (s === 'cancelada') {
+        return `<span class="badge badge-red">Cancelada</span>`;
+      }
+      if (s === 'erro' || s === 'erro_autorizacao') {
+        return `<span class="badge badge-yellow">Erro</span>`;
+      }
+
+      return `<span class="badge badge-blue">${status}</span>`;
+    }
+
+    // ===== VIA CEP – preenchimento automático por CEP =====
+    async function buscarCepViaCep(cep) {
+      const digits = String(cep || "").replace(/\D/g, "");
+      if (digits.length !== 8) return null;
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        const data = await res.json();
+        if (data && data.erro === true) return null;
+        return {
+          logradouro: data.logradouro || "",
+          bairro: data.bairro || "",
+          localidade: data.localidade || "",
+          uf: (data.uf || "").trim().toUpperCase().slice(0, 2),
+          ibge: (data.ibge || "").replace(/\D/g, "").slice(0, 7)
+        };
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Delegation: ao sair do campo CEP em qualquer tabela de endereços obra, preenche os demais campos da linha
+    document.addEventListener("blur", async function(e) {
+      if (!e.target.classList.contains("endereco-cep")) return;
+      const cep = e.target.value.replace(/\D/g, "");
+      if (cep.length !== 8) return;
+      const tr = e.target.closest("tr");
+      if (!tr) return;
+      const addr = await buscarCepViaCep(cep);
+      if (!addr) return;
+      const log = tr.querySelector(".endereco-log");
+      const bairro = tr.querySelector(".endereco-bairro");
+      const uf = tr.querySelector(".endereco-uf");
+      const cod = tr.querySelector(".endereco-cod");
+      if (log) log.value = addr.logradouro;
+      if (bairro) bairro.value = addr.bairro;
+      if (uf) uf.value = addr.uf;
+      if (cod) cod.value = addr.ibge;
+    }, true);
+
+    // API está no mesmo servidor; usa a origem da página (localhost:3000 ou api-sig-premcell.fly.dev)
+    const API_BASE = /^https?:\/\//.test(window.location.origin) ? window.location.origin : "http://localhost:3000";
+
+    // ===== VERSÃO DA API (mostra no header qual aplicação está rodando) =====
+    (async function carregarVersao() {
+      const el = document.getElementById("versao-numero");
+      if (!el) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/versao`);
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        el.textContent = "v" + (data.versao || "?");
+        if (data.versao) el.title = "API versão " + data.versao + " – " + (data.mensagem || "");
+      } catch (e) {
+        el.textContent = "off";
+        el.title = "API não respondeu em " + API_BASE;
+      }
+    })();
+
+    // ===== FUNÇÃO SPA =====
+    async function loadPage(page) {
+      breadcrumbs.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+
+      // ===================== HOME =====================
+      if (page === "home") {
+        view.innerHTML = `
+          <div class="home">
+            <div class="indicators">
+
+              <div class="card card-green">
+                <div class="card-title">NF Emitidas</div>
+                <div class="card-value" id="ind-emitted">--</div>
+                <div class="card-note">Últimos 30 dias</div>
+              </div>
+
+              <div class="card card-red">
+                <div class="card-title">NF Pendentes</div>
+                <div class="card-value" id="ind-pending">--</div>
+                <div class="card-note">Ação necessária</div>
+              </div>
+
+              <div class="card card-blue">
+                <div class="card-title">Faturamento</div>
+                <div class="card-value" id="ind-revenue">R$ 0,00</div>
+                <div class="card-note">Últimos 30 dias</div>
+              </div>
+
+            </div>
+
+            <div class="welcome">
+              <h2>Bem-vindo ao Painel</h2>
+              <p>Use o menu para consultar ou emitir notas fiscais.</p>
+            </div>
+          </div>`;
+
+        // Após montar a home, buscar os dados do dashboard
+        try {
+          const res = await fetch(`${API_BASE}/api/dashboard/resumo`);
+          if (!res.ok) throw new Error("Erro ao buscar resumo");
+
+          const data = await res.json();
+
+          const emitidasEl = document.getElementById("ind-emitted");
+          const pendentesEl = document.getElementById("ind-pending");
+          const revenueEl = document.getElementById("ind-revenue");
+
+          if (emitidasEl) emitidasEl.textContent = data.nf_emitidas_30d ?? 0;
+          if (pendentesEl) pendentesEl.textContent = data.nf_pendentes ?? 0;
+          if (revenueEl) revenueEl.textContent = formatCurrency(data.faturamento_30d);
+
+        } catch (err) {
+          console.error("Erro ao carregar resumo do dashboard:", err);
+          const emitidasEl = document.getElementById("ind-emitted");
+          const pendentesEl = document.getElementById("ind-pending");
+          const revenueEl = document.getElementById("ind-revenue");
+
+          if (emitidasEl) emitidasEl.textContent = "Erro";
+          if (pendentesEl) pendentesEl.textContent = "Erro";
+          if (revenueEl) revenueEl.textContent = "Erro";
+        }
+      }
+
+      // ===================== ADMIN (USUÁRIOS) =====================
+      if (page === "admin") {
+        if (usuarioLogado?.role !== "admin") {
+          view.innerHTML = `<p style="color:red;">Acesso negado. Apenas administradores.</p>`;
+          return;
+        }
+
+        view.innerHTML = `
+          <div class="admin-usuarios">
+            <h2>Administração de Usuários</h2>
+
+            <section class="admin-form">
+              <h3>Novo usuário</h3>
+              <div class="form-grid">
+                <input type="text" id="adm-nome" placeholder="Nome completo">
+                <input type="email" id="adm-email" placeholder="E-mail">
+                <input type="password" id="adm-senha" placeholder="Senha">
+                <select id="adm-role">
+                  <option value="operador">Operador</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <button id="adm-criar" class="btn-primary">
+                  <i class="fa-solid fa-user-plus"></i> Criar
+                </button>
+              </div>
+              <div id="adm-form-msg" class="text-small"></div>
+            </section>
+
+            <section class="admin-lista">
+              <h3>Usuários</h3>
+              <table class="tabela">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Role</th>
+                    <th>Ativo</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="adm-usuarios-body">
+                  <tr><td colspan="5">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </section>
+          </div>
+        `;
+
+        const corpo = document.getElementById("adm-usuarios-body");
+        const msg = document.getElementById("adm-form-msg");
+        const btnCriar = document.getElementById("adm-criar");
+
+        function showMsg(text, ok = true) {
+          if (!msg) return;
+          msg.textContent = text;
+          msg.style.color = ok ? "green" : "red";
+        }
+
+        async function carregarUsuarios() {
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/usuarios`);
+            if (!res.ok) throw new Error("Erro ao listar");
+            const lista = await res.json();
+            if (!Array.isArray(lista) || lista.length === 0) {
+              corpo.innerHTML = "<tr><td colspan=\"5\">Nenhum usuário encontrado.</td></tr>";
+              return;
+            }
+            corpo.innerHTML = lista.map((u) => `
+              <tr data-id="${u.id}">
+                <td>${u.nome}</td>
+                <td>${u.email}</td>
+                <td>
+                  <select class="adm-role">
+                    <option value="operador" ${u.role === "operador" ? "selected" : ""}>operador</option>
+                    <option value="admin" ${u.role === "admin" ? "selected" : ""}>admin</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="checkbox" class="adm-ativo" ${u.ativo ? "checked" : ""}>
+                </td>
+                <td>
+                  <button class="btn-small btn-primary adm-salvar">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar
+                  </button>
+                </td>
+              </tr>
+            `).join("");
+          } catch (e) {
+            console.error("Erro ao carregar usuários:", e);
+            corpo.innerHTML = "<tr><td colspan=\"5\" style=\"color:red;\">Erro ao carregar usuários.</td></tr>";
+          }
+        }
+
+        btnCriar?.addEventListener("click", async () => {
+          const nome = document.getElementById("adm-nome")?.value.trim();
+          const email = document.getElementById("adm-email")?.value.trim();
+          const senha = document.getElementById("adm-senha")?.value;
+          const role = document.getElementById("adm-role")?.value || "operador";
+
+          if (!nome || !email || !senha) {
+            showMsg("Preencha nome, e-mail e senha.", false);
+            return;
+          }
+
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/usuarios`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ nome, email, senha, role }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.sucesso) {
+              showMsg(data?.erro || "Erro ao criar usuário.", false);
+              return;
+            }
+            showMsg("Usuário criado com sucesso.");
+            document.getElementById("adm-nome").value = "";
+            document.getElementById("adm-email").value = "";
+            document.getElementById("adm-senha").value = "";
+            document.getElementById("adm-role").value = "operador";
+            await carregarUsuarios();
+          } catch (e) {
+            console.error("Erro ao criar usuário:", e);
+            showMsg("Erro ao criar usuário.", false);
+          }
+        });
+
+        corpo?.addEventListener("click", async (e) => {
+          const btn = e.target.closest(".adm-salvar");
+          if (!btn) return;
+          const tr = btn.closest("tr");
+          if (!tr) return;
+          const id = Number(tr.getAttribute("data-id"));
+          const roleSel = tr.querySelector(".adm-role");
+          const ativoChk = tr.querySelector(".adm-ativo");
+          const role = roleSel?.value;
+          const ativo = !!ativoChk?.checked;
+
+          try {
+            const res = await fetch(`${API_BASE}/api/auth/usuarios/${id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ role, ativo }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.sucesso) {
+              showMsg(data?.erro || "Erro ao atualizar usuário.", false);
+              return;
+            }
+            showMsg("Usuário atualizado.");
+          } catch (err) {
+            console.error("Erro ao atualizar usuário:", err);
+            showMsg("Erro ao atualizar usuário.", false);
+          }
+        });
+
+        await carregarUsuarios();
+      }
+
+// ===================== CONSULTAR NOTAS =====================
+if (page === "consultar") {
+  view.innerHTML = `
+    <h2>Consultar Notas</h2>
+
+    <div class="consultar-notas-toolbar">
+      <div class="search-box">
+        <input type="text" id="searchNF" placeholder="Buscar por ref, número NF, cliente, status...">
+        <button class="btn-primary" id="btnSearchNF">
+          <i class="fa-solid fa-magnifying-glass"></i> Buscar
+        </button>
+      </div>
+      <button type="button" id="btnSincronizarFocus" class="btn-primary btn-sincronizar-focus" title="Consultar na API Focus e atualizar números da NF no banco">
+        <i class="fa-solid fa-cloud-arrow-down"></i> Sincronizar com Focus
+      </button>
+      <a href="#" id="btnExportarExcel" class="btn-primary btn-exportar-excel" title="Exportar lista para Excel">
+        <i class="fa-solid fa-file-excel"></i> Exportar Excel
+      </a>
+    </div>
+
+    <div class="table-container">
+      <table class="table" id="tableNF">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Nº NF</th>
+            <th>Cliente</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyNF">
+          <tr>
+            <td colspan="7">Carregando notas...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = document.getElementById("tbodyNF");
+  const searchInput = document.getElementById("searchNF");
+  const btnSearch = document.getElementById("btnSearchNF");
+  const btnExportar = document.getElementById("btnExportarExcel");
+
+  let notasCache = [];
+  let listaAtualNotas = [];
+
+  // ===== BUSCAR NOTAS NA API =====
+  try {
+    const response = await fetch(`${API_BASE}/api/notas`);
+    if (!response.ok) {
+      throw new Error("Erro ao buscar notas na API");
+    }
+
+    const data = await response.json();
+    notasCache = data || [];
+
+    if (!Array.isArray(notasCache) || notasCache.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7">Nenhuma nota encontrada.</td>
+        </tr>
+      `;
+      listaAtualNotas = [];
+    } else {
+      renderNotasTable(notasCache);
+    }
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">Erro ao carregar notas. Verifique a API.</td>
+      </tr>
+    `;
+    listaAtualNotas = [];
+  }
+
+  // ===== RENDERIZA TABELA =====
+  function renderNotasTable(lista) {
+    listaAtualNotas = lista;
+    tbody.innerHTML = "";
+
+    lista.forEach(nota => {
+      const ref = nota.ref_api || "-";
+      const numeroNf = nota.numero_nf != null && String(nota.numero_nf).trim() !== "" ? nota.numero_nf : "-";
+      const cliente = nota.cliente_nome || "-";
+      const valor = formatCurrency(nota.valor_servicos);
+      const statusBadge = statusToBadge(nota.status_nf);
+      const data = formatDate(nota.data_emissao || nota.criado_em);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${ref}</td>
+        <td>${numeroNf}</td>
+        <td>${cliente}</td>
+        <td>${valor}</td>
+        <td>${statusBadge}</td>
+        <td>${data}</td>
+        <td>
+          <button class="btn-small" data-id="${nota.id}">
+            Ver
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ===== FILTRO =====
+  function aplicarFiltro() {
+    const termo = searchInput.value.toLowerCase().trim();
+
+    if (!termo) {
+      renderNotasTable(notasCache);
+      return;
+    }
+
+    const filtradas = notasCache.filter(nota => {
+      const texto = `
+        ${nota.numero_nf || ""}
+        ${nota.ref_api || ""}
+        ${nota.cliente_nome || ""}
+        ${nota.status_nf || ""}
+        ${nota.valor_servicos || ""}
+      `.toLowerCase();
+
+      return texto.includes(termo);
+    });
+
+    renderNotasTable(filtradas);
+  }
+
+  searchInput.addEventListener("keyup", aplicarFiltro);
+  btnSearch.addEventListener("click", aplicarFiltro);
+
+  // ===== SINCRONIZAR COM FOCUS =====
+  const btnSincronizarFocus = document.getElementById("btnSincronizarFocus");
+  if (btnSincronizarFocus) {
+    btnSincronizarFocus.addEventListener("click", async function() {
+      const btn = this;
+      const txtOriginal = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = "<i class=\"fa-solid fa-spinner fa-spin\"></i> Sincronizando...";
+      try {
+        const resp = await fetch(API_BASE + "/api/upload/sincronizar-notas-focus");
+        const data = await resp.json();
+        if (data.ok) {
+          alert("Sincronização concluída.\n\nAtualizadas: " + (data.atualizadas || 0) + " de " + (data.total_refs || 0) + " refs.\n" + (data.erros && data.erros.length ? "Erros: " + data.erros.length : ""));
+          const response = await fetch(API_BASE + "/api/notas");
+          const list = await response.json();
+          notasCache = Array.isArray(list) ? list : [];
+          if (notasCache.length === 0) listaAtualNotas = []; else renderNotasTable(notasCache);
+        } else {
+          alert("Erro: " + (data.erro || ""));
+        }
+      } catch (err) {
+        alert("Erro ao sincronizar: " + err.message);
+      }
+      btn.disabled = false;
+      btn.innerHTML = txtOriginal;
+    });
+  }
+
+  // ===== EXPORTAR EXCEL =====
+  if (btnExportar) {
+    btnExportar.addEventListener("click", function(e) {
+      e.preventDefault();
+      window.location.href = API_BASE + "/api/notas/exportar-excel";
+    });
+  }
+
+  // ===== BOTÃO VER (DETALHE DA NOTA) =====
+  tbody.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("btn-small")) return;
+
+    const id = e.target.getAttribute("data-id");
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/notas/${id}`);
+      if (!resp.ok) throw new Error("Erro ao buscar nota");
+
+      const nota = await resp.json();
+
+      alert(`
+REF: ${nota.ref_api}
+Nº NF (Focus): ${nota.numero_nf || "-"}
+Cód. Verificação: ${nota.codigo_verificacao || "-"}
+STATUS: ${nota.status_nf}
+
+CLIENTE: ${nota.cliente_nome}
+DOCUMENTO: ${nota.cliente_documento || "-"}
+
+VALOR: ${formatCurrency(nota.valor_servicos)}
+
+DETALHES / ERRO:
+${JSON.stringify(nota.payload_retorno || "Sem detalhes", null, 2)}
+      `);
+
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao carregar detalhes da nota");
+    }
+  });
+}
+
+      // ===================== TRANSFORMAR PLANILHA =====================
+      if (page === "transformar") {
+        view.innerHTML = `
+          <h2>Transformar planilha do cliente</h2>
+          <p class="subtitle">Envie a planilha do portal (formato do cliente). A planilha original terá Ref, ISS_City, ISS_State, ISS_Base, ISS Rate e valor preenchidos para submissão no portal. A planilha transformada é usada na emissão. Se algum município não tiver alíquota ou site+UF não tiver endereço, o sistema pede o cadastro na hora.</p>
+          <div class="card form-card">
+            <div class="form-group">
+              <label>Planilha do cliente (.xlsx / .xlsm)</label>
+              <input type="file" id="fileTransformar" accept=".xlsx,.xlsm">
+            </div>
+            <button type="button" class="btn-primary" id="btnTransformar">
+              <i class="fa-solid fa-file-export"></i> Transformar
+            </button>
+            <div id="transformarResultado" class="mt-2" style="display:none;"></div>
+            <div id="transformarCadastro" class="mt-2" style="display:none;"></div>
+          </div>
+          <div class="card form-card mt-2">
+            <h3>Atualizar planilha com números NF (após emissão)</h3>
+            <p class="subtitle">Envie a planilha original (ou a preenchida da transformação) para preencher a coluna Invoice No* com os números das NFs geradas. Use a planilha atualizada para submissão no portal.</p>
+            <div class="form-group">
+              <label>Planilha do cliente (.xlsx / .xlsm)</label>
+              <input type="file" id="fileAtualizarNfs" accept=".xlsx,.xlsm">
+            </div>
+            <button type="button" class="btn-primary" id="btnAtualizarNfs">
+              <i class="fa-solid fa-file-invoice"></i> Atualizar com números NF
+            </button>
+            <div id="atualizarNfsResultado" class="mt-2" style="display:none;"></div>
+          </div>
+        `;
+        const fileInput = document.getElementById("fileTransformar");
+        const btnTransformar = document.getElementById("btnTransformar");
+        const divResultado = document.getElementById("transformarResultado");
+        const divCadastro = document.getElementById("transformarCadastro");
+        let ultimoArquivo = null;
+
+        async function enviarTransformar(arquivo, codigosPrestacao) {
+          if (!arquivo) { alert("Selecione um arquivo."); return; }
+          const fd = new FormData();
+          fd.append("arquivo", arquivo);
+          if (Array.isArray(codigosPrestacao) && codigosPrestacao.length > 0) fd.append("codigosPrestacao", JSON.stringify(codigosPrestacao));
+          const resp = await fetch(`${API_BASE}/api/upload/transformar-planilha`, { method: "POST", body: fd });
+          const data = await resp.json();
+          if (!data.sucesso) { alert("Erro: " + (data.erro || "Desconhecido")); return data; }
+          return data;
+        }
+        function htmlPlanilhaPronta(data) {
+          const msgVersao = (data && data.versaoTransformacao) ? " <small>(regras 070202 + colunas por nome)</small>" : "";
+          let links = "<a href=\"" + API_BASE + (data?.downloadUrl || "") + "\" download class=\"btn-primary\"><i class=\"fa-solid fa-download\"></i> Baixar planilha transformada</a>";
+          if (data?.downloadUrlOriginal) links += " <a href=\"" + API_BASE + data.downloadUrlOriginal + "\" download class=\"btn-primary\" style=\"margin-left:8px;\"><i class=\"fa-solid fa-download\"></i> Baixar original preenchida</a>";
+          return "<p class=\"text-success\"><strong>Planilha pronta!</strong>" + msgVersao + "<br><br>" + links + "<br><small>Original preenchida: submeta no portal. Transformada: use na emissão.</small></p>";
+        }
+
+        btnTransformar.addEventListener("click", async () => {
+          const arquivo = fileInput.files[0];
+          if (!arquivo) { alert("Selecione a planilha do cliente."); return; }
+          ultimoArquivo = arquivo;
+          divCadastro.style.display = "none";
+          divResultado.innerHTML = "<p>Processando...</p>";
+          divResultado.style.display = "block";
+          const data = await enviarTransformar(arquivo);
+          if (!data) return;
+
+          if (data.precisaCadastro && data.municipiosSemCodigoPrestacao && data.municipiosSemCodigoPrestacao.length > 0) {
+            divResultado.innerHTML = "<p class=\"text-warning\"><strong>O sistema não localizou o código do município (IBGE) para as cidades abaixo (serviço 7.02).</strong> Informe o código IBGE de 7 dígitos e clique em Salvar para gerar a planilha.</p>";
+            let html = "<table class=\"table\"><thead><tr><th>Cidade</th><th>UF</th><th>Código IBGE (7 dígitos)</th></tr></thead><tbody>";
+            data.municipiosSemCodigoPrestacao.forEach((m) => {
+              const esc = (v) => (v || "").replace(/"/g, "&quot;");
+              html += `<tr data-cidade="${esc(m.cidade)}" data-uf="${esc(m.uf)}"><td>${esc(m.cidade)}</td><td>${esc(m.uf)}</td><td><input type="text" class="input codigo-prestacao-input" placeholder="Ex: 3550308" maxlength="7" style="width:120px"></td></tr>`;
+            });
+            html += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarCodigosPrestacao\"><i class=\"fa-solid fa-save\"></i> Salvar códigos e gerar planilha</button>";
+            divCadastro.innerHTML = html;
+            divCadastro.style.display = "block";
+            document.getElementById("btnSalvarCodigosPrestacao").addEventListener("click", async () => {
+              const rows = divCadastro.querySelectorAll("tr[data-cidade]");
+              const codigosPrestacao = [];
+              rows.forEach(tr => {
+                const cod = (tr.querySelector(".codigo-prestacao-input")?.value || "").replace(/\D/g, "").slice(0, 7);
+                if (cod.length === 7) codigosPrestacao.push({ cidade: tr.dataset.cidade, uf: tr.dataset.uf, codigo_ibge: cod });
+              });
+              if (codigosPrestacao.length === 0) { alert("Informe o código IBGE (7 dígitos) para ao menos um município."); return; }
+              divCadastro.innerHTML = "<p>Gerando planilha...</p>";
+              const data2 = await enviarTransformar(ultimoArquivo, codigosPrestacao);
+              if (!data2) return;
+              if (data2.downloadUrl && !data2.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data2); return; }
+              if (data2.precisaCadastro && data2.municipiosSemCodigoPrestacao && data2.municipiosSemCodigoPrestacao.length > 0) { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam códigos de município. Verifique os 7 dígitos e tente novamente.</p>"; divCadastro.style.display = "none"; return; }
+              if (data2.precisaCadastro && data2.municipiosSemAliquota && data2.municipiosSemAliquota.length > 0) {
+                divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas dos municípios abaixo.</strong></p>";
+                let h = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+                data2.municipiosSemAliquota.forEach((m) => { const lb = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo; h += `<tr><td>${m.codigo}</td><td>${lb}</td><td><input class=\"input aliquota-input\" data-codigo=\"${m.codigo}\" data-cidade=\"${(m.cidade||'').replace(/"/g,'&quot;')}\" data-uf=\"${m.uf||''}\" placeholder=\"Ex: 5\" style=\"width:80px\"></td></tr>`; });
+                h += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEGerar\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+                divCadastro.innerHTML = h;
+                document.getElementById("btnSalvarEGerar").addEventListener("click", async () => {
+                  const inputs = divCadastro.querySelectorAll(".aliquota-input");
+                  const aliquotas = []; inputs.forEach(inp => { const v = parseFloat(String(inp.value).replace(",", ".")); if (!isNaN(v)) aliquotas.push({ codigo: inp.dataset.codigo, cidade: inp.dataset.cidade, uf: inp.dataset.uf, aliquota: v }); });
+                  if (aliquotas.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+                  const r = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
+                  const res = await r.json(); if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
+                  divCadastro.innerHTML = "<p>Regenerando...</p>";
+                  const data3 = await enviarTransformar(ultimoArquivo);
+                  if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data3); } else { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                });
+                return;
+              }
+              if (data2.precisaCadastro && data2.sitesSemEndereco && data2.sitesSemEndereco.length > 0) {
+                divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre os endereços de obra abaixo.</strong></p>";
+                let tbl = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+                data2.sitesSemEndereco.forEach(s => { const esc = (v) => (v||'').replace(/</g,'&lt;').replace(/"/g,'&quot;'); tbl += `<tr data-site="${esc(s.site_code)}" data-uf="${esc(s.uf_servico)}" data-cidade="${esc(s.cidade_servico||'')}"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class="input endereco-cep" placeholder="CEP" style="width:100px"></td><td><input class="input endereco-log" placeholder="Logradouro" style="min-width:120px"></td><td><input class="input endereco-num" placeholder="Nº" style="width:60px"></td><td><input class="input endereco-bairro" placeholder="Bairro" style="width:100px"></td><td><input class="input endereco-uf" placeholder="UF" style="width:40px" maxlength="2"></td><td><input class="input endereco-cod" placeholder="Cód. IBGE 7" style="width:90px" maxlength="7"></td></tr>`; });
+                tbl += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEnderecosEGerar\"><i class=\"fa-solid fa-save\"></i> Salvar endereços e gerar planilha</button>";
+                divCadastro.innerHTML = tbl;
+                document.getElementById("btnSalvarEnderecosEGerar").addEventListener("click", async () => {
+                  const rows = divCadastro.querySelectorAll("tr[data-site]");
+                  const enderecos = []; rows.forEach(tr => { const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g,""); const log = tr.querySelector(".endereco-log")?.value?.trim(); const num = tr.querySelector(".endereco-num")?.value?.trim(); const bairro = tr.querySelector(".endereco-bairro")?.value?.trim(); const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2); const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g,"").slice(0,7); if (cep && cep.length >= 8 && log && num && bairro && ufObra) enderecos.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null }); });
+                  if (enderecos.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+                  const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                  const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                  divCadastro.innerHTML = "<p>Regenerando...</p>";
+                  const data3 = await enviarTransformar(ultimoArquivo);
+                  if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data3); } else { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                });
+                return;
+              }
+              divResultado.innerHTML = "<p class=\"text-warning\">Não foi possível gerar a planilha. Tente novamente.</p>";
+            });
+            return;
+          }
+
+          if (data.precisaCadastro && data.municipiosSemAliquota && data.municipiosSemAliquota.length > 0) {
+            divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas dos municípios abaixo.</strong> Na próxima vez que esse município aparecer, a alíquota já estará gravada.</p>";
+            let html = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+            data.municipiosSemAliquota.forEach((m, i) => {
+              const label = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo;
+              html += `<tr><td>${m.codigo}</td><td>${label}</td><td><input type="text" class="input aliquota-input" data-codigo="${m.codigo}" data-cidade="${(m.cidade||'').replace(/"/g,'&quot;')}" data-uf="${m.uf||''}" placeholder="Ex: 5" style="width:80px"></td></tr>`;
+            });
+            html += "</tbody></table>";
+            html += "<button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEGerar\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+            divCadastro.innerHTML = html;
+            divCadastro.style.display = "block";
+            document.getElementById("btnSalvarEGerar").addEventListener("click", async () => {
+              const inputs = divCadastro.querySelectorAll(".aliquota-input");
+              const aliquotas = [];
+              inputs.forEach(inp => {
+                const v = parseFloat(String(inp.value).replace(",", "."));
+                if (!isNaN(v)) aliquotas.push({ codigo: inp.dataset.codigo, cidade: inp.dataset.cidade, uf: inp.dataset.uf, aliquota: v });
+              });
+              if (aliquotas.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+              const r = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, {
+                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas })
+              });
+              const res = await r.json();
+              if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
+              divCadastro.innerHTML = "<p>Alíquotas salvas. Regenerando planilha...</p>";
+              const data2 = await enviarTransformar(ultimoArquivo);
+              if (data2 && !data2.precisaCadastro && data2.downloadUrl) {
+                divCadastro.style.display = "none";
+                divResultado.innerHTML = htmlPlanilhaPronta(data2);
+              } else if (data2 && data2.precisaCadastro && data2.sitesSemEndereco && data2.sitesSemEndereco.length > 0) {
+                divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre os endereços de obra abaixo.</strong></p>";
+                let tbl = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+                data2.sitesSemEndereco.forEach(s => {
+                  const esc = (v) => (v||'').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                  tbl += `<tr data-site="${esc(s.site_code)}" data-uf="${esc(s.uf_servico)}" data-cidade="${esc(s.cidade_servico||'')}"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class="input endereco-cep" placeholder="CEP" style="width:100px"></td><td><input class="input endereco-log" placeholder="Logradouro" style="min-width:120px"></td><td><input class="input endereco-num" placeholder="Nº" style="width:60px"></td><td><input class="input endereco-bairro" placeholder="Bairro" style="width:100px"></td><td><input class="input endereco-uf" placeholder="UF" style="width:40px" maxlength="2"></td><td><input class="input endereco-cod" placeholder="Cód. IBGE 7" style="width:90px" maxlength="7"></td></tr>`;
+                });
+                tbl += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEnderecosEGerar\"><i class=\"fa-solid fa-save\"></i> Salvar endereços e gerar planilha</button>";
+                divCadastro.innerHTML = tbl;
+                document.getElementById("btnSalvarEnderecosEGerar").addEventListener("click", async () => {
+                  const rows = divCadastro.querySelectorAll("tr[data-site]");
+                  const enderecos = [];
+                  rows.forEach(tr => {
+                    const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g, "");
+                    const log = tr.querySelector(".endereco-log")?.value?.trim();
+                    const num = tr.querySelector(".endereco-num")?.value?.trim();
+                    const bairro = tr.querySelector(".endereco-bairro")?.value?.trim();
+                    const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2);
+                    const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g, "").slice(0,7);
+                    if (cep && cep.length >= 8 && log && num && bairro && ufObra) {
+                      enderecos.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null });
+                    }
+                  });
+                  if (enderecos.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+                  const r = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                  const res = await r.json();
+                  if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
+                  divCadastro.innerHTML = "<p>Endereços salvos. Regenerando planilha...</p>";
+                  try {
+                    const data3 = await enviarTransformar(ultimoArquivo);
+                    if (!data3) return;
+                    if (data3.downloadUrl && !data3.precisaCadastro) {
+                      divCadastro.style.display = "none";
+                      divResultado.innerHTML = htmlPlanilhaPronta(data3);
+                    } else if (data3.precisaCadastro && data3.municipiosSemAliquota && data3.municipiosSemAliquota.length > 0) {
+                      divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas ISS dos municípios abaixo.</strong></p>";
+                      let h = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+                      data3.municipiosSemAliquota.forEach(m => { const lb = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo; h += `<tr><td>${m.codigo}</td><td>${lb}</td><td><input class=\"input aliquota-input\" data-codigo=\"${m.codigo}\" data-cidade=\"${(m.cidade||'').replace(/"/g,'&quot;')}\" data-uf=\"${m.uf||''}\" placeholder=\"Ex: 5\" style=\"width:80px\"></td></tr>`; });
+                      h += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarISS\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+                      divCadastro.innerHTML = h;
+                      document.getElementById("btnSalvarISS").addEventListener("click", async () => {
+                        const inp = divCadastro.querySelectorAll(".aliquota-input");
+                        const arr = []; inp.forEach(i => { const v = parseFloat(String(i.value).replace(",", ".")); if (!isNaN(v)) arr.push({ codigo: i.dataset.codigo, cidade: i.dataset.cidade, uf: i.dataset.uf, aliquota: v }); });
+                        if (arr.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+                        const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
+                        const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                        divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
+                        const data4 = await enviarTransformar(ultimoArquivo);
+                        if (data4 && data4.downloadUrl && !data4.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data4); } else { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. " + (data4 && data4.erro ? data4.erro : "Tente novamente.") + "</p>"; }
+                      });
+                    } else if (data3.precisaCadastro && data3.sitesSemEndereco && data3.sitesSemEndereco.length > 0) {
+                      divResultado.innerHTML = "<p class=\"text-warning\"><strong>Ainda faltam endereços para:</strong></p>";
+                      let tbl = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+                      data3.sitesSemEndereco.forEach(s => { const esc = (v) => (v||'').replace(/</g,'&lt;').replace(/"/g,'&quot;'); tbl += `<tr data-site=\"${esc(s.site_code)}\" data-uf=\"${esc(s.uf_servico)}\" data-cidade=\"${esc(s.cidade_servico||'')}\"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class=\"input endereco-cep\" placeholder=\"CEP\" style=\"width:100px\"></td><td><input class=\"input endereco-log\" placeholder=\"Logradouro\" style=\"min-width:120px\"></td><td><input class=\"input endereco-num\" placeholder=\"Nº\" style=\"width:60px\"></td><td><input class=\"input endereco-bairro\" placeholder=\"Bairro\" style=\"width:100px\"></td><td><input class=\"input endereco-uf\" placeholder=\"UF\" style=\"width:40px\" maxlength=\"2\"></td><td><input class=\"input endereco-cod\" placeholder=\"Cód. IBGE 7\" style=\"width:90px\" maxlength=\"7\"></td></tr>`; });
+                      tbl += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEnderecos2\"><i class=\"fa-solid fa-save\"></i> Salvar e gerar planilha</button>";
+                      divCadastro.innerHTML = tbl;
+                      document.getElementById("btnSalvarEnderecos2").addEventListener("click", async () => {
+                        const rows = divCadastro.querySelectorAll("tr[data-site]");
+                        const arr = []; rows.forEach(tr => { const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g, ""); const log = tr.querySelector(".endereco-log")?.value?.trim(); const num = tr.querySelector(".endereco-num")?.value?.trim(); const bairro = tr.querySelector(".endereco-bairro")?.value?.trim(); const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2); const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g, "").slice(0,7); if (cep && cep.length >= 8 && log && num && bairro && ufObra) arr.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null }); });
+                        if (arr.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+                        const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos: arr }) });
+                        const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                        divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
+                        const data4 = await enviarTransformar(ultimoArquivo);
+                        if (data4 && data4.downloadUrl && !data4.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data4); } else { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                      });
+                    } else {
+                      divResultado.innerHTML = "<p class=\"text-warning\">Não foi possível gerar a planilha. " + (data3.erro ? data3.erro : "Verifique os dados e tente novamente.") + "</p>";
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    divResultado.innerHTML = "<p class=\"text-warning\">Erro ao regenerar: " + (err.message || "tente novamente") + "</p>";
+                  }
+                });
+              }
+            });
+          } else if (data.precisaCadastro && data.sitesSemEndereco && data.sitesSemEndereco.length > 0) {
+            divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre os endereços de obra abaixo.</strong> Na próxima vez que esse site+UF aparecer, o endereço já estará gravado.</p>";
+            let html = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+            data.sitesSemEndereco.forEach(s => {
+              const esc = (v) => (v||'').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+              html += `<tr data-site="${esc(s.site_code)}" data-uf="${esc(s.uf_servico)}" data-cidade="${esc(s.cidade_servico||'')}"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class="input endereco-cep" placeholder="CEP" style="width:100px"></td><td><input class="input endereco-log" placeholder="Logradouro" style="min-width:120px"></td><td><input class="input endereco-num" placeholder="Nº" style="width:60px"></td><td><input class="input endereco-bairro" placeholder="Bairro" style="width:100px"></td><td><input class="input endereco-uf" placeholder="UF" style="width:40px" maxlength="2"></td><td><input class="input endereco-cod" placeholder="Cód. IBGE 7" style="width:90px" maxlength="7"></td></tr>`;
+            });
+            html += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEnderecosEGerar\"><i class=\"fa-solid fa-save\"></i> Salvar endereços e gerar planilha</button>";
+            divCadastro.innerHTML = html;
+            divCadastro.style.display = "block";
+            document.getElementById("btnSalvarEnderecosEGerar").addEventListener("click", async () => {
+              const rows = divCadastro.querySelectorAll("tr[data-site]");
+              const enderecos = [];
+              rows.forEach(tr => {
+                const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g, "");
+                const log = tr.querySelector(".endereco-log")?.value?.trim();
+                const num = tr.querySelector(".endereco-num")?.value?.trim();
+                const bairro = tr.querySelector(".endereco-bairro")?.value?.trim();
+                const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2);
+                const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g, "").slice(0,7);
+                if (cep && cep.length >= 8 && log && num && bairro && ufObra) {
+                  enderecos.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null });
+                }
+              });
+              if (enderecos.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+              const r = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+              const res = await r.json();
+              if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
+              divCadastro.innerHTML = "<p>Endereços salvos. Regenerando planilha...</p>";
+              try {
+                const data2 = await enviarTransformar(ultimoArquivo);
+                if (!data2) return;
+                if (data2.downloadUrl && !data2.precisaCadastro) {
+                  divCadastro.style.display = "none";
+                  divResultado.innerHTML = htmlPlanilhaPronta(data2);
+                } else if (data2.precisaCadastro && data2.municipiosSemAliquota && data2.municipiosSemAliquota.length > 0) {
+                  divResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas ISS dos municípios abaixo.</strong></p>";
+                  let h = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+                  data2.municipiosSemAliquota.forEach(m => { const lb = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo; h += `<tr><td>${m.codigo}</td><td>${lb}</td><td><input class=\"input aliquota-input\" data-codigo=\"${m.codigo}\" data-cidade=\"${(m.cidade||'').replace(/"/g,'&quot;')}\" data-uf=\"${m.uf||''}\" placeholder=\"Ex: 5\" style=\"width:80px\"></td></tr>`; });
+                  h += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarISS2\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+                  divCadastro.innerHTML = h;
+                  document.getElementById("btnSalvarISS2").addEventListener("click", async () => {
+                    const inp = divCadastro.querySelectorAll(".aliquota-input");
+                    const arr = []; inp.forEach(i => { const v = parseFloat(String(i.value).replace(",", ".")); if (!isNaN(v)) arr.push({ codigo: i.dataset.codigo, cidade: i.dataset.cidade, uf: i.dataset.uf, aliquota: v }); });
+                    if (arr.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+                    const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
+                    const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                    divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
+                    const data3 = await enviarTransformar(ultimoArquivo);
+                    if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data3); } else { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                  });
+                } else if (data2.precisaCadastro && data2.sitesSemEndereco && data2.sitesSemEndereco.length > 0) {
+                  divResultado.innerHTML = "<p class=\"text-warning\"><strong>Ainda faltam endereços. Cadastre abaixo e salve novamente.</strong></p>";
+                  let html2 = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+                  data2.sitesSemEndereco.forEach(s => { const esc = (v) => (v||'').replace(/</g,'&lt;').replace(/"/g,'&quot;'); html2 += `<tr data-site=\"${esc(s.site_code)}\" data-uf=\"${esc(s.uf_servico)}\" data-cidade=\"${esc(s.cidade_servico||'')}\"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class=\"input endereco-cep\" placeholder=\"CEP\" style=\"width:100px\"></td><td><input class=\"input endereco-log\" placeholder=\"Logradouro\" style=\"min-width:120px\"></td><td><input class=\"input endereco-num\" placeholder=\"Nº\" style=\"width:60px\"></td><td><input class=\"input endereco-bairro\" placeholder=\"Bairro\" style=\"width:100px\"></td><td><input class=\"input endereco-uf\" placeholder=\"UF\" style=\"width:40px\" maxlength=\"2\"></td><td><input class=\"input endereco-cod\" placeholder=\"Cód. IBGE 7\" style=\"width:90px\" maxlength=\"7\"></td></tr>`; });
+                  html2 += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"btnSalvarEnderecosNovo\"><i class=\"fa-solid fa-save\"></i> Salvar e gerar planilha</button>";
+                  divCadastro.innerHTML = html2;
+                  document.getElementById("btnSalvarEnderecosNovo").addEventListener("click", async () => {
+                    const rows = divCadastro.querySelectorAll("tr[data-site]");
+                    const arr = []; rows.forEach(tr => { const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g, ""); const log = tr.querySelector(".endereco-log")?.value?.trim(); const num = tr.querySelector(".endereco-num")?.value?.trim(); const bairro = tr.querySelector(".endereco-bairro")?.value?.trim(); const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2); const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g, "").slice(0,7); if (cep && cep.length >= 8 && log && num && bairro && ufObra) arr.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null }); });
+                    if (arr.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+                    const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos: arr }) });
+                    const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                    divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
+                    const data3 = await enviarTransformar(ultimoArquivo);
+                    if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divCadastro.style.display = "none"; divResultado.innerHTML = htmlPlanilhaPronta(data3); } else { divResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                  });
+                } else {
+                  divResultado.innerHTML = "<p class=\"text-warning\">Não foi possível gerar a planilha. " + (data2.erro ? data2.erro : "Verifique os dados e tente novamente.") + "</p>";
+                }
+              } catch (err) {
+                console.error(err);
+                divResultado.innerHTML = "<p class=\"text-warning\">Erro ao regenerar: " + (err.message || "tente novamente") + "</p>";
+              }
+            });
+          } else if (data.downloadUrl) {
+            divResultado.innerHTML = htmlPlanilhaPronta(data);
+          }
+        });
+
+        const fileAtualizarNfs = document.getElementById("fileAtualizarNfs");
+        const btnAtualizarNfs = document.getElementById("btnAtualizarNfs");
+        const divAtualizarNfsResultado = document.getElementById("atualizarNfsResultado");
+        if (btnAtualizarNfs && fileAtualizarNfs) {
+          btnAtualizarNfs.addEventListener("click", async () => {
+            const arquivo = fileAtualizarNfs.files[0];
+            if (!arquivo) { alert("Selecione a planilha do cliente."); return; }
+            divAtualizarNfsResultado.innerHTML = "<p><i class=\"fa-solid fa-spinner fa-spin\"></i> Processando...</p>";
+            divAtualizarNfsResultado.style.display = "block";
+            try {
+              const fd = new FormData();
+              fd.append("arquivo", arquivo);
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 120000);
+              const resp = await fetch(API_BASE + "/api/upload/atualizar-planilha-com-nfs", { method: "POST", body: fd, signal: controller.signal });
+              clearTimeout(timeoutId);
+              const text = await resp.text();
+              let res = {};
+              try { res = JSON.parse(text); } catch (_) { res = { sucesso: false, erro: resp.ok ? "Resposta inválida" : "HTTP " + resp.status }; }
+              if (!resp.ok) throw new Error(res.erro || "HTTP " + resp.status);
+              if (res.sucesso && res.downloadUrl) {
+                divAtualizarNfsResultado.innerHTML = "<p class=\"text-success\"><strong>Planilha atualizada com números NF!</strong> <a href=\"" + API_BASE + res.downloadUrl + "\" download class=\"btn-primary\"><i class=\"fa-solid fa-download\"></i> Baixar</a></p>";
+              } else {
+                divAtualizarNfsResultado.innerHTML = "<p class=\"text-warning\">Erro: " + (res.erro || "Falha ao processar.") + "</p>";
+              }
+            } catch (err) {
+              const msg = err.name === "AbortError" ? "Demorou muito. Tente com uma planilha menor ou tente novamente."
+                : (err.message === "Failed to fetch" ? "Não foi possível conectar ao servidor. Verifique se a aplicação está rodando e a conexão (ex.: ao acessar por IP, use o mesmo IP na URL)." : (err.message || "tente novamente"));
+              divAtualizarNfsResultado.innerHTML = "<p class=\"text-warning\">Erro: " + msg + "</p>";
+            }
+          });
+        }
+      }
+
+      // ===================== ALÍQUOTAS ISS (CADASTRO) =====================
+      if (page === "aliquotas") {
+        view.innerHTML = `
+          <div class="aliquotas-page">
+            <div class="aliquotas-header">
+              <h2>Cadastro de alíquotas ISS por município</h2>
+              <p class="subtitle">Cadastre aqui as alíquotas de ISS. Quando você transformar uma planilha ou emitir notas, os municípios que faltarem serão pedidos na hora e gravados aqui automaticamente.</p>
+            </div>
+            <div class="aliquotas-grid">
+              <div class="card form-card aliquotas-form-card">
+                <h3 id="alqFormTitle">Novo município</h3>
+                <div class="form-row aliquotas-form-row">
+                  <div class="form-group">
+                    <label>Código IBGE (7 dígitos)</label>
+                    <input type="text" id="alqCodigo" class="input" placeholder="Ex: 3550308" maxlength="7">
+                  </div>
+                  <div class="form-group">
+                    <label>Cidade</label>
+                    <input type="text" id="alqCidade" class="input" placeholder="São Paulo">
+                  </div>
+                  <div class="form-group">
+                    <label>UF</label>
+                    <input type="text" id="alqUf" class="input" placeholder="SP" maxlength="2">
+                  </div>
+                  <div class="form-group">
+                    <label>Alíquota (%)</label>
+                    <input type="text" id="alqAliquota" class="input" placeholder="5">
+                  </div>
+                </div>
+                <div class="aliquotas-form-actions">
+                  <button type="button" class="btn-primary" id="btnAddAliquota"><i class="fa-solid fa-plus"></i> Cadastrar</button>
+                  <button type="button" class="btn-secondary" id="btnCancelAliquota" style="display:none;"><i class="fa-solid fa-times"></i> Cancelar</button>
+                </div>
+              </div>
+              <div class="card aliquotas-list-card">
+                <h3>Municípios cadastrados</h3>
+                <div class="aliquotas-filter-wrap">
+                  <i class="fa-solid fa-search"></i>
+                  <input type="text" id="alqFiltro" class="input aliquotas-filter-input" placeholder="Buscar por código, cidade, UF ou alíquota...">
+                </div>
+                <div class="table-container">
+                  <div id="listaMunicipios">Carregando...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        const codigoEl = document.getElementById("alqCodigo");
+        const cidadeEl = document.getElementById("alqCidade");
+        const ufEl = document.getElementById("alqUf");
+        const aliquotaEl = document.getElementById("alqAliquota");
+        const btnAdd = document.getElementById("btnAddAliquota");
+        const btnCancel = document.getElementById("btnCancelAliquota");
+        const formTitleEl = document.getElementById("alqFormTitle");
+        const listaEl = document.getElementById("listaMunicipios");
+        const filtroEl = document.getElementById("alqFiltro");
+
+        let listaCompleta = [];
+        let editandoCodigo = null;
+
+        function sairModoEdicao() {
+          editandoCodigo = null;
+          codigoEl.value = ""; cidadeEl.value = ""; ufEl.value = ""; aliquotaEl.value = "";
+          codigoEl.disabled = false;
+          formTitleEl.textContent = "Novo município";
+          btnAdd.innerHTML = "<i class=\"fa-solid fa-plus\"></i> Cadastrar";
+          if (btnCancel) btnCancel.style.display = "none";
+        }
+
+        function entrarModoEdicao(m) {
+          editandoCodigo = m.codigo_ibge;
+          codigoEl.value = m.codigo_ibge || "";
+          cidadeEl.value = (m.cidade && m.cidade !== "-") ? m.cidade : "";
+          ufEl.value = (m.uf && m.uf !== "-") ? m.uf : "";
+          aliquotaEl.value = m.aliquota != null ? String(m.aliquota) : "";
+          codigoEl.disabled = true;
+          formTitleEl.textContent = "Alterar município (código " + (m.codigo_ibge || "") + ")";
+          btnAdd.innerHTML = "<i class=\"fa-solid fa-pen\"></i> Atualizar";
+          if (btnCancel) btnCancel.style.display = "inline-flex";
+        }
+
+        function filtrarLista(lista, termo) {
+          const t = String(termo || "").trim().toLowerCase();
+          if (!t) return lista;
+          return lista.filter(m => {
+            const cod = String(m.codigo_ibge || "").toLowerCase();
+            const cid = String(m.cidade || "").toLowerCase();
+            const uf = String(m.uf || "").toLowerCase();
+            const alq = String(m.aliquota != null ? m.aliquota : "").toLowerCase();
+            return cod.includes(t) || cid.includes(t) || uf.includes(t) || alq.includes(t);
+          });
+        }
+
+        function renderizarTabela(lista) {
+          const termo = filtroEl ? filtroEl.value : "";
+          const exibir = filtrarLista(lista, termo);
+          if (exibir.length === 0) {
+            listaEl.innerHTML = "<p class=\"aliquotas-empty\">" + (lista.length === 0 ? "Nenhum município cadastrado ainda." : "Nenhum resultado para a busca.") + "</p>";
+            return;
+          }
+          let html = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade</th><th>UF</th><th>Alíquota %</th><th>Ações</th></tr></thead><tbody>";
+          exibir.forEach(m => {
+            const cod = (m.codigo_ibge || "").replace(/"/g, "&quot;");
+            const cid = (m.cidade || "-").replace(/"/g, "&quot;");
+            const uf = (m.uf || "-").replace(/"/g, "&quot;");
+            html += `<tr><td>${m.codigo_ibge}</td><td>${m.cidade || "-"}</td><td>${m.uf || "-"}</td><td>${m.aliquota}</td><td><button type="button" class="btn-small btn-edit-aliquota" data-codigo="${cod}" data-cidade="${cid}" data-uf="${uf}" data-aliquota="${m.aliquota != null ? m.aliquota : ''}" title="Editar"><i class="fa-solid fa-pen"></i> Editar</button></td></tr>`;
+          });
+          html += "</tbody></table>";
+          listaEl.innerHTML = html;
+          listaEl.querySelectorAll(".btn-edit-aliquota").forEach(btn => {
+            btn.addEventListener("click", () => {
+              const m = { codigo_ibge: btn.dataset.codigo, cidade: btn.dataset.cidade, uf: btn.dataset.uf, aliquota: btn.dataset.aliquota ? parseFloat(btn.dataset.aliquota) : null };
+              entrarModoEdicao(m);
+            });
+          });
+        }
+
+        async function carregarLista() {
+          try {
+            const r = await fetch(`${API_BASE}/api/municipios-aliquotas`);
+            listaCompleta = await r.json();
+            if (!Array.isArray(listaCompleta)) listaCompleta = [];
+            renderizarTabela(listaCompleta);
+          } catch (err) {
+            listaEl.innerHTML = "<p class=\"aliquotas-empty\">Erro ao carregar. Verifique a API.</p>";
+          }
+        }
+
+        if (filtroEl) {
+          filtroEl.addEventListener("input", () => renderizarTabela(listaCompleta));
+          filtroEl.addEventListener("keyup", (e) => { if (e.key === "Enter") renderizarTabela(listaCompleta); });
+        }
+
+        btnAdd.addEventListener("click", async () => {
+          const codigo = String(codigoEl.value).replace(/\D/g, "");
+          const aliquota = parseFloat(String(aliquotaEl.value).replace(",", "."));
+          if (codigo.length !== 7) { alert("Código IBGE deve ter 7 dígitos."); return; }
+          if (isNaN(aliquota)) { alert("Informe a alíquota em %."); return; }
+          const r = await fetch(`${API_BASE}/api/municipios-aliquotas`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ codigo_ibge: codigo, cidade: cidadeEl.value.trim(), uf: ufEl.value.trim().toUpperCase().slice(0, 2), aliquota })
+          });
+          const data = await r.json();
+          if (data.ok) { sairModoEdicao(); carregarLista(); }
+          else alert("Erro: " + (data.erro || ""));
+        });
+
+        if (btnCancel) btnCancel.addEventListener("click", () => sairModoEdicao());
+
+        carregarLista();
+      }
+
+      // ===================== ENDEREÇOS OBRA =====================
+      if (page === "enderecos-obra") {
+        view.innerHTML = `
+          <div class="enderecos-page">
+            <div class="enderecos-header">
+              <h2>Cadastro de endereços de obra por site e UF</h2>
+              <p class="subtitle">Cadastre aqui o endereço da obra por site e UF do serviço. Na transformação da planilha, os campos CEP_Obra, Logradouro_Obra, Numero_Obra, Bairro_Obra, UF_Obra e Codigo_Municipio_Obra serão preenchidos automaticamente. Se faltar algum, o sistema pede o cadastro na hora.</p>
+            </div>
+            <div class="enderecos-grid">
+              <div class="card form-card enderecos-form-card">
+                <h3 id="endFormTitle">Novo endereço de obra</h3>
+                <div class="enderecos-form-fields">
+                  <div class="enderecos-form-row">
+                    <div class="form-group">
+                      <label>Site Code</label>
+                      <input type="text" id="endSite" class="input" placeholder="Ex: T15">
+                    </div>
+                    <div class="form-group enderecos-uf-wrap">
+                      <label>UF Serviço</label>
+                      <input type="text" id="endUf" class="input" placeholder="SP" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                      <label>Cidade Serviço (opcional)</label>
+                      <input type="text" id="endCidade" class="input" placeholder="São Paulo">
+                    </div>
+                  </div>
+                  <div class="enderecos-form-row">
+                    <div class="form-group">
+                      <label>CEP Obra</label>
+                      <input type="text" id="endCep" class="input endereco-cep" placeholder="01310-100" maxlength="9">
+                    </div>
+                    <div class="form-group form-group-wide">
+                      <label>Logradouro Obra</label>
+                      <input type="text" id="endLogradouro" class="input" placeholder="Av. Paulista">
+                    </div>
+                    <div class="form-group">
+                      <label>Número Obra</label>
+                      <input type="text" id="endNumero" class="input" placeholder="1000">
+                    </div>
+                  </div>
+                  <div class="enderecos-form-row">
+                    <div class="form-group">
+                      <label>Bairro Obra</label>
+                      <input type="text" id="endBairro" class="input" placeholder="Bela Vista">
+                    </div>
+                    <div class="form-group enderecos-uf-wrap">
+                      <label>UF Obra</label>
+                      <input type="text" id="endUfObra" class="input" placeholder="SP" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                      <label>Código Município Obra (7 dígitos)</label>
+                      <input type="text" id="endCodMun" class="input" placeholder="3550308" maxlength="7">
+                    </div>
+                  </div>
+                </div>
+                <div class="enderecos-form-actions">
+                  <button type="button" class="btn-primary" id="btnAddEndereco"><i class="fa-solid fa-plus"></i> Cadastrar</button>
+                  <button type="button" class="btn-secondary" id="btnCancelEndereco" style="display:none;"><i class="fa-solid fa-times"></i> Cancelar</button>
+                </div>
+              </div>
+              <div class="card enderecos-list-card">
+                <h3>Endereços cadastrados</h3>
+                <div class="enderecos-filter-wrap">
+                  <i class="fa-solid fa-search"></i>
+                  <input type="text" id="endFiltro" class="input enderecos-filter-input" placeholder="Buscar por site, UF, cidade, CEP, logradouro, bairro...">
+                  <button type="button" class="btn-primary" id="btnBuscarEnderecos"><i class="fa-solid fa-search"></i> Buscar</button>
+                </div>
+                <p class="enderecos-hint">Digite no campo acima e clique em Buscar para listar endereços (não carrega toda a base de uma vez).</p>
+                <div class="table-container">
+                  <div id="listaEnderecos">Digite algo no campo de busca e clique em Buscar para listar endereços.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        const endSite = document.getElementById("endSite");
+        const endUf = document.getElementById("endUf");
+        const endCidade = document.getElementById("endCidade");
+        const endCep = document.getElementById("endCep");
+        const endLogradouro = document.getElementById("endLogradouro");
+        const endNumero = document.getElementById("endNumero");
+        const endBairro = document.getElementById("endBairro");
+        const endUfObra = document.getElementById("endUfObra");
+        const endCodMun = document.getElementById("endCodMun");
+        const btnAddEndereco = document.getElementById("btnAddEndereco");
+        const btnCancelEndereco = document.getElementById("btnCancelEndereco");
+        const endFormTitle = document.getElementById("endFormTitle");
+        const listaEnderecos = document.getElementById("listaEnderecos");
+        const endFiltro = document.getElementById("endFiltro");
+
+        let listaEnderecosCompleta = [];
+        let editandoEndereco = false;
+
+        function sairModoEdicaoEndereco() {
+          editandoEndereco = false;
+          endSite.value = ""; endUf.value = ""; endCidade.value = ""; endCep.value = "";
+          endLogradouro.value = ""; endNumero.value = ""; endBairro.value = ""; endUfObra.value = ""; endCodMun.value = "";
+          endSite.disabled = false; endUf.disabled = false;
+          endFormTitle.textContent = "Novo endereço de obra";
+          btnAddEndereco.innerHTML = "<i class=\"fa-solid fa-plus\"></i> Cadastrar";
+          if (btnCancelEndereco) btnCancelEndereco.style.display = "none";
+        }
+
+        function entrarModoEdicaoEndereco(e) {
+          editandoEndereco = true;
+          endSite.value = e.site_code || "";
+          endUf.value = e.uf_servico || "";
+          endCidade.value = (e.cidade_servico && e.cidade_servico !== "-") ? e.cidade_servico : "";
+          endCep.value = e.cep_obra || "";
+          endLogradouro.value = e.logradouro_obra || "";
+          endNumero.value = e.numero_obra || "";
+          endBairro.value = e.bairro_obra || "";
+          endUfObra.value = (e.uf_obra && e.uf_obra !== "-") ? e.uf_obra : "";
+          endCodMun.value = e.codigo_municipio_obra || "";
+          endSite.disabled = true; endUf.disabled = true;
+          endFormTitle.textContent = "Alterar endereço (" + (e.site_code || "") + " / " + (e.uf_servico || "") + ")";
+          btnAddEndereco.innerHTML = "<i class=\"fa-solid fa-pen\"></i> Atualizar";
+          if (btnCancelEndereco) btnCancelEndereco.style.display = "inline-flex";
+        }
+
+        function filtrarEnderecos(lista, termo) {
+          const t = String(termo || "").trim().toLowerCase();
+          if (!t) return lista;
+          return lista.filter(e => {
+            const site = String(e.site_code || "").toLowerCase();
+            const uf = String(e.uf_servico || "").toLowerCase();
+            const cidade = String(e.cidade_servico || "").toLowerCase();
+            const cep = String(e.cep_obra || "").toLowerCase();
+            const log = String(e.logradouro_obra || "").toLowerCase();
+            const num = String(e.numero_obra || "").toLowerCase();
+            const bairro = String(e.bairro_obra || "").toLowerCase();
+            const ufObra = String(e.uf_obra || "").toLowerCase();
+            const cod = String(e.codigo_municipio_obra || "").toLowerCase();
+            return site.includes(t) || uf.includes(t) || cidade.includes(t) || cep.includes(t) || log.includes(t) || num.includes(t) || bairro.includes(t) || ufObra.includes(t) || cod.includes(t);
+          });
+        }
+
+        function escapeAttr(s) { return String(s || "").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+        function renderizarTabelaEnderecos(lista) {
+          if (!lista || lista.length === 0) {
+            listaEnderecos.innerHTML = "<p class=\"enderecos-empty\">Nenhum resultado. Digite no campo de busca e clique em Buscar.</p>";
+            return;
+          }
+          const termo = endFiltro ? endFiltro.value : "";
+          const exibir = termo ? filtrarEnderecos(lista, termo) : lista;
+          if (exibir.length === 0) {
+            listaEnderecos.innerHTML = "<p class=\"enderecos-empty\">Nenhum resultado para a busca.</p>";
+            return;
+          }
+          let html = "<table class=\"table\"><thead><tr><th>Site</th><th>UF Serv.</th><th>Cidade Serv.</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Mun.</th><th>Ações</th></tr></thead><tbody>";
+          exibir.forEach(e => {
+            const site = escapeAttr(e.site_code || ""); const uf = escapeAttr(e.uf_servico || ""); const cidade = escapeAttr(e.cidade_servico || ""); const cep = escapeAttr(e.cep_obra || "");
+            const log = escapeAttr(e.logradouro_obra || ""); const num = escapeAttr(e.numero_obra || ""); const bairro = escapeAttr(e.bairro_obra || ""); const ufObra = escapeAttr(e.uf_obra || ""); const cod = escapeAttr(e.codigo_municipio_obra || "");
+            html += `<tr><td>${e.site_code || "-"}</td><td>${e.uf_servico || "-"}</td><td>${e.cidade_servico || "-"}</td><td>${e.cep_obra || "-"}</td><td>${e.logradouro_obra || "-"}</td><td>${e.numero_obra || "-"}</td><td>${e.bairro_obra || "-"}</td><td>${e.uf_obra || "-"}</td><td>${e.codigo_municipio_obra || "-"}</td><td><button type="button" class="btn-small btn-edit-endereco" data-site="${site}" data-uf="${uf}" data-cidade="${cidade}" data-cep="${cep}" data-log="${log}" data-num="${num}" data-bairro="${bairro}" data-ufobra="${ufObra}" data-cod="${cod}" title="Editar"><i class="fa-solid fa-pen"></i> Editar</button></td></tr>`;
+          });
+          html += "</tbody></table>";
+          listaEnderecos.innerHTML = html;
+          listaEnderecos.querySelectorAll(".btn-edit-endereco").forEach(btn => {
+            btn.addEventListener("click", () => {
+              const e = {
+                site_code: btn.dataset.site,
+                uf_servico: btn.dataset.uf,
+                cidade_servico: btn.dataset.cidade !== "-" ? btn.dataset.cidade : "",
+                cep_obra: btn.dataset.cep !== "-" ? btn.dataset.cep : "",
+                logradouro_obra: btn.dataset.log !== "-" ? btn.dataset.log : "",
+                numero_obra: btn.dataset.num !== "-" ? btn.dataset.num : "",
+                bairro_obra: btn.dataset.bairro !== "-" ? btn.dataset.bairro : "",
+                uf_obra: btn.dataset.ufobra !== "-" ? btn.dataset.ufobra : "",
+                codigo_municipio_obra: btn.dataset.cod !== "-" ? btn.dataset.cod : "",
+              };
+              entrarModoEdicaoEndereco(e);
+            });
+          });
+        }
+
+        endCep.addEventListener("blur", async function() {
+          const cep = endCep.value.replace(/\D/g, "");
+          if (cep.length !== 8) return;
+          const addr = await buscarCepViaCep(cep);
+          if (!addr) return;
+          endLogradouro.value = addr.logradouro;
+          endBairro.value = addr.bairro;
+          endUfObra.value = addr.uf;
+          endCodMun.value = addr.ibge;
+          if (addr.localidade) endCidade.value = addr.localidade;
+        });
+
+        async function buscarEnderecos() {
+          const termo = endFiltro ? endFiltro.value.trim() : "";
+          if (!termo) {
+            listaEnderecos.innerHTML = "<p class=\"enderecos-empty\">Digite ao menos um caractere no campo de busca e clique em Buscar.</p>";
+            return;
+          }
+          listaEnderecos.innerHTML = "<p class=\"enderecos-empty\"><i class=\"fa-solid fa-spinner fa-spin\"></i> Buscando...</p>";
+          try {
+            const r = await fetch(`${API_BASE}/api/site-enderecos?q=${encodeURIComponent(termo)}`);
+            listaEnderecosCompleta = await r.json();
+            if (!Array.isArray(listaEnderecosCompleta)) listaEnderecosCompleta = [];
+            renderizarTabelaEnderecos(listaEnderecosCompleta);
+          } catch (err) {
+            listaEnderecos.innerHTML = "<p class=\"enderecos-empty\">Erro ao buscar. Verifique a API.</p>";
+          }
+        }
+
+        const btnBuscarEnderecos = document.getElementById("btnBuscarEnderecos");
+        if (btnBuscarEnderecos) btnBuscarEnderecos.addEventListener("click", buscarEnderecos);
+        if (endFiltro) {
+          endFiltro.addEventListener("keyup", (ev) => { if (ev.key === "Enter") buscarEnderecos(); });
+          endFiltro.addEventListener("input", () => { if (listaEnderecosCompleta.length > 0) renderizarTabelaEnderecos(listaEnderecosCompleta); });
+        }
+
+        btnAddEndereco.addEventListener("click", async () => {
+          const site = String(endSite.value).trim();
+          const uf = String(endUf.value).trim().toUpperCase().slice(0, 2);
+          const cep = String(endCep.value).replace(/\D/g, "");
+          if (!site) { alert("Informe o Site Code."); return; }
+          if (!uf) { alert("Informe a UF (2 letras)."); return; }
+          if (cep.length < 8) { alert("CEP da obra deve ter 8 dígitos."); return; }
+          const r = await fetch(`${API_BASE}/api/site-enderecos`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              site_code: site,
+              uf_servico: uf,
+              cidade_servico: endCidade.value.trim() || null,
+              cep_obra: cep,
+              logradouro_obra: endLogradouro.value.trim() || null,
+              numero_obra: endNumero.value.trim() || null,
+              bairro_obra: endBairro.value.trim() || null,
+              uf_obra: String(endUfObra.value).trim().toUpperCase().slice(0, 2) || uf,
+              codigo_municipio_obra: String(endCodMun.value).replace(/\D/g, "").slice(0, 7) || null,
+            })
+          });
+          const data = await r.json();
+          if (data.ok) { sairModoEdicaoEndereco(); buscarEnderecos(); }
+          else alert("Erro: " + (data.erro || ""));
+        });
+
+        if (btnCancelEndereco) btnCancelEndereco.addEventListener("click", () => sairModoEdicaoEndereco());
+
+        // Não carrega a lista na abertura; só ao clicar em Buscar
+      }
+
+      // ===================== EMITIR NOTAS (FLUXO EM ETAPAS) =====================
+      if (page === "emitir") {
+        view.innerHTML = `
+          <h2>Emissão Automática de Notas</h2>
+          <p class="subtitle">
+            Fluxo em 3 etapas: (1) transformar planilha do cliente, (2) emitir notas com a planilha de emissão,
+            (3) atualizar planilha do cliente com os números das NFs.
+          </p>
+
+          <div class="steps-bar">
+            <div class="step-item step-1 active">1. Transformar</div>
+            <div class="step-item step-2">2. Emitir</div>
+            <div class="step-item step-3">3. Atualizar cliente</div>
+          </div>
+
+          <!-- ETAPA 1: Transformar planilha do cliente -->
+          <div class="card form-card emit-step emit-step-1 active">
+            <h3>Etapa 1 - Transformar planilha do cliente</h3>
+            <p class="subtitle">
+              Envie a planilha do portal (formato de cliente .xlsx e .xlsm). A planilha transformada é usada na emissão.
+              A planilha original preenchida é a que você vai devolver para o cliente / portal.
+            </p>
+            <div class="form-group">
+              <label>Planilha do cliente (.xlsx / .xlsm)</label>
+              <input type="file" id="emit-fileCliente" accept=".xlsx,.xlsm">
+            </div>
+            <button type="button" class="btn-primary" id="emit-btnTransformar">
+              <i class="fa-solid fa-arrow-right"></i> Transformar
+            </button>
+            <div id="emit-transformarResultado" class="mt-2" style="display:none;"></div>
+            <div id="emit-transformarCadastro" class="mt-2" style="display:none;"></div>
+          </div>
+
+          <!-- ETAPA 2: Confirmar emissão (usa planilha em memória da Etapa 1) -->
+          <div class="card form-card mt-2 emit-step emit-step-2">
+            <h3>Etapa 2 – Confirmar emissão</h3>
+            <p class="subtitle">
+              A planilha transformada da Etapa 1 será usada automaticamente. Confira o resumo abaixo e corrija, se necessário, <strong>Município Prestação</strong> e <strong>Município Obra</strong> (códigos IBGE 7 dígitos) antes de emitir.
+            </p>
+
+            <div id="emit-etapa2-preview" class="emit-etapa2-preview mt-2">
+              <p class="text-muted"><i class="fa-solid fa-spinner fa-spin"></i> Carregando resumo...</p>
+            </div>
+
+            <button type="button" class="btn-primary mt-2" id="btnUpload">
+              <i class="fa-solid fa-bolt"></i> Processar Notas
+            </button>
+          </div>
+
+          <div id="emitirResultado" class="card mt-2" style="display:none;">
+            <h3>Resultado da emissão</h3>
+            <p id="emitirResumo" class="subtitle"></p>
+            <div class="table-container">
+              <table class="table" id="tableEmitirResultado">
+                <thead>
+                  <tr><th>Ref</th><th>Status</th><th>Nº NF (Focus)</th><th>Cód. Verificação</th><th>Detalhe do erro</th></tr>
+                </thead>
+                <tbody id="tbodyEmitirResultado"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ETAPA 3: Atualizar planilha do cliente com números NF -->
+          <div class="card form-card mt-2 emit-step emit-step-3">
+            <h3>Etapa 3 – Atualizar planilha do cliente com números NF</h3>
+            <p class="subtitle">
+              Usando a planilha original preenchida da Etapa 1 e os números gerados na Etapa 2,
+              o sistema gera automaticamente a planilha final do cliente com a coluna Invoice No* preenchida.
+            </p>
+            <button type="button" class="btn-primary" id="emit-btnAtualizarNfs">
+              <i class="fa-solid fa-file-invoice"></i> Gerar planilha do cliente com NFs
+            </button>
+            <div id="emit-atualizarNfsResultado" class="mt-2" style="display:none;"></div>
+          </div>
+
+          <!-- Indicador de etapas inferior -->
+          <div class="steps-pagination">
+            <div class="step-dot step-dot-1 active" data-step="1">1</div>
+            <div class="step-dot step-dot-2" data-step="2">2</div>
+            <div class="step-dot step-dot-3" data-step="3">3</div>
+          </div>
+          </div>
+        `;
+
+        // ==== lógica da etapa 1 (reaproveitando /api/upload/transformar-planilha) ====
+        const steps = Array.from(document.querySelectorAll(".emit-step"));
+        const stepsBar = {
+          1: document.querySelector(".step-1"),
+          2: document.querySelector(".step-2"),
+          3: document.querySelector(".step-3"),
+        };
+        const stepsPagination = Array.from(document.querySelectorAll(".step-dot"));
+        let currentStep = 1;
+
+        function goToStep(n) {
+          currentStep = n;
+
+          // Cards: só o ativo fica visível
+          steps.forEach((el, idx) => {
+            el.classList.toggle("active", idx === n - 1);
+          });
+
+          // Trilho superior
+          Object.entries(stepsBar).forEach(([num, el]) => {
+            if (!el) return;
+            el.classList.toggle("active", Number(num) === n);
+          });
+
+          // Bolinhas inferiores
+          stepsPagination.forEach((el, idx) => {
+            el.classList.toggle("active", idx === n - 1);
+          });
+
+          // Etapa 2: atualiza resumo para conferência
+          if (n === 2) atualizarResumoEtapa2();
+        }
+
+        function parseValor(v) {
+          if (v == null) return 0;
+          const n = Number(v);
+          if (!isNaN(n)) return n;
+          const s = String(v).replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
+          return parseFloat(s) || 0;
+        }
+
+        function atualizarResumoEtapa2() {
+          const div = document.getElementById("emit-etapa2-preview");
+          if (!div) return;
+          if (!(window.__emitPlanilhaBlob instanceof Blob)) {
+            div.innerHTML = "<p class=\"text-muted\"><i class=\"fa-solid fa-info-circle\"></i> Complete a Etapa 1 para ver o resumo da planilha.</p>";
+            return;
+          }
+          div.innerHTML = "<p class=\"text-muted\"><i class=\"fa-solid fa-spinner fa-spin\"></i> Carregando resumo...</p>";
+          const reader = new FileReader();
+          reader.onload = function() {
+            try {
+              const XLSX = window.XLSX || (typeof XLSX !== "undefined" ? XLSX : null);
+              if (!XLSX) {
+                div.innerHTML = "<p class=\"text-muted\"><i class=\"fa-solid fa-info-circle\"></i> Planilha pronta para emissão. Clique em Processar Notas quando estiver pronto.</p>";
+                return;
+              }
+              const wb = XLSX.read(reader.result, { type: "array" });
+              const sheet = wb.Sheets[wb.SheetNames[0]];
+              const linhas = XLSX.utils.sheet_to_json(sheet, { defval: null });
+              if (!Array.isArray(linhas) || linhas.length === 0) {
+                div.innerHTML = "<p class=\"text-warning\">Planilha sem linhas para emitir.</p>";
+                return;
+              }
+              const getVal = (l, ...keys) => { for (const k of keys) { const v = l?.[k]; if (v !== undefined && v !== null && v !== "") return v; } return null; };
+              const codPrest = (l) => String(getVal(l, "codigo_municipio_servico", "Codigo_Municipio_Servico") ?? "").replace(/\D/g, "").slice(0, 7);
+              const codObra = (l) => String(getVal(l, "Codigo_Municipio_Obra", "codigo_municipio_obra") ?? "").replace(/\D/g, "").slice(0, 7);
+              let totalValor = 0;
+              const previewRows = linhas.map((l, i) => {
+                const ref = getVal(l, "Ref", "ref") || "-";
+                const site = getVal(l, "SITE", "Site", "Site Code", "Ref Site", "ref_site") || "-";
+                const val = getVal(l, "valor_servico", "Valor_Servico");
+                totalValor += parseValor(val);
+                const p = codPrest(l);
+                const o = codObra(l);
+                const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+                return "<tr data-row-index=\"" + i + "\"><td>" + esc(ref) + "</td><td>" + esc(site) + "</td><td>" + (val != null ? "R$ " + parseValor(val).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-") + "</td><td><input type=\"text\" class=\"input emit-codigo-prestacao\" value=\"" + esc(p) + "\" placeholder=\"7 dígitos\" maxlength=\"7\" title=\"Município de prestação (IBGE)\" style=\"width:90px\"></td><td><input type=\"text\" class=\"input emit-codigo-incidencia\" value=\"" + esc(p) + "\" placeholder=\"= Prestação\" maxlength=\"7\" title=\"Local de incidência (igual ao município de prestação)\" style=\"width:90px\"></td><td><input type=\"text\" class=\"input emit-codigo-obra\" value=\"" + esc(o) + "\" placeholder=\"7 dígitos\" maxlength=\"7\" title=\"Município da obra (IBGE)\" style=\"width:90px\"></td></tr>";
+              });
+              const html = "<div class=\"emit-resumo-box\"><p><strong>" + linhas.length + " notas</strong> serão emitidas. <strong>Valor total estimado: R$ " + totalValor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "</strong></p>" +
+                "<p class=\"text-muted small\">Corrija os códigos abaixo se necessário. <strong>Local de incidência</strong> deve ser igual ao <strong>Mun. Prestação</strong> (na emissão será usado o Mun. Prestação para ambos).</p>" +
+                "<div style=\"max-height:320px;overflow:auto\"><table class=\"table table-sm\" id=\"emit-preview-table\"><thead><tr><th>Ref</th><th>Site</th><th>Valor</th><th>Mun. Prestação (IBGE)</th><th>Local incidência (IBGE)</th><th>Mun. Obra (IBGE)</th></tr></thead><tbody>" + previewRows.join("") + "</tbody></table></div></div>";
+              div.innerHTML = html;
+              window.__emitPreviewLinhasCount = linhas.length;
+              div.querySelectorAll("input.emit-codigo-prestacao").forEach(function(inp) {
+                inp.addEventListener("input", function() {
+                  var tr = inp.closest("tr");
+                  var inc = tr && tr.querySelector("input.emit-codigo-incidencia");
+                  if (inc) inc.value = inp.value.replace(/\D/g, "").slice(0, 7);
+                });
+              });
+            } catch (e) {
+              console.error("Erro ao ler resumo da planilha:", e);
+              div.innerHTML = "<p class=\"text-muted\"><i class=\"fa-solid fa-info-circle\"></i> Planilha pronta para emissão. Clique em Processar Notas quando estiver pronto.</p>";
+            }
+          };
+          reader.readAsArrayBuffer(window.__emitPlanilhaBlob);
+        }
+
+        async function aplicarEditsPreviewEEnviar() {
+          const preview = document.getElementById("emit-etapa2-preview");
+          const table = preview && preview.querySelector("#emit-preview-table");
+          if (!table || !preview.querySelector("input.emit-codigo-prestacao")) return;
+          const XLSX = window.XLSX || (typeof XLSX !== "undefined" ? XLSX : null);
+          if (!XLSX) { document.getElementById("btnUpload").click(); return; }
+          const blob = window.__emitPlanilhaBlob;
+          if (!(blob instanceof Blob)) { document.getElementById("btnUpload").click(); return; }
+          const buf = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsArrayBuffer(blob); });
+          const wb = XLSX.read(buf, { type: "array" });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          if (!sheet || !sheet["!ref"]) { document.getElementById("btnUpload").click(); return; }
+          const range = XLSX.utils.decode_range(sheet["!ref"]);
+          const headers = [];
+          for (let c = 0; c <= range.e.c; c++) {
+            const cell = sheet[XLSX.utils.encode_cell({ r: 0, c: c })];
+            headers.push(cell && cell.v != null ? String(cell.v).trim() : "");
+          }
+          const idxPrest = headers.findIndex(h => (h || "").toLowerCase() === "codigo_municipio_servico" || (h || "").toLowerCase() === "codigo_municipio_prestacao");
+          const idxObra = headers.findIndex(h => (h || "").toLowerCase() === "codigo_municipio_obra");
+          const rows = table.querySelectorAll("tbody tr[data-row-index]");
+          for (const tr of rows) {
+            const rowIndex = parseInt(tr.getAttribute("data-row-index"), 10);
+            if (isNaN(rowIndex)) continue;
+            const excelRow = rowIndex + 1;
+            const inpPrest = tr.querySelector("input.emit-codigo-prestacao");
+            const inpObra = tr.querySelector("input.emit-codigo-obra");
+            const valPrest = inpPrest ? String(inpPrest.value || "").replace(/\D/g, "").slice(0, 7) : "";
+            const valObra = inpObra ? String(inpObra.value || "").replace(/\D/g, "").slice(0, 7) : "";
+            if (idxPrest >= 0 && valPrest.length === 7) {
+              const cellAddr = XLSX.utils.encode_cell({ r: excelRow, c: idxPrest });
+              sheet[cellAddr] = { t: "s", v: valPrest };
+            }
+            if (idxObra >= 0 && valObra.length === 7) {
+              const cellAddr = XLSX.utils.encode_cell({ r: excelRow, c: idxObra });
+              sheet[cellAddr] = { t: "s", v: valObra };
+            }
+          }
+          const outBuf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+          window.__emitPlanilhaBlob = new Blob([outBuf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+          window.__emitPreviewEditsApplied = true;
+          document.getElementById("btnUpload").click();
+        }
+
+        document.addEventListener("click", function(e) {
+          if (e.target.id !== "btnUpload") return;
+          if (window.__emitPreviewEditsApplied) {
+            window.__emitPreviewEditsApplied = false;
+            return;
+          }
+          var preview = document.getElementById("emit-etapa2-preview");
+          if (!preview || !preview.querySelector("input.emit-codigo-prestacao")) return;
+          e.preventDefault();
+          e.stopPropagation();
+          aplicarEditsPreviewEEnviar();
+        }, true);
+
+        // Expõe função global para outras partes (upload.js) poderem avançar a etapa
+        window.__emitGoToStep = goToStep;
+
+        // Bolinhas clicáveis
+        stepsPagination.forEach((dot) => {
+          dot.addEventListener("click", () => {
+            goToStep(Number(dot.dataset.step));
+          });
+        });
+
+        const fileCliente = document.getElementById("emit-fileCliente");
+        const btnTransformar = document.getElementById("emit-btnTransformar");
+        const divTransfResultado = document.getElementById("emit-transformarResultado");
+        const divTransfCadastro = document.getElementById("emit-transformarCadastro");
+        let emitUltimoArquivo = null;
+
+        async function emitirEnviarTransformar(arquivo, codigosPrestacao) {
+          if (!arquivo) { alert("Selecione um arquivo."); return; }
+          const fd = new FormData();
+          fd.append("arquivo", arquivo);
+          if (Array.isArray(codigosPrestacao) && codigosPrestacao.length > 0) fd.append("codigosPrestacao", JSON.stringify(codigosPrestacao));
+          const resp = await fetch(`${API_BASE}/api/upload/transformar-planilha`, { method: "POST", body: fd });
+          const data = await resp.json();
+          if (!data.sucesso) { alert("Erro: " + (data.erro || "Desconhecido")); return data; }
+          return data;
+        }
+        function emitirHtmlPlanilhaPronta(data) {
+          const msgVersao = (data && data.versaoTransformacao) ? " <small>(regras 070202 + colunas por nome)</small>" : "";
+          return "<p class=\"text-success\"><strong>Planilhas prontas!</strong>" + msgVersao + "<br>Avançando para a etapa de emissão...</p>";
+        }
+
+        async function emitirPlanilhaProntaAvançar(data) {
+          divTransfResultado.innerHTML = emitirHtmlPlanilhaPronta(data);
+          if (data.downloadUrl) {
+            try {
+              const r = await fetch(API_BASE + data.downloadUrl);
+              if (r.ok) window.__emitPlanilhaBlob = await r.blob();
+            } catch (e) { console.error(e); }
+          }
+          if (data.downloadUrlOriginal) {
+            try {
+              const r = await fetch(API_BASE + data.downloadUrlOriginal);
+              if (r.ok) window.__emitPlanilhaClienteBlob = await r.blob();
+            } catch (e) { console.error(e); }
+          }
+          goToStep(2);
+        }
+
+        btnTransformar.addEventListener("click", async () => {
+          const arquivo = fileCliente.files[0];
+          if (!arquivo) { alert("Selecione a planilha do cliente."); return; }
+          emitUltimoArquivo = arquivo;
+          divTransfCadastro.style.display = "none";
+          divTransfResultado.innerHTML = "<p>Processando...</p>";
+          divTransfResultado.style.display = "block";
+          const data = await emitirEnviarTransformar(arquivo);
+          if (!data) return;
+
+          if (data.precisaCadastro && data.municipiosSemCodigoPrestacao && data.municipiosSemCodigoPrestacao.length > 0) {
+            divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>O sistema não localizou o código do município (IBGE) para as cidades abaixo (serviço 7.02).</strong> Informe o código IBGE de 7 dígitos e clique em Salvar para continuar.</p>";
+            let html = "<table class=\"table\"><thead><tr><th>Cidade</th><th>UF</th><th>Código IBGE (7 dígitos)</th></tr></thead><tbody>";
+            data.municipiosSemCodigoPrestacao.forEach((m) => {
+              const esc = (v) => (v || "").replace(/"/g, "&quot;");
+              html += `<tr data-cidade="${esc(m.cidade)}" data-uf="${esc(m.uf)}"><td>${esc(m.cidade)}</td><td>${esc(m.uf)}</td><td><input type="text" class="input codigo-prestacao-input" placeholder="Ex: 3550308" maxlength="7" style="width:120px"></td></tr>`;
+            });
+            html += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarCodigosPrestacao\"><i class=\"fa-solid fa-save\"></i> Salvar códigos e gerar planilha</button>";
+            divTransfCadastro.innerHTML = html;
+            divTransfCadastro.style.display = "block";
+            document.getElementById("emit-btnSalvarCodigosPrestacao").addEventListener("click", async () => {
+              const rows = divTransfCadastro.querySelectorAll("tr[data-cidade]");
+              const codigosPrestacao = [];
+              rows.forEach(tr => {
+                const cod = (tr.querySelector(".codigo-prestacao-input")?.value || "").replace(/\D/g, "").slice(0, 7);
+                if (cod.length === 7) codigosPrestacao.push({ cidade: tr.dataset.cidade, uf: tr.dataset.uf, codigo_ibge: cod });
+              });
+              if (codigosPrestacao.length === 0) { alert("Informe o código IBGE (7 dígitos) para ao menos um município."); return; }
+              divTransfCadastro.innerHTML = "<p>Gerando planilha...</p>";
+              const data2 = await emitirEnviarTransformar(emitUltimoArquivo, codigosPrestacao);
+              if (!data2) return;
+              if (data2.downloadUrl && !data2.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data2); return; }
+              if (data2.precisaCadastro && data2.municipiosSemCodigoPrestacao && data2.municipiosSemCodigoPrestacao.length > 0) { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam códigos. Verifique os 7 dígitos e tente novamente.</p>"; return; }
+              if (data2.precisaCadastro && data2.municipiosSemAliquota && data2.municipiosSemAliquota.length > 0) {
+                divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas ISS dos municípios abaixo.</strong></p>";
+                let h = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+                data2.municipiosSemAliquota.forEach(m => { const lb = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo; h += `<tr><td>${m.codigo}</td><td>${lb}</td><td><input class="input aliquota-input" data-codigo="${m.codigo}" data-cidade="${(m.cidade||"").replace(/"/g,"&quot;")}" data-uf="${m.uf||""}" placeholder="Ex: 5" style="width:80px"></td></tr>`; });
+                h += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarAliquotas\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+                divTransfCadastro.innerHTML = h;
+                divTransfCadastro.style.display = "block";
+                document.getElementById("emit-btnSalvarAliquotas").addEventListener("click", async () => {
+                  const inp = divTransfCadastro.querySelectorAll(".aliquota-input");
+                  const aliquotas = []; inp.forEach(i => { const v = parseFloat(String(i.value).replace(",", ".")); if (!isNaN(v)) aliquotas.push({ codigo: i.dataset.codigo, cidade: i.dataset.cidade, uf: i.dataset.uf, aliquota: v }); });
+                  if (aliquotas.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+                  const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
+                  const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                  divTransfCadastro.innerHTML = "<p>Regenerando...</p>";
+                  const data3 = await emitirEnviarTransformar(emitUltimoArquivo);
+                  if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data3); } else { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                });
+                return;
+              }
+              if (data2.precisaCadastro && data2.sitesSemEndereco && data2.sitesSemEndereco.length > 0) {
+                divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre os endereços de obra abaixo.</strong></p>";
+                let tbl = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+                data2.sitesSemEndereco.forEach(s => { const esc = (v) => (v||"").replace(/</g,"&lt;").replace(/"/g,"&quot;"); tbl += `<tr data-site="${esc(s.site_code)}" data-uf="${esc(s.uf_servico)}" data-cidade="${esc(s.cidade_servico||"")}"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class="input endereco-cep" placeholder="CEP" style="width:100px"></td><td><input class="input endereco-log" placeholder="Logradouro" style="min-width:120px"></td><td><input class="input endereco-num" placeholder="Nº" style="width:60px"></td><td><input class="input endereco-bairro" placeholder="Bairro" style="width:100px"></td><td><input class="input endereco-uf" placeholder="UF" style="width:40px" maxlength="2"></td><td><input class="input endereco-cod" placeholder="Cód. IBGE 7" style="width:90px" maxlength="7"></td></tr>`; });
+                tbl += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarEnderecos\"><i class=\"fa-solid fa-save\"></i> Salvar endereços e gerar planilha</button>";
+                divTransfCadastro.innerHTML = tbl;
+                document.getElementById("emit-btnSalvarEnderecos").addEventListener("click", async () => {
+                  const rows = divTransfCadastro.querySelectorAll("tr[data-site]");
+                  const enderecos = []; rows.forEach(tr => { const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g,""); const log = tr.querySelector(".endereco-log")?.value?.trim(); const num = tr.querySelector(".endereco-num")?.value?.trim(); const bairro = tr.querySelector(".endereco-bairro")?.value?.trim(); const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2); const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g,"").slice(0,7); if (cep && cep.length >= 8 && log && num && bairro && ufObra) enderecos.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null }); });
+                  if (enderecos.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+                  const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                  const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                  divTransfCadastro.innerHTML = "<p>Regenerando...</p>";
+                  const data3 = await emitirEnviarTransformar(emitUltimoArquivo);
+                  if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data3); } else { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                });
+                return;
+              }
+              divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>";
+            });
+            return;
+          }
+
+          if (data.precisaCadastro && data.municipiosSemAliquota && data.municipiosSemAliquota.length > 0) {
+            divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas ISS dos municípios abaixo.</strong> Depois salve e a planilha será gerada.</p>";
+            let html = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+            data.municipiosSemAliquota.forEach((m) => {
+              const label = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo;
+              html += `<tr><td>${m.codigo}</td><td>${label}</td><td><input type="text" class="input aliquota-input" data-codigo="${m.codigo}" data-cidade="${(m.cidade||"").replace(/"/g,"&quot;")}" data-uf="${m.uf||""}" placeholder="Ex: 5" style="width:80px"></td></tr>`;
+            });
+            html += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarAliquotas\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+            divTransfCadastro.innerHTML = html;
+            divTransfCadastro.style.display = "block";
+            document.getElementById("emit-btnSalvarAliquotas").addEventListener("click", async () => {
+              const inputs = divTransfCadastro.querySelectorAll(".aliquota-input");
+              const aliquotas = [];
+              inputs.forEach(inp => { const v = parseFloat(String(inp.value).replace(",", ".")); if (!isNaN(v)) aliquotas.push({ codigo: inp.dataset.codigo, cidade: inp.dataset.cidade, uf: inp.dataset.uf, aliquota: v }); });
+              if (aliquotas.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+              const r = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
+              const res = await r.json();
+              if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
+              divTransfCadastro.innerHTML = "<p>Alíquotas salvas. Regenerando planilha...</p>";
+              const data2 = await emitirEnviarTransformar(emitUltimoArquivo);
+              if (!data2) return;
+              if (data2.downloadUrl && !data2.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data2); return; }
+              if (data2.precisaCadastro && data2.sitesSemEndereco && data2.sitesSemEndereco.length > 0) {
+                divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre os endereços de obra abaixo.</strong></p>";
+                let tbl = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+                data2.sitesSemEndereco.forEach(s => { const esc = (v) => (v||"").replace(/</g,"&lt;").replace(/"/g,"&quot;"); tbl += `<tr data-site="${esc(s.site_code)}" data-uf="${esc(s.uf_servico)}" data-cidade="${esc(s.cidade_servico||"")}"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class="input endereco-cep" placeholder="CEP" style="width:100px"></td><td><input class="input endereco-log" placeholder="Logradouro" style="min-width:120px"></td><td><input class="input endereco-num" placeholder="Nº" style="width:60px"></td><td><input class="input endereco-bairro" placeholder="Bairro" style="width:100px"></td><td><input class="input endereco-uf" placeholder="UF" style="width:40px" maxlength="2"></td><td><input class="input endereco-cod" placeholder="Cód. IBGE 7" style="width:90px" maxlength="7"></td></tr>`; });
+                tbl += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarEnderecos\"><i class=\"fa-solid fa-save\"></i> Salvar endereços e gerar planilha</button>";
+                divTransfCadastro.innerHTML = tbl;
+                document.getElementById("emit-btnSalvarEnderecos").addEventListener("click", async () => {
+                  const rows = divTransfCadastro.querySelectorAll("tr[data-site]");
+                  const enderecos = [];
+                  rows.forEach(tr => { const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g,""); const log = tr.querySelector(".endereco-log")?.value?.trim(); const num = tr.querySelector(".endereco-num")?.value?.trim(); const bairro = tr.querySelector(".endereco-bairro")?.value?.trim(); const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2); const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g,"").slice(0,7); if (cep && cep.length >= 8 && log && num && bairro && ufObra) enderecos.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null }); });
+                  if (enderecos.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+                  const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                  const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                  divTransfCadastro.innerHTML = "<p>Regenerando planilha...</p>";
+                  const data3 = await emitirEnviarTransformar(emitUltimoArquivo);
+                  if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data3); } else { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                });
+              } else { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. " + (data2.erro || "Tente novamente.") + "</p>"; }
+            });
+            return;
+          }
+
+          if (data.precisaCadastro && data.sitesSemEndereco && data.sitesSemEndereco.length > 0) {
+            divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre os endereços de obra abaixo.</strong> Depois salve e a planilha será gerada.</p>";
+            let html = "<table class=\"table\"><thead><tr><th>Site</th><th>UF</th><th>Cidade</th><th>CEP Obra</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>UF Obra</th><th>Cód. Município</th></tr></thead><tbody>";
+            data.sitesSemEndereco.forEach(s => { const esc = (v) => (v||"").replace(/</g,"&lt;").replace(/"/g,"&quot;"); html += `<tr data-site="${esc(s.site_code)}" data-uf="${esc(s.uf_servico)}" data-cidade="${esc(s.cidade_servico||"")}"><td>${esc(s.site_code)}</td><td>${esc(s.uf_servico)}</td><td>${esc(s.cidade_servico)}</td><td><input class="input endereco-cep" placeholder="CEP" style="width:100px"></td><td><input class="input endereco-log" placeholder="Logradouro" style="min-width:120px"></td><td><input class="input endereco-num" placeholder="Nº" style="width:60px"></td><td><input class="input endereco-bairro" placeholder="Bairro" style="width:100px"></td><td><input class="input endereco-uf" placeholder="UF" style="width:40px" maxlength="2"></td><td><input class="input endereco-cod" placeholder="Cód. IBGE 7" style="width:90px" maxlength="7"></td></tr>`; });
+            html += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarEnderecosInicio\"><i class=\"fa-solid fa-save\"></i> Salvar endereços e gerar planilha</button>";
+            divTransfCadastro.innerHTML = html;
+            divTransfCadastro.style.display = "block";
+            document.getElementById("emit-btnSalvarEnderecosInicio").addEventListener("click", async () => {
+              const rows = divTransfCadastro.querySelectorAll("tr[data-site]");
+              const enderecos = [];
+              rows.forEach(tr => { const cep = tr.querySelector(".endereco-cep")?.value?.trim().replace(/\D/g,""); const log = tr.querySelector(".endereco-log")?.value?.trim(); const num = tr.querySelector(".endereco-num")?.value?.trim(); const bairro = tr.querySelector(".endereco-bairro")?.value?.trim(); const ufObra = tr.querySelector(".endereco-uf")?.value?.trim().toUpperCase().slice(0,2); const cod = tr.querySelector(".endereco-cod")?.value?.trim().replace(/\D/g,"").slice(0,7); if (cep && cep.length >= 8 && log && num && bairro && ufObra) enderecos.push({ site_code: tr.dataset.site, uf_servico: tr.dataset.uf, cidade_servico: tr.dataset.cidade || null, cep_obra: cep, logradouro_obra: log, numero_obra: num, bairro_obra: bairro, uf_obra: ufObra, codigo_municipio_obra: cod || null }); });
+              if (enderecos.length === 0) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço."); return; }
+              const r = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+              const res = await r.json(); if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
+              divTransfCadastro.innerHTML = "<p>Endereços salvos. Regenerando planilha...</p>";
+              const data2 = await emitirEnviarTransformar(emitUltimoArquivo);
+              if (!data2) return;
+              if (data2.downloadUrl && !data2.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data2); return; }
+              if (data2.precisaCadastro && data2.municipiosSemAliquota && data2.municipiosSemAliquota.length > 0) {
+                divTransfResultado.innerHTML = "<p class=\"text-warning\"><strong>Cadastre as alíquotas ISS dos municípios abaixo.</strong></p>";
+                let h = "<table class=\"table\"><thead><tr><th>Código</th><th>Cidade / UF</th><th>Alíquota ISS (%)</th></tr></thead><tbody>";
+                data2.municipiosSemAliquota.forEach(m => { const lb = [m.cidade, m.uf].filter(Boolean).join(" / ") || m.codigo; h += `<tr><td>${m.codigo}</td><td>${lb}</td><td><input class="input aliquota-input" data-codigo="${m.codigo}" data-cidade="${(m.cidade||"").replace(/"/g,"&quot;")}" data-uf="${m.uf||""}" placeholder="Ex: 5" style="width:80px"></td></tr>`; });
+                h += "</tbody></table><button type=\"button\" class=\"btn-primary mt-2\" id=\"emit-btnSalvarAliquotas2\"><i class=\"fa-solid fa-save\"></i> Salvar alíquotas e gerar planilha</button>";
+                divTransfCadastro.innerHTML = h;
+                document.getElementById("emit-btnSalvarAliquotas2").addEventListener("click", async () => {
+                  const inp = divTransfCadastro.querySelectorAll(".aliquota-input");
+                  const arr = []; inp.forEach(i => { const v = parseFloat(String(i.value).replace(",", ".")); if (!isNaN(v)) arr.push({ codigo: i.dataset.codigo, cidade: i.dataset.cidade, uf: i.dataset.uf, aliquota: v }); });
+                  if (arr.length === 0) { alert("Informe ao menos uma alíquota."); return; }
+                  const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
+                  const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
+                  divTransfCadastro.innerHTML = "<p>Regenerando planilha...</p>";
+                  const data3 = await emitirEnviarTransformar(emitUltimoArquivo);
+                  if (data3 && data3.downloadUrl && !data3.precisaCadastro) { divTransfCadastro.style.display = "none"; emitirPlanilhaProntaAvançar(data3); } else { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. Tente novamente.</p>"; }
+                });
+              } else { divTransfResultado.innerHTML = "<p class=\"text-warning\">Ainda faltam dados. " + (data2.erro || "Tente novamente.") + "</p>"; }
+            });
+            return;
+          }
+
+          if (data.downloadUrl && !data.precisaCadastro) {
+            divTransfResultado.innerHTML = emitirHtmlPlanilhaPronta(data);
+            if (data.downloadUrl) { try { const respFile = await fetch(API_BASE + data.downloadUrl); if (respFile.ok) { const blob = await respFile.blob(); window.__emitPlanilhaBlob = blob; } } catch (e) {} }
+            if (data.downloadUrlOriginal) { try { const respOrig = await fetch(API_BASE + data.downloadUrlOriginal); if (respOrig.ok) { const blobOrig = await respOrig.blob(); window.__emitPlanilhaClienteBlob = blobOrig; } } catch (e) {} }
+            goToStep(2);
+          }
+        });
+
+        // ==== lógica da etapa 3 (reaproveitando /api/upload/atualizar-planilha-com-nfs) ====
+        const btnAtualizar = document.getElementById("emit-btnAtualizarNfs");
+        const divAtualizar = document.getElementById("emit-atualizarNfsResultado");
+
+        btnAtualizar.addEventListener("click", async () => {
+          if (!(window.__emitPlanilhaClienteBlob instanceof Blob)) {
+            alert("Nenhuma planilha do cliente em memória. Gere na Etapa 1 primeiro.");
+            return;
+          }
+          divAtualizar.style.display = "block";
+          divAtualizar.innerHTML = "<p>Processando...</p>";
+          const fd = new FormData();
+          const arquivo = new File(
+            [window.__emitPlanilhaClienteBlob],
+            "cliente_preenchida.xlsx",
+            { type: window.__emitPlanilhaClienteBlob.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+          );
+          fd.append("arquivo", arquivo);
+          try {
+            const resp = await fetch(`${API_BASE}/api/upload/atualizar-planilha-com-nfs`, { method: "POST", body: fd });
+            const res = await resp.json();
+            if (!res.sucesso || !res.downloadUrl) {
+              divAtualizar.innerHTML = "<p class=\"text-warning\">Erro ao atualizar planilha: " + (res.erro || "desconhecido") + "</p>";
+              return;
+            }
+            divAtualizar.innerHTML = "<p class=\"text-success\"><strong>Planilha do cliente atualizada com números NF!</strong> <a href=\"" + API_BASE + res.downloadUrl + "\" download class=\"btn-primary\"><i class=\"fa-solid fa-download\"></i> Baixar</a></p>";
+          } catch (err) {
+            console.error(err);
+            divAtualizar.innerHTML = "<p class=\"text-warning\">Erro ao atualizar planilha. Verifique a API.</p>";
+          }
+        });
+      }
+
+      // ===================== RELATÓRIOS =====================
+      if (page === "relatorios") {
+        view.innerHTML = `
+          <h2>Relatórios</h2>
+          <p class="subtitle">Resumo atualizado a partir do banco de dados.</p>
+          <div id="relatorioResumo" class="relatorio-resumo">
+            <p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>
+          </div>`;
+        (async function() {
+          const div = document.getElementById("relatorioResumo");
+          try {
+            const res = await fetch(API_BASE + "/api/dashboard/resumo");
+            const data = await res.json();
+            div.innerHTML = `
+              <div class="indicators" style="display:flex; flex-wrap:wrap; gap:16px; margin-top:16px;">
+                <div class="card card-green">
+                  <div class="card-title">NF Emitidas</div>
+                  <div class="card-value" id="rel-nf-emitidas">${data.nf_emitidas_30d ?? 0}</div>
+                  <div class="card-note">Últimos 30 dias</div>
+                </div>
+                <div class="card card-red">
+                  <div class="card-title">NF Pendentes</div>
+                  <div class="card-value" id="rel-nf-pendentes">${data.nf_pendentes ?? 0}</div>
+                  <div class="card-note">Ação necessária</div>
+                </div>
+                <div class="card card-blue">
+                  <div class="card-title">Faturamento</div>
+                  <div class="card-value" id="rel-faturamento">${formatCurrency(data.faturamento_30d)}</div>
+                  <div class="card-note">Últimos 30 dias</div>
+                </div>
+              </div>
+              <p class="subtitle" style="margin-top:20px;">Os números são consultados em tempo real na abertura desta tela.</p>`;
+          } catch (err) {
+            div.innerHTML = "<p class=\"enderecos-empty\">Erro ao carregar resumo. Verifique a API.</p>";
+          }
+        })();
+      }
+    }
+
+    // Eventos da sidebar
+    document.querySelectorAll(".sidebar li").forEach(li => {
+      li.addEventListener("click", () => {
+        document.querySelector(".sidebar .active")?.classList.remove("active");
+        li.classList.add("active");
+
+        const target = li.getAttribute("data-target");
+        loadPage(target);
+      });
+    });
+
+    // Carrega HOME na inicialização
+    loadPage("home");
+  </script>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="/js/upload.js?v=3000"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+{
+  "_comentario": "Código IBGE (7 dígitos) -> alíquota ISS em %. Ex.: 3550308 = São Paulo. Use quando a API do NFSe Nacional não retornar.",
+  "3550308": "5",
+  "3304557": "2"
+}

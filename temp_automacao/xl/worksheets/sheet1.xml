@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{F0C1832B-D8B4-4C3F-9A4B-7733C663E2DA}"><sheetPr codeName="Planilha1"><tabColor theme="4"/></sheetPr><dimension ref="A1:AV37"/><sheetViews><sheetView tabSelected="1" topLeftCell="AF1" zoomScale="73" zoomScaleNormal="40" workbookViewId="0"><selection activeCell="AK30" sqref="AK30"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="14.4" outlineLevelCol="1"/><cols><col min="1" max="2" width="52.44140625" style="27" customWidth="1" outlineLevel="1"/><col min="3" max="3" width="23.44140625" style="27" customWidth="1" outlineLevel="1"/><col min="4" max="4" width="19.6640625" style="27" customWidth="1" outlineLevel="1"/><col min="5" max="5" width="18.44140625" style="27" customWidth="1" outlineLevel="1"/><col min="6" max="6" width="7.88671875" style="27" customWidth="1" outlineLevel="1"/><col min="7" max="7" width="28.6640625" style="27" customWidth="1" outlineLevel="1"/><col min="8" max="8" width="8.6640625" style="27" customWidth="1" outlineLevel="1"/><col min="9" max="9" width="9.33203125" style="27" customWidth="1" outlineLevel="1"/><col min="10" max="10" width="6" style="27" customWidth="1" outlineLevel="1"/><col min="11" max="11" width="5" style="27" customWidth="1" outlineLevel="1"/><col min="12" max="12" width="20.44140625" style="27" customWidth="1" outlineLevel="1"/><col min="13" max="13" width="10.5546875" style="27" customWidth="1" outlineLevel="1"/><col min="14" max="14" width="4.21875" style="23" customWidth="1"/><col min="15" max="15" width="12.77734375" style="30" bestFit="1" customWidth="1"/><col min="16" max="16" width="255.77734375" style="30" bestFit="1" customWidth="1"/><col min="17" max="17" width="16.21875" style="30" bestFit="1" customWidth="1"/><col min="18" max="18" width="38.6640625" style="30" bestFit="1" customWidth="1"/><col min="19" max="19" width="12.109375" style="30" customWidth="1"/><col min="20" max="20" width="30.88671875" style="30" bestFit="1" customWidth="1"/><col min="21" max="21" width="14.88671875" style="27" bestFit="1" customWidth="1"/><col min="22" max="22" width="13.88671875" style="30" customWidth="1"/><col min="23" max="29" width="19.6640625" style="30" customWidth="1"/><col min="30" max="30" width="21.21875" style="30" customWidth="1"/><col min="31" max="31" width="106.44140625" style="30" customWidth="1"/><col min="32" max="32" width="25.21875" style="30" bestFit="1" customWidth="1"/><col min="33" max="33" width="10.88671875" style="30" customWidth="1"/><col min="34" max="34" width="30.21875" style="30" bestFit="1" customWidth="1"/><col min="35" max="35" width="23.33203125" style="27" bestFit="1" customWidth="1"/><col min="36" max="36" width="17.44140625" style="27" bestFit="1" customWidth="1"/><col min="37" max="37" width="16.109375" style="27" bestFit="1" customWidth="1"/><col min="38" max="38" width="36.44140625" style="27" bestFit="1" customWidth="1"/><col min="39" max="42" width="8.88671875" style="27"/><col min="43" max="43" width="23.44140625" style="27" bestFit="1" customWidth="1"/><col min="44" max="44" width="12.33203125" bestFit="1" customWidth="1"/><col min="48" max="48" width="9.5546875" bestFit="1" customWidth="1"/></cols><sheetData><row r="1" spans="1:46" s="24" customFormat="1" ht="55.2" customHeight="1"><c r="A1" s="22" t="s"><v>32</v></c><c r="B1" s="22" t="s"><v>3</v></c><c r="C1" s="22" t="s"><v>36</v></c><c r="D1" s="22" t="s"><v>7</v></c><c r="E1" s="22" t="s"><v>9</v></c><c r="F1" s="22" t="s"><v>12</v></c><c r="G1" s="22" t="s"><v>10</v></c><c r="H1" s="22" t="s"><v>35</v></c><c r="I1" s="22" t="s"><v>37</v></c><c r="J1" s="22" t="s"><v>14</v></c><c r="K1" s="22" t="s"><v>38</v></c><c r="L1" s="25" t="s"><v>87</v></c><c r="M1" s="22" t="s"><v>17</v></c><c r="N1" s="28" t="s"><v>21</v></c><c r="O1" s="22" t="s"><v>34</v></c><c r="P1" s="22" t="s"><v>31</v></c><c r="Q1" s="22" t="s"><v>41</v></c><c r="R1" s="22" t="s"><v>0</v></c><c r="S1" s="22" t="s"><v>2</v></c><c r="T1" s="22" t="s"><v>39</v></c><c r="U1" s="22" t="s"><v>40</v></c><c r="V1" s="22" t="s"><v>83</v></c><c r="W1" s="22" t="s"><v>84</v></c><c r="X1" s="22" t="s"><v>22</v></c><c r="Y1" s="22" t="s"><v>55</v></c><c r="Z1" s="22" t="s"><v>56</v></c><c r="AA1" s="22" t="s"><v>57</v></c><c r="AB1" s="22" t="s"><v>58</v></c><c r="AC1" s="22" t="s"><v>53</v></c><c r="AD1" s="22" t="s"><v>23</v></c><c r="AE1" s="22" t="s"><v>24</v></c><c r="AF1" s="22" t="s"><v>25</v></c><c r="AG1" s="22" t="s"><v>26</v></c><c r="AH1" s="22" t="s"><v>30</v></c><c r="AI1" s="22" t="s"><v>29</v></c><c r="AJ1" s="22" t="s"><v>86</v></c><c r="AK1" s="22" t="s"><v>89</v></c><c r="AL1" s="22" t="s"><v>91</v></c><c r="AM1" s="22" t="s"><v>92</v></c><c r="AN1" s="22" t="s"><v>93</v></c><c r="AO1" s="22" t="s"><v>94</v></c><c r="AP1" s="22" t="s"><v>95</v></c><c r="AQ1" s="22" t="s"><v>96</v></c><c r="AR1" s="54" t="s"><v>204</v></c></row><row r="2" spans="1:46" s="29" customFormat="1" hidden="1"><c r="A2" s="25" t="s"><v>6</v></c><c r="B2" s="25" t="s"><v>6</v></c><c r="C2" s="25" t="s"><v>5</v></c><c r="D2" s="25" t="s"><v>8</v></c><c r="E2" s="25" t="s"><v>13</v></c><c r="F2" s="25"><v>2600</v></c><c r="G2" s="25" t="s"><v>11</v></c><c r="H2" s="46" t="s"><v>20</v></c><c r="I2" s="25"><v>3552205</v></c><c r="J2" s="25" t="s"><v>15</v></c><c r="K2" s="25" t="s"><v>16</v></c><c r="L2" s="25" t="s"><v>88</v></c><c r="M2" s="25" t="s"><v>18</v></c><c r="N2" s="47"/><c r="O2" s="55"><f t="shared" ref="O2:O25" ca="1" si="0">TODAY()</f><v>46049</v></c><c r="P2" s="25" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3295910-146 Line 2  PO: 6211HG3295910-144 Line 1  PO: 6211HG3295910-146 Line 1--</v></c><c r="Q2" s="25"/><c r="R2" s="25" t="s"><v>1048</v></c><c r="S2" s="25"/><c r="T2" s="25" t="s"><v>1049</v></c><c r="U2" s="25" t="s"><v>16</v></c><c r="V2" s="25"><v>3550308</v></c><c r="W2" s="26"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>1426.5618600000003</v></c><c r="X2" s="26"><v>1559.0840000000001</v></c><c r="Y2" s="49"/><c r="Z2" s="26"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>54.567940000000007</v></c><c r="AA2" s="26"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>77.954200000000014</v></c><c r="AB2" s="26"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>77.954200000000014</v></c><c r="AC2" s="25"><v>3.5</v></c><c r="AD2" s="48" t="s"><v>247</v></c><c r="AE2" s="25" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3295910-146 Line 2  PO: 6211HG3295910-144 Line 1  PO: 6211HG3295910-146 Line 1   LINE: 
+MUNICIPIO: SAO PAULO / SP
+MATERIAL:
+SERVIÇO: 1559,08
+BASE DE CÁLCULO ISS: 1559,08
+BASE DE CÁLCULO INSS: 1559,08
+Retenções ISS 5%  Município: SAO PAULO / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF2" s="44"><v>5</v></c><c r="AG2" s="25"><v>2</v></c><c r="AH2" s="25" t="s"><v>28</v></c><c r="AI2" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ2" s="25"><v>1</v></c><c r="AK2" s="48" t="s"><v>90</v></c><c r="AL2" s="25"><v>5307050</v></c><c r="AM2" s="25" t="s"><v>1113</v></c><c r="AN2" s="25"><v>65</v></c><c r="AO2" s="25" t="s"><v>1114</v></c><c r="AP2" s="25" t="s"><v>16</v></c><c r="AQ2" s="25"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3550308</v></c><c r="AR2" s="53" t="s"><v>1050</v></c></row><row r="3" spans="1:46" hidden="1"><c r="A3" s="25" t="s"><v>6</v></c><c r="B3" s="25" t="s"><v>6</v></c><c r="C3" s="25" t="s"><v>5</v></c><c r="D3" s="25" t="s"><v>8</v></c><c r="E3" s="25" t="s"><v>13</v></c><c r="F3" s="25"><v>2600</v></c><c r="G3" s="25" t="s"><v>11</v></c><c r="H3" s="46" t="s"><v>20</v></c><c r="I3" s="25"><v>3552205</v></c><c r="J3" s="25" t="s"><v>15</v></c><c r="K3" s="25" t="s"><v>16</v></c><c r="L3" s="25" t="s"><v>88</v></c><c r="M3" s="25" t="s"><v>18</v></c><c r="N3" s="50"/><c r="O3" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P3" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3295910-176 Line 1  PO: 6211HG3295910-170 Line 1--</v></c><c r="Q3" s="25"/><c r="R3" s="44" t="s"><v>1051</v></c><c r="S3" s="44"/><c r="T3" s="44" t="s"><v>1052</v></c><c r="U3" s="44" t="s"><v>16</v></c><c r="V3" s="25" t="s"><v>1158</v></c><c r="W3" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>1763.6460299999999</v></c><c r="X3" s="45"><v>1927.482</v></c><c r="Y3" s="52"/><c r="Z3" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>67.461870000000005</v></c><c r="AA3" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>96.374099999999999</v></c><c r="AB3" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>96.374099999999999</v></c><c r="AC3" s="25"><v>3.5</v></c><c r="AD3" s="48" t="s"><v>247</v></c><c r="AE3" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3295910-176 Line 1  PO: 6211HG3295910-170 Line 1   LINE: 
+MUNICIPIO: OSASCO / SP
+MATERIAL:
+SERVIÇO: 1927,48
+BASE DE CÁLCULO ISS: 1927,48
+BASE DE CÁLCULO INSS: 1927,48
+Retenções ISS 5%  Município: OSASCO / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF3" s="44"><v>5</v></c><c r="AG3" s="25"><v>2</v></c><c r="AH3" s="25" t="s"><v>28</v></c><c r="AI3" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ3" s="25"><v>1</v></c><c r="AK3" s="48" t="s"><v>90</v></c><c r="AL3" s="44"><v>6216200</v></c><c r="AM3" s="44" t="s"><v>1115</v></c><c r="AN3" s="25"><v>32</v></c><c r="AO3" s="44" t="s"><v>1116</v></c><c r="AP3" s="44" t="s"><v>16</v></c><c r="AQ3" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3534401</v></c><c r="AR3" s="25" t="s"><v>1053</v></c></row><row r="4" spans="1:46" hidden="1"><c r="A4" s="25" t="s"><v>6</v></c><c r="B4" s="25" t="s"><v>6</v></c><c r="C4" s="25" t="s"><v>5</v></c><c r="D4" s="25" t="s"><v>8</v></c><c r="E4" s="25" t="s"><v>13</v></c><c r="F4" s="25"><v>2600</v></c><c r="G4" s="25" t="s"><v>11</v></c><c r="H4" s="46" t="s"><v>20</v></c><c r="I4" s="25"><v>3552205</v></c><c r="J4" s="25" t="s"><v>15</v></c><c r="K4" s="25" t="s"><v>16</v></c><c r="L4" s="25" t="s"><v>88</v></c><c r="M4" s="25" t="s"><v>18</v></c><c r="N4" s="50"/><c r="O4" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P4" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360338-707 Line 1--</v></c><c r="Q4" s="44"/><c r="R4" s="44" t="s"><v>1054</v></c><c r="S4" s="44"/><c r="T4" s="44" t="s"><v>1052</v></c><c r="U4" s="44" t="s"><v>16</v></c><c r="V4" s="25" t="s"><v>1158</v></c><c r="W4" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>4514.6100000000006</v></c><c r="X4" s="45"><v>4934</v></c><c r="Y4" s="52"/><c r="Z4" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>172.69000000000003</v></c><c r="AA4" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>246.70000000000002</v></c><c r="AB4" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>246.70000000000002</v></c><c r="AC4" s="25"><v>3.5</v></c><c r="AD4" s="48" t="s"><v>247</v></c><c r="AE4" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360338-707 Line 1   LINE: 
+MUNICIPIO: OSASCO / SP
+MATERIAL:
+SERVIÇO: 4934
+BASE DE CÁLCULO ISS: 4934
+BASE DE CÁLCULO INSS: 4934
+Retenções ISS 5%  Município: OSASCO / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF4" s="44"><v>5</v></c><c r="AG4" s="25"><v>2</v></c><c r="AH4" s="25" t="s"><v>28</v></c><c r="AI4" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ4" s="25"><v>1</v></c><c r="AK4" s="48" t="s"><v>90</v></c><c r="AL4" s="44" t="s"><v>1168</v></c><c r="AM4" s="44" t="s"><v>1169</v></c><c r="AN4" s="44" t="s"><v>332</v></c><c r="AO4" s="44" t="s"><v>1170</v></c><c r="AP4" s="44" t="s"><v>16</v></c><c r="AQ4" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3534401</v></c><c r="AR4" s="25" t="s"><v>1055</v></c><c r="AT4" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>DBS_SP</v></c></row><row r="5" spans="1:46" hidden="1"><c r="A5" s="25" t="s"><v>6</v></c><c r="B5" s="25" t="s"><v>6</v></c><c r="C5" s="25" t="s"><v>5</v></c><c r="D5" s="25" t="s"><v>8</v></c><c r="E5" s="25" t="s"><v>13</v></c><c r="F5" s="25"><v>2600</v></c><c r="G5" s="25" t="s"><v>11</v></c><c r="H5" s="46" t="s"><v>20</v></c><c r="I5" s="25"><v>3552205</v></c><c r="J5" s="25" t="s"><v>15</v></c><c r="K5" s="25" t="s"><v>16</v></c><c r="L5" s="25" t="s"><v>88</v></c><c r="M5" s="25" t="s"><v>18</v></c><c r="N5" s="50"/><c r="O5" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P5" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3295910-922 Line 2  PO: 6211HG3295910-922 Line 1  PO: 6211HG3295910-925 Line 1--</v></c><c r="Q5" s="44"/><c r="R5" s="44" t="s"><v>1056</v></c><c r="S5" s="44"/><c r="T5" s="44" t="s"><v>1057</v></c><c r="U5" s="44" t="s"><v>16</v></c><c r="V5" s="25"><v>3543303</v></c><c r="W5" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>1426.5618600000003</v></c><c r="X5" s="45"><v>1559.0840000000001</v></c><c r="Y5" s="52"/><c r="Z5" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>54.567940000000007</v></c><c r="AA5" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>77.954200000000014</v></c><c r="AB5" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>77.954200000000014</v></c><c r="AC5" s="25"><v>3.5</v></c><c r="AD5" s="48" t="s"><v>247</v></c><c r="AE5" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3295910-922 Line 2  PO: 6211HG3295910-922 Line 1  PO: 6211HG3295910-925 Line 1   LINE: 
+MUNICIPIO: RIBEIRAO PIRES / SP
+MATERIAL:
+SERVIÇO: 1559,08
+BASE DE CÁLCULO ISS: 1559,08
+BASE DE CÁLCULO INSS: 1559,08
+Retenções ISS 5%  Município: RIBEIRAO PIRES / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF5" s="44"><v>5</v></c><c r="AG5" s="25"><v>2</v></c><c r="AH5" s="25" t="s"><v>28</v></c><c r="AI5" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ5" s="25"><v>1</v></c><c r="AK5" s="48" t="s"><v>90</v></c><c r="AL5" s="44"><v>9420020</v></c><c r="AM5" s="44" t="s"><v>1117</v></c><c r="AN5" s="44" t="s"><v>329</v></c><c r="AO5" s="44" t="s"><v>1118</v></c><c r="AP5" s="44" t="s"><v>16</v></c><c r="AQ5" s="25"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3543303</v></c><c r="AR5" s="25" t="s"><v>1058</v></c><c r="AT5" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>SR-RPVR04_SP</v></c></row><row r="6" spans="1:46" hidden="1"><c r="A6" s="25" t="s"><v>6</v></c><c r="B6" s="25" t="s"><v>6</v></c><c r="C6" s="25" t="s"><v>5</v></c><c r="D6" s="25" t="s"><v>8</v></c><c r="E6" s="25" t="s"><v>13</v></c><c r="F6" s="25"><v>2600</v></c><c r="G6" s="25" t="s"><v>11</v></c><c r="H6" s="46" t="s"><v>20</v></c><c r="I6" s="25"><v>3552205</v></c><c r="J6" s="25" t="s"><v>15</v></c><c r="K6" s="25" t="s"><v>16</v></c><c r="L6" s="25" t="s"><v>88</v></c><c r="M6" s="25" t="s"><v>18</v></c><c r="N6" s="50"/><c r="O6" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P6" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360340-3086 Line 4  PO: 6211HG3360340-3079 Line 1  PO: 6211HG3360340-3086 Line 2  PO: 6211HG3360340-3086 Line 1  PO: 6211HG3360340-3086 Line 3--</v></c><c r="Q6" s="44"/><c r="R6" s="44" t="s"><v>1060</v></c><c r="S6" s="44"/><c r="T6" s="44" t="s"><v>1061</v></c><c r="U6" s="44" t="s"><v>49</v></c><c r="V6" s="25" t="s"><v>1160</v></c><c r="W6" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>507.48279000000002</v></c><c r="X6" s="45"><v>554.62600000000009</v></c><c r="Y6" s="52"/><c r="Z6" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>19.411910000000006</v></c><c r="AA6" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>27.731300000000005</v></c><c r="AB6" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>27.731300000000005</v></c><c r="AC6" s="25"><v>3.5</v></c><c r="AD6" s="48" t="s"><v>247</v></c><c r="AE6" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360340-3086 Line 4  PO: 6211HG3360340-3079 Line 1  PO: 6211HG3360340-3086 Line 2  PO: 6211HG3360340-3086 Line 1  PO: 6211HG3360340-3086 Line 3   LINE: 
+MUNICIPIO: OLINDA / PE
+MATERIAL:
+SERVIÇO: 554,63
+BASE DE CÁLCULO ISS: 554,63
+BASE DE CÁLCULO INSS: 554,63
+Retenções ISS 5%  Município: OLINDA / PE
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF6" s="44"><v>5</v></c><c r="AG6" s="25"><v>2</v></c><c r="AH6" s="25" t="s"><v>28</v></c><c r="AI6" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ6" s="25"><v>1</v></c><c r="AK6" s="48" t="s"><v>90</v></c><c r="AL6" s="44" t="s"><v>1126</v></c><c r="AM6" s="44" t="s"><v>1127</v></c><c r="AN6" s="25" t="s"><v>1128</v></c><c r="AO6" s="44" t="s"><v>1129</v></c><c r="AP6" s="44" t="s"><v>49</v></c><c r="AQ6" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2609600</v></c><c r="AR6" s="25" t="s"><v>1062</v></c><c r="AT6" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>PEOLD27_PE</v></c></row><row r="7" spans="1:46" hidden="1"><c r="A7" s="25" t="s"><v>6</v></c><c r="B7" s="25" t="s"><v>6</v></c><c r="C7" s="25" t="s"><v>5</v></c><c r="D7" s="25" t="s"><v>8</v></c><c r="E7" s="25" t="s"><v>13</v></c><c r="F7" s="25"><v>2600</v></c><c r="G7" s="25" t="s"><v>11</v></c><c r="H7" s="46" t="s"><v>20</v></c><c r="I7" s="25"><v>3552205</v></c><c r="J7" s="25" t="s"><v>15</v></c><c r="K7" s="25" t="s"><v>16</v></c><c r="L7" s="25" t="s"><v>88</v></c><c r="M7" s="25" t="s"><v>18</v></c><c r="N7" s="50"/><c r="O7" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P7" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360340-2996 Line 4  PO: 6211HG3360340-2996 Line 3  PO: 6211HG3360340-2996 Line 1  PO: 6211HG3360340-2996 Line 2--</v></c><c r="Q7" s="44"/><c r="R7" s="44" t="s"><v>1063</v></c><c r="S7" s="44"/><c r="T7" s="44" t="s"><v>1059</v></c><c r="U7" s="44" t="s"><v>320</v></c><c r="V7" s="44" t="s"><v>1159</v></c><c r="W7" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>780.36034999999993</v></c><c r="X7" s="45"><v>834.61</v></c><c r="Y7" s="52"/><c r="Z7" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>29.211350000000003</v></c><c r="AA7" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>25.0383</v></c><c r="AB7" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>25.0383</v></c><c r="AC7" s="44"><v>3.5</v></c><c r="AD7" s="56" t="s"><v>247</v></c><c r="AE7" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360340-2996 Line 4  PO: 6211HG3360340-2996 Line 3  PO: 6211HG3360340-2996 Line 1  PO: 6211HG3360340-2996 Line 2   LINE: 
+MUNICIPIO: FORTALEZA / CE
+MATERIAL:
+SERVIÇO: 834,61
+BASE DE CÁLCULO ISS: 834,61
+BASE DE CÁLCULO INSS: 834,61
+Retenções ISS 3%  Município: FORTALEZA / CE
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF7" s="44"><v>3</v></c><c r="AG7" s="25"><v>2</v></c><c r="AH7" s="25" t="s"><v>28</v></c><c r="AI7" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ7" s="25"><v>1</v></c><c r="AK7" s="48" t="s"><v>90</v></c><c r="AL7" s="44" t="s"><v>1130</v></c><c r="AM7" s="44" t="s"><v>1131</v></c><c r="AN7" s="44" t="s"><v>1132</v></c><c r="AO7" s="44" t="s"><v>1119</v></c><c r="AP7" s="44" t="s"><v>320</v></c><c r="AQ7" s="44" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2304400</v></c><c r="AR7" s="44" t="s"><v>1064</v></c><c r="AT7" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>CEALD07_CE</v></c></row><row r="8" spans="1:46" hidden="1"><c r="A8" s="25" t="s"><v>6</v></c><c r="B8" s="25" t="s"><v>6</v></c><c r="C8" s="25" t="s"><v>5</v></c><c r="D8" s="25" t="s"><v>8</v></c><c r="E8" s="25" t="s"><v>13</v></c><c r="F8" s="25"><v>2600</v></c><c r="G8" s="25" t="s"><v>11</v></c><c r="H8" s="46" t="s"><v>20</v></c><c r="I8" s="25"><v>3552205</v></c><c r="J8" s="25" t="s"><v>15</v></c><c r="K8" s="25" t="s"><v>16</v></c><c r="L8" s="25" t="s"><v>88</v></c><c r="M8" s="25" t="s"><v>18</v></c><c r="N8" s="50"/><c r="O8" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P8" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360340-3003 Line 4  PO: 6211HG3360340-3003 Line 6  PO: 6211HG3360340-3403 Line 2  PO: 6211HG3360340-2995 Line 4  PO: 6211HG3360340-3003 Line 1  PO: 6211HG3360340-3003 Line 2  PO: 6211HG3360340-3403 Line 1  PO: 6211HG3360340-2995 Line 1  PO: 6211HG3360340-2995 Line 2  PO: 6211HG3360340-3003 Line 3  PO: 6211HG3360340-3003 Line 9  PO: 6211HG3360340-2995 Line 3  PO: 6211HG3360340-3003 Line 5  PO: 6211HG3360340-3003 Line 8--</v></c><c r="Q8" s="44"/><c r="R8" s="44" t="s"><v>1065</v></c><c r="S8" s="44"/><c r="T8" s="44" t="s"><v>1066</v></c><c r="U8" s="44" t="s"><v>1067</v></c><c r="V8" s="44" t="s"><v>1161</v></c><c r="W8" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>1861.6141878750002</v></c><c r="X8" s="45"><v>2034.5510250000002</v></c><c r="Y8" s="52"/><c r="Z8" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>71.20928587500002</v></c><c r="AA8" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>101.72755125000002</v></c><c r="AB8" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>101.72755125000002</v></c><c r="AC8" s="44"><v>3.5</v></c><c r="AD8" s="56" t="s"><v>247</v></c><c r="AE8" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360340-3003 Line 4  PO: 6211HG3360340-3003 Line 6  PO: 6211HG3360340-3403 Line 2  PO: 6211HG3360340-2995 Line 4  PO: 6211HG3360340-3003 Line 1  PO: 6211HG3360340-3003 Line 2  PO: 6211HG3360340-3403 Line 1  PO: 6211HG3360340-2995 Line 1  PO: 6211HG3360340-2995 Line 2  PO: 6211HG3360340-3003 Line 3  PO: 6211HG3360340-3003 Line 9  PO: 6211HG3360340-2995 Line 3  PO: 6211HG3360340-3003 Line 5  PO: 6211HG3360340-3003 Line 8   LINE: 
+MUNICIPIO: LAURO DE FREITAS / BA
+MATERIAL:
+SERVIÇO: 2034,55
+BASE DE CÁLCULO ISS: 2034,55
+BASE DE CÁLCULO INSS: 2034,55
+Retenções ISS 5%  Município: LAURO DE FREITAS / BA
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF8" s="44"><v>5</v></c><c r="AG8" s="25"><v>2</v></c><c r="AH8" s="25" t="s"><v>28</v></c><c r="AI8" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ8" s="25"><v>1</v></c><c r="AK8" s="48" t="s"><v>90</v></c><c r="AL8" s="44" t="s"><v>1133</v></c><c r="AM8" s="44" t="s"><v>1134</v></c><c r="AN8" s="44" t="s"><v>1135</v></c><c r="AO8" s="44" t="s"><v>1136</v></c><c r="AP8" s="44" t="s"><v>1067</v></c><c r="AQ8" s="44" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2919207</v></c><c r="AR8" s="44" t="s"><v>1068</v></c><c r="AT8" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>BALFS27_BA</v></c></row><row r="9" spans="1:46" hidden="1"><c r="A9" s="25" t="s"><v>6</v></c><c r="B9" s="25" t="s"><v>6</v></c><c r="C9" s="25" t="s"><v>5</v></c><c r="D9" s="25" t="s"><v>8</v></c><c r="E9" s="25" t="s"><v>13</v></c><c r="F9" s="25"><v>2600</v></c><c r="G9" s="25" t="s"><v>11</v></c><c r="H9" s="46" t="s"><v>20</v></c><c r="I9" s="25"><v>3552205</v></c><c r="J9" s="25" t="s"><v>15</v></c><c r="K9" s="25" t="s"><v>16</v></c><c r="L9" s="25" t="s"><v>88</v></c><c r="M9" s="25" t="s"><v>18</v></c><c r="N9" s="50"/><c r="O9" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P9" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360343-305 Line 1  PO: 6211HG3360343-312 Line 3  PO: 6211HG3360343-305 Line 3  PO: 6211HG3360343-312 Line 1  PO: 6211HG3360343-305 Line 2--</v></c><c r="Q9" s="44"/><c r="R9" s="44" t="s"><v>1069</v></c><c r="S9" s="44"/><c r="T9" s="44" t="s"><v>1070</v></c><c r="U9" s="44" t="s"><v>321</v></c><c r="V9" s="44"><v>5108402</v></c><c r="W9" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>7162.6135949999989</v></c><c r="X9" s="45"><v>7827.9929999999995</v></c><c r="Y9" s="52"/><c r="Z9" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>273.97975500000001</v></c><c r="AA9" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>391.39965000000001</v></c><c r="AB9" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>391.39965000000001</v></c><c r="AC9" s="25"><v>3.5</v></c><c r="AD9" s="56" t="s"><v>247</v></c><c r="AE9" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360343-305 Line 1  PO: 6211HG3360343-312 Line 3  PO: 6211HG3360343-305 Line 3  PO: 6211HG3360343-312 Line 1  PO: 6211HG3360343-305 Line 2   LINE: 
+MUNICIPIO: VARZEA GRANDE / MT
+MATERIAL:
+SERVIÇO: 7827,99
+BASE DE CÁLCULO ISS: 7827,99
+BASE DE CÁLCULO INSS: 7827,99
+Retenções ISS 5%  Município: VARZEA GRANDE / MT
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF9" s="44"><v>5</v></c><c r="AG9" s="25"><v>2</v></c><c r="AH9" s="25" t="s"><v>28</v></c><c r="AI9" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ9" s="25"><v>1</v></c><c r="AK9" s="48" t="s"><v>90</v></c><c r="AL9" s="44" t="s"><v>1137</v></c><c r="AM9" s="44" t="s"><v>1138</v></c><c r="AN9" s="44" t="s"><v>329</v></c><c r="AO9" s="44" t="s"><v>1139</v></c><c r="AP9" s="44" t="s"><v>321</v></c><c r="AQ9" s="25"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5108402</v></c><c r="AR9" s="44" t="s"><v>1071</v></c><c r="AT9" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>MTVAZ17_MT</v></c></row><row r="10" spans="1:46" hidden="1"><c r="A10" s="25" t="s"><v>6</v></c><c r="B10" s="25" t="s"><v>6</v></c><c r="C10" s="25" t="s"><v>5</v></c><c r="D10" s="25" t="s"><v>8</v></c><c r="E10" s="25" t="s"><v>13</v></c><c r="F10" s="25"><v>2600</v></c><c r="G10" s="25" t="s"><v>11</v></c><c r="H10" s="46" t="s"><v>20</v></c><c r="I10" s="25"><v>3552205</v></c><c r="J10" s="25" t="s"><v>15</v></c><c r="K10" s="25" t="s"><v>16</v></c><c r="L10" s="25" t="s"><v>88</v></c><c r="M10" s="25" t="s"><v>18</v></c><c r="N10" s="50"/><c r="O10" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P10" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-824 Line 4  PO: 6211HG3360342-824 Line 3  PO: 6211HG3360342-824 Line 2  PO: 6211HG3360342-824 Line 1  PO: 6211HG3360342-824 Line 4--</v></c><c r="Q10" s="44"/><c r="R10" s="44" t="s"><v>1072</v></c><c r="S10" s="44"/><c r="T10" s="44" t="s"><v>322</v></c><c r="U10" s="44" t="s"><v>222</v></c><c r="V10" s="44" t="s"><v>336</v></c><c r="W10" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>3638.46639</v></c><c r="X10" s="45"><v>3976.4659999999999</v></c><c r="Y10" s="52"/><c r="Z10" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>139.17631</v></c><c r="AA10" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>198.82330000000002</v></c><c r="AB10" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>198.82330000000002</v></c><c r="AC10" s="25"><v>3.5</v></c><c r="AD10" s="56" t="s"><v>247</v></c><c r="AE10" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-824 Line 4  PO: 6211HG3360342-824 Line 3  PO: 6211HG3360342-824 Line 2  PO: 6211HG3360342-824 Line 1  PO: 6211HG3360342-824 Line 4   LINE: 
+MUNICIPIO: INHUMAS / GO
+MATERIAL:
+SERVIÇO: 3976,47
+BASE DE CÁLCULO ISS: 3976,47
+BASE DE CÁLCULO INSS: 3976,47
+Retenções ISS 5%  Município: INHUMAS / GO
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF10" s="44"><v>5</v></c><c r="AG10" s="25"><v>2</v></c><c r="AH10" s="25" t="s"><v>28</v></c><c r="AI10" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ10" s="25"><v>1</v></c><c r="AK10" s="48" t="s"><v>90</v></c><c r="AL10" s="44"><v>88010902</v></c><c r="AM10" s="44" t="s"><v>330</v></c><c r="AN10" s="44" t="s"><v>329</v></c><c r="AO10" s="44" t="s"><v>328</v></c><c r="AP10" s="44" t="s"><v>222</v></c><c r="AQ10" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5210000</v></c><c r="AR10" s="44" t="s"><v>323</v></c><c r="AT10" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>IUP_GO</v></c></row><row r="11" spans="1:46" hidden="1"><c r="A11" s="25" t="s"><v>6</v></c><c r="B11" s="25" t="s"><v>6</v></c><c r="C11" s="25" t="s"><v>5</v></c><c r="D11" s="25" t="s"><v>8</v></c><c r="E11" s="25" t="s"><v>13</v></c><c r="F11" s="25"><v>2600</v></c><c r="G11" s="25" t="s"><v>11</v></c><c r="H11" s="46" t="s"><v>20</v></c><c r="I11" s="25"><v>3552205</v></c><c r="J11" s="25" t="s"><v>15</v></c><c r="K11" s="25" t="s"><v>16</v></c><c r="L11" s="25" t="s"><v>88</v></c><c r="M11" s="25" t="s"><v>18</v></c><c r="N11" s="50"/><c r="O11" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P11" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360343-326 Line 1  PO: 6211HG3360343-326 Line 3  PO: 6211HG3360343-326 Line 4  PO: 6211HG3360343-326 Line 5  PO: 6211HG3360343-326 Line 2--</v></c><c r="Q11" s="44"/><c r="R11" s="44" t="s"><v>1073</v></c><c r="S11" s="44"/><c r="T11" s="44" t="s"><v>324</v></c><c r="U11" s="44" t="s"><v>321</v></c><c r="V11" s="44"><v>5102504</v></c><c r="W11" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>847.44463500000006</v></c><c r="X11" s="45"><v>926.1690000000001</v></c><c r="Y11" s="52"/><c r="Z11" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>32.415915000000005</v></c><c r="AA11" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>46.308450000000008</v></c><c r="AB11" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>46.308450000000008</v></c><c r="AC11" s="25"><v>3.5</v></c><c r="AD11" s="56" t="s"><v>247</v></c><c r="AE11" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360343-326 Line 1  PO: 6211HG3360343-326 Line 3  PO: 6211HG3360343-326 Line 4  PO: 6211HG3360343-326 Line 5  PO: 6211HG3360343-326 Line 2   LINE: 
+MUNICIPIO: CACERES / MT
+MATERIAL:
+SERVIÇO: 926,17
+BASE DE CÁLCULO ISS: 926,17
+BASE DE CÁLCULO INSS: 926,17
+Retenções ISS 5%  Município: CACERES / MT
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF11" s="44"><v>5</v></c><c r="AG11" s="25"><v>2</v></c><c r="AH11" s="25" t="s"><v>28</v></c><c r="AI11" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ11" s="25"><v>1</v></c><c r="AK11" s="48" t="s"><v>90</v></c><c r="AL11" s="44" t="s"><v>333</v></c><c r="AM11" s="44" t="s"><v>1171</v></c><c r="AN11" s="44" t="s"><v>332</v></c><c r="AO11" s="44" t="s"><v>334</v></c><c r="AP11" s="44" t="s"><v>321</v></c><c r="AQ11" s="25"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5102504</v></c><c r="AR11" s="44" t="s"><v>325</v></c><c r="AT11" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>CRD_MT</v></c></row><row r="12" spans="1:46" hidden="1"><c r="A12" s="25" t="s"><v>6</v></c><c r="B12" s="25" t="s"><v>6</v></c><c r="C12" s="25" t="s"><v>5</v></c><c r="D12" s="25" t="s"><v>8</v></c><c r="E12" s="25" t="s"><v>13</v></c><c r="F12" s="25"><v>2600</v></c><c r="G12" s="25" t="s"><v>11</v></c><c r="H12" s="46" t="s"><v>20</v></c><c r="I12" s="25"><v>3552205</v></c><c r="J12" s="25" t="s"><v>15</v></c><c r="K12" s="25" t="s"><v>16</v></c><c r="L12" s="25" t="s"><v>88</v></c><c r="M12" s="25" t="s"><v>18</v></c><c r="N12" s="50"/><c r="O12" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P12" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-803 Line 3  PO: 6211HG3360342-803 Line 4  PO: 6211HG3360342-803 Line 2  PO: 6211HG3360342-803 Line 1--</v></c><c r="Q12" s="44"/><c r="R12" s="44" t="s"><v>1074</v></c><c r="S12" s="44"/><c r="T12" s="44" t="s"><v>326</v></c><c r="U12" s="44" t="s"><v>222</v></c><c r="V12" s="44" t="s"><v>337</v></c><c r="W12" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>603.33025499999985</v></c><c r="X12" s="45"><v>645.27299999999991</v></c><c r="Y12" s="52"/><c r="Z12" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>22.584554999999998</v></c><c r="AA12" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>19.358189999999997</v></c><c r="AB12" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>19.358189999999997</v></c><c r="AC12" s="25"><v>3.5</v></c><c r="AD12" s="56" t="s"><v>247</v></c><c r="AE12" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-803 Line 3  PO: 6211HG3360342-803 Line 4  PO: 6211HG3360342-803 Line 2  PO: 6211HG3360342-803 Line 1   LINE: 
+MUNICIPIO: ITUMBIARA / GO
+MATERIAL:
+SERVIÇO: 645,27
+BASE DE CÁLCULO ISS: 645,27
+BASE DE CÁLCULO INSS: 645,27
+Retenções ISS 3%  Município: ITUMBIARA / GO
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF12" s="44"><v>3</v></c><c r="AG12" s="25"><v>2</v></c><c r="AH12" s="25" t="s"><v>28</v></c><c r="AI12" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ12" s="25"><v>1</v></c><c r="AK12" s="48" t="s"><v>90</v></c><c r="AL12" s="44"><v>75516290</v></c><c r="AM12" s="44" t="s"><v>335</v></c><c r="AN12" s="44"><v>531</v></c><c r="AO12" s="44" t="s"><v>328</v></c><c r="AP12" s="44" t="s"><v>222</v></c><c r="AQ12" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5211503</v></c><c r="AR12" s="44" t="s"><v>327</v></c><c r="AT12" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>IRO_GO</v></c></row><row r="13" spans="1:46" hidden="1"><c r="A13" s="25" t="s"><v>6</v></c><c r="B13" s="25" t="s"><v>6</v></c><c r="C13" s="25" t="s"><v>5</v></c><c r="D13" s="25" t="s"><v>8</v></c><c r="E13" s="25" t="s"><v>13</v></c><c r="F13" s="25"><v>2600</v></c><c r="G13" s="25" t="s"><v>11</v></c><c r="H13" s="46" t="s"><v>20</v></c><c r="I13" s="25"><v>3552205</v></c><c r="J13" s="25" t="s"><v>15</v></c><c r="K13" s="25" t="s"><v>16</v></c><c r="L13" s="25" t="s"><v>88</v></c><c r="M13" s="25" t="s"><v>18</v></c><c r="N13" s="50"/><c r="O13" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P13" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-970 Line 3  PO: 6211HG3360342-970 Line 1  PO: 6211HG3360342-970 Line 2--</v></c><c r="Q13" s="44"/><c r="R13" s="44" t="s"><v>1075</v></c><c r="S13" s="44"/><c r="T13" s="44" t="s"><v>1076</v></c><c r="U13" s="44" t="s"><v>1077</v></c><c r="V13" s="44"><v>5300108</v></c><c r="W13" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>411.91888500000005</v></c><c r="X13" s="45"><v>435.89300000000003</v></c><c r="Y13" s="52"/><c r="Z13" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>15.256255000000003</v></c><c r="AA13" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>8.7178599999999999</v></c><c r="AB13" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>8.7178599999999999</v></c><c r="AC13" s="44"><v>3.5</v></c><c r="AD13" s="56" t="s"><v>247</v></c><c r="AE13" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-970 Line 3  PO: 6211HG3360342-970 Line 1  PO: 6211HG3360342-970 Line 2   LINE: 
+MUNICIPIO: BRASILIA / DF
+MATERIAL:
+SERVIÇO: 435,89
+BASE DE CÁLCULO ISS: 435,89
+BASE DE CÁLCULO INSS: 435,89
+Retenções ISS 2%  Município: BRASILIA / DF
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF13" s="44"><v>2</v></c><c r="AG13" s="25"><v>2</v></c><c r="AH13" s="25" t="s"><v>28</v></c><c r="AI13" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ13" s="25"><v>1</v></c><c r="AK13" s="48" t="s"><v>90</v></c><c r="AL13" s="44" t="s"><v>1172</v></c><c r="AM13" s="44" t="s"><v>1173</v></c><c r="AN13" s="44" t="s"><v>332</v></c><c r="AO13" s="44" t="s"><v>328</v></c><c r="AP13" s="44" t="s"><v>1077</v></c><c r="AQ13" s="44"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5300108</v></c><c r="AR13" s="44" t="s"><v>1078</v></c><c r="AT13" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>QDS_DF</v></c></row><row r="14" spans="1:46" hidden="1"><c r="A14" s="25" t="s"><v>6</v></c><c r="B14" s="25" t="s"><v>6</v></c><c r="C14" s="25" t="s"><v>5</v></c><c r="D14" s="25" t="s"><v>8</v></c><c r="E14" s="25" t="s"><v>13</v></c><c r="F14" s="25"><v>2600</v></c><c r="G14" s="25" t="s"><v>11</v></c><c r="H14" s="46" t="s"><v>20</v></c><c r="I14" s="25"><v>3552205</v></c><c r="J14" s="25" t="s"><v>15</v></c><c r="K14" s="25" t="s"><v>16</v></c><c r="L14" s="25" t="s"><v>88</v></c><c r="M14" s="25" t="s"><v>18</v></c><c r="N14" s="50"/><c r="O14" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P14" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG2963610-187 Line 2  PO: 6211HG2963610-187 Line 1--</v></c><c r="Q14" s="44"/><c r="R14" s="44" t="s"><v>1079</v></c><c r="S14" s="44"/><c r="T14" s="44" t="s"><v>1080</v></c><c r="U14" s="44" t="s"><v>1081</v></c><c r="V14" s="44" t="s"><v>1162</v></c><c r="W14" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>183.23058</v></c><c r="X14" s="45"><v>200.25200000000001</v></c><c r="Y14" s="52"/><c r="Z14" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>7.0088200000000009</v></c><c r="AA14" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>10.012600000000001</v></c><c r="AB14" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>10.012600000000001</v></c><c r="AC14" s="25"><v>3.5</v></c><c r="AD14" s="56" t="s"><v>247</v></c><c r="AE14" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG2963610-187 Line 2  PO: 6211HG2963610-187 Line 1   LINE: 
+MUNICIPIO: GUARABIRA / PB
+MATERIAL:
+SERVIÇO: 200,25
+BASE DE CÁLCULO ISS: 200,25
+BASE DE CÁLCULO INSS: 200,25
+Retenções ISS 5%  Município: GUARABIRA / PB
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF14" s="44"><v>5</v></c><c r="AG14" s="25"><v>2</v></c><c r="AH14" s="25" t="s"><v>28</v></c><c r="AI14" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ14" s="25"><v>1</v></c><c r="AK14" s="48" t="s"><v>90</v></c><c r="AL14" s="44" t="s"><v>1140</v></c><c r="AM14" s="44" t="s"><v>1141</v></c><c r="AN14" s="44" t="s"><v>1142</v></c><c r="AO14" s="44" t="s"><v>328</v></c><c r="AP14" s="44" t="s"><v>1081</v></c><c r="AQ14" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2506301</v></c><c r="AR14" s="44" t="s"><v>1082</v></c><c r="AT14" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>PBGBI03_PB</v></c></row><row r="15" spans="1:46" hidden="1"><c r="A15" s="25" t="s"><v>6</v></c><c r="B15" s="25" t="s"><v>6</v></c><c r="C15" s="25" t="s"><v>5</v></c><c r="D15" s="25" t="s"><v>8</v></c><c r="E15" s="25" t="s"><v>13</v></c><c r="F15" s="25"><v>2600</v></c><c r="G15" s="25" t="s"><v>11</v></c><c r="H15" s="46" t="s"><v>20</v></c><c r="I15" s="25"><v>3552205</v></c><c r="J15" s="25" t="s"><v>15</v></c><c r="K15" s="25" t="s"><v>16</v></c><c r="L15" s="25" t="s"><v>88</v></c><c r="M15" s="25" t="s"><v>18</v></c><c r="N15" s="50"/><c r="O15" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P15" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360340-3056 Line 1  PO: 6211HG3360340-3056 Line 2  PO: 6211HG3360340-3056 Line 3--</v></c><c r="Q15" s="44"/><c r="R15" s="44" t="s"><v>1083</v></c><c r="S15" s="44"/><c r="T15" s="44" t="s"><v>1084</v></c><c r="U15" s="44" t="s"><v>1067</v></c><c r="V15" s="44" t="s"><v>1163</v></c><c r="W15" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>4574.7566099999995</v></c><c r="X15" s="45"><v>4999.7339999999995</v></c><c r="Y15" s="52"/><c r="Z15" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>174.99069</v></c><c r="AA15" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>249.98669999999998</v></c><c r="AB15" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>249.98669999999998</v></c><c r="AC15" s="25"><v>3.5</v></c><c r="AD15" s="56" t="s"><v>247</v></c><c r="AE15" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360340-3056 Line 1  PO: 6211HG3360340-3056 Line 2  PO: 6211HG3360340-3056 Line 3   LINE: 
+MUNICIPIO: ITABERABA / BA
+MATERIAL:
+SERVIÇO: 4999,73
+BASE DE CÁLCULO ISS: 4999,73
+BASE DE CÁLCULO INSS: 4999,73
+Retenções ISS 5%  Município: ITABERABA / BA
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF15" s="44"><v>5</v></c><c r="AG15" s="25"><v>2</v></c><c r="AH15" s="25" t="s"><v>28</v></c><c r="AI15" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ15" s="25"><v>1</v></c><c r="AK15" s="48" t="s"><v>90</v></c><c r="AL15" s="44" t="s"><v>1143</v></c><c r="AM15" s="44" t="s"><v>1144</v></c><c r="AN15" s="44" t="s"><v>329</v></c><c r="AO15" s="44" t="s"><v>1145</v></c><c r="AP15" s="44" t="s"><v>1067</v></c><c r="AQ15" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2914703</v></c><c r="AR15" s="44" t="s"><v>1125</v></c><c r="AT15" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>BAITR02_BA</v></c></row><row r="16" spans="1:46"><c r="A16" s="25" t="s"><v>6</v></c><c r="B16" s="25" t="s"><v>6</v></c><c r="C16" s="25" t="s"><v>5</v></c><c r="D16" s="25" t="s"><v>8</v></c><c r="E16" s="25" t="s"><v>13</v></c><c r="F16" s="25"><v>2600</v></c><c r="G16" s="25" t="s"><v>11</v></c><c r="H16" s="46" t="s"><v>20</v></c><c r="I16" s="25"><v>3552205</v></c><c r="J16" s="25" t="s"><v>15</v></c><c r="K16" s="25" t="s"><v>16</v></c><c r="L16" s="25" t="s"><v>88</v></c><c r="M16" s="25" t="s"><v>18</v></c><c r="N16" s="50"/><c r="O16" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P16" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-820 Line 1  PO: 6211HG3360342-819 Line 3  PO: 6211HG3360342-819 Line 4  PO: 6211HG3360342-819 Line 2  PO: 6211HG3360342-819 Line 1--</v></c><c r="Q16" s="44"/><c r="R16" s="44" t="s"><v>1085</v></c><c r="S16" s="44"/><c r="T16" s="44" t="s"><v>1086</v></c><c r="U16" s="44" t="s"><v>222</v></c><c r="V16" s="44"><v>5221601</v></c><c r="W16" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>7246.4230200000002</v></c><c r="X16" s="45"><v>7919.5880000000006</v></c><c r="Y16" s="52"/><c r="Z16" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>277.18558000000007</v></c><c r="AA16" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>395.97940000000006</v></c><c r="AB16" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>395.97940000000006</v></c><c r="AC16" s="25"><v>3.5</v></c><c r="AD16" s="56" t="s"><v>247</v></c><c r="AE16" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-820 Line 1  PO: 6211HG3360342-819 Line 3  PO: 6211HG3360342-819 Line 4  PO: 6211HG3360342-819 Line 2  PO: 6211HG3360342-819 Line 1   LINE: 
+MUNICIPIO: URUACU / GO
+MATERIAL:
+SERVIÇO: 7919,59
+BASE DE CÁLCULO ISS: 7919,59
+BASE DE CÁLCULO INSS: 7919,59
+Retenções ISS 5%  Município: URUACU / GO
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF16" s="44"><v>5</v></c><c r="AG16" s="25"><v>2</v></c><c r="AH16" s="25" t="s"><v>28</v></c><c r="AI16" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ16" s="25"><v>1</v></c><c r="AK16" s="48" t="s"><v>90</v></c><c r="AL16" s="44" t="s"><v>1174</v></c><c r="AM16" s="44" t="s"><v>1175</v></c><c r="AN16" s="44" t="s"><v>332</v></c><c r="AO16" s="44" t="s"><v>1176</v></c><c r="AP16" s="44" t="s"><v>222</v></c><c r="AQ16" s="25"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5221601</v></c><c r="AR16" s="44" t="s"><v>1087</v></c><c r="AT16" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>URN_GO</v></c></row><row r="17" spans="1:46" hidden="1"><c r="A17" s="25" t="s"><v>6</v></c><c r="B17" s="25" t="s"><v>6</v></c><c r="C17" s="25" t="s"><v>5</v></c><c r="D17" s="25" t="s"><v>8</v></c><c r="E17" s="25" t="s"><v>13</v></c><c r="F17" s="25"><v>2600</v></c><c r="G17" s="25" t="s"><v>11</v></c><c r="H17" s="46" t="s"><v>20</v></c><c r="I17" s="25"><v>3552205</v></c><c r="J17" s="25" t="s"><v>15</v></c><c r="K17" s="25" t="s"><v>16</v></c><c r="L17" s="25" t="s"><v>88</v></c><c r="M17" s="25" t="s"><v>18</v></c><c r="N17" s="50"/><c r="O17" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P17" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360340-3269 Line 1  PO: 6211HG3360340-3269 Line 2  PO: 6211HG3360340-3269 Line 3  PO: 6211HG3360340-3282 Line 1  PO: 6211HG3360340-3282 Line 2--</v></c><c r="Q17" s="44"/><c r="R17" s="44" t="s"><v>1088</v></c><c r="S17" s="44"/><c r="T17" s="44" t="s"><v>1089</v></c><c r="U17" s="44" t="s"><v>1090</v></c><c r="V17" s="44" t="s"><v>1164</v></c><c r="W17" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>5111.5962600000003</v></c><c r="X17" s="45"><v>5586.4439999999995</v></c><c r="Y17" s="52"/><c r="Z17" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>195.52554000000001</v></c><c r="AA17" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>279.32220000000001</v></c><c r="AB17" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>279.32220000000001</v></c><c r="AC17" s="44"><v>3.5</v></c><c r="AD17" s="56" t="s"><v>247</v></c><c r="AE17" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360340-3269 Line 1  PO: 6211HG3360340-3269 Line 2  PO: 6211HG3360340-3269 Line 3  PO: 6211HG3360340-3282 Line 1  PO: 6211HG3360340-3282 Line 2   LINE: 
+MUNICIPIO: CANGUARETAMA / RN
+MATERIAL:
+SERVIÇO: 5586,44
+BASE DE CÁLCULO ISS: 5586,44
+BASE DE CÁLCULO INSS: 5586,44
+Retenções ISS 5%  Município: CANGUARETAMA / RN
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF17" s="44"><v>5</v></c><c r="AG17" s="25"><v>2</v></c><c r="AH17" s="25" t="s"><v>28</v></c><c r="AI17" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ17" s="25"><v>1</v></c><c r="AK17" s="48" t="s"><v>90</v></c><c r="AL17" s="44" t="s"><v>1146</v></c><c r="AM17" s="44" t="s"><v>1147</v></c><c r="AN17" s="44" t="s"><v>329</v></c><c r="AO17" s="44" t="s"><v>1145</v></c><c r="AP17" s="44" t="s"><v>1090</v></c><c r="AQ17" s="44" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2402204</v></c><c r="AR17" s="44" t="s"><v>1091</v></c><c r="AT17" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>RNCGM06_RN</v></c></row><row r="18" spans="1:46" hidden="1"><c r="A18" s="25" t="s"><v>6</v></c><c r="B18" s="25" t="s"><v>6</v></c><c r="C18" s="25" t="s"><v>5</v></c><c r="D18" s="25" t="s"><v>8</v></c><c r="E18" s="25" t="s"><v>13</v></c><c r="F18" s="25"><v>2600</v></c><c r="G18" s="25" t="s"><v>11</v></c><c r="H18" s="46" t="s"><v>20</v></c><c r="I18" s="25"><v>3552205</v></c><c r="J18" s="25" t="s"><v>15</v></c><c r="K18" s="25" t="s"><v>16</v></c><c r="L18" s="25" t="s"><v>88</v></c><c r="M18" s="25" t="s"><v>18</v></c><c r="N18" s="50"/><c r="O18" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P18" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-933 Line 2  PO: 6211HG3360342-926 Line 2  PO: 6211HG3360342-933 Line 3  PO: 6211HG3360342-933 Line 1--</v></c><c r="Q18" s="44"/><c r="R18" s="44" t="s"><v>1092</v></c><c r="S18" s="44"/><c r="T18" s="44" t="s"><v>1093</v></c><c r="U18" s="44" t="s"><v>222</v></c><c r="V18" s="44" t="s"><v>1165</v></c><c r="W18" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>3329.9293049999997</v></c><c r="X18" s="45"><v>3639.2669999999998</v></c><c r="Y18" s="52"/><c r="Z18" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>127.37434500000001</v></c><c r="AA18" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>181.96334999999999</v></c><c r="AB18" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>181.96334999999999</v></c><c r="AC18" s="44"><v>3.5</v></c><c r="AD18" s="56" t="s"><v>247</v></c><c r="AE18" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-933 Line 2  PO: 6211HG3360342-926 Line 2  PO: 6211HG3360342-933 Line 3  PO: 6211HG3360342-933 Line 1   LINE: 
+MUNICIPIO: MORRINHOS / GO
+MATERIAL:
+SERVIÇO: 3639,27
+BASE DE CÁLCULO ISS: 3639,27
+BASE DE CÁLCULO INSS: 3639,27
+Retenções ISS 5%  Município: MORRINHOS / GO
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF18" s="44"><v>5</v></c><c r="AG18" s="25"><v>2</v></c><c r="AH18" s="25" t="s"><v>28</v></c><c r="AI18" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ18" s="25"><v>1</v></c><c r="AK18" s="48" t="s"><v>90</v></c><c r="AL18" s="44" t="s"><v>1148</v></c><c r="AM18" s="44" t="s"><v>1149</v></c><c r="AN18" s="44" t="s"><v>332</v></c><c r="AO18" s="44" t="s"><v>1150</v></c><c r="AP18" s="44" t="s"><v>222</v></c><c r="AQ18" s="44" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>2308906</v></c><c r="AR18" s="44" t="s"><v>1094</v></c><c r="AT18" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>GOMIH09_GO</v></c></row><row r="19" spans="1:46" hidden="1"><c r="A19" s="25" t="s"><v>6</v></c><c r="B19" s="25" t="s"><v>6</v></c><c r="C19" s="25" t="s"><v>5</v></c><c r="D19" s="25" t="s"><v>8</v></c><c r="E19" s="25" t="s"><v>13</v></c><c r="F19" s="25"><v>2600</v></c><c r="G19" s="25" t="s"><v>11</v></c><c r="H19" s="46" t="s"><v>20</v></c><c r="I19" s="25"><v>3552205</v></c><c r="J19" s="25" t="s"><v>15</v></c><c r="K19" s="25" t="s"><v>16</v></c><c r="L19" s="25" t="s"><v>88</v></c><c r="M19" s="25" t="s"><v>18</v></c><c r="N19" s="50"/><c r="O19" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P19" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-967 Line 1--</v></c><c r="Q19" s="44"/><c r="R19" s="44" t="s"><v>1095</v></c><c r="S19" s="44"/><c r="T19" s="44" t="s"><v>1076</v></c><c r="U19" s="44" t="s"><v>1077</v></c><c r="V19" s="44"><v>5300108</v></c><c r="W19" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>468.70866000000001</v></c><c r="X19" s="45"><v>495.988</v></c><c r="Y19" s="52"/><c r="Z19" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>17.359580000000001</v></c><c r="AA19" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>9.9197600000000001</v></c><c r="AB19" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>9.9197600000000001</v></c><c r="AC19" s="44"><v>3.5</v></c><c r="AD19" s="56" t="s"><v>247</v></c><c r="AE19" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-967 Line 1   LINE: 
+MUNICIPIO: BRASILIA / DF
+MATERIAL:
+SERVIÇO: 495,99
+BASE DE CÁLCULO ISS: 495,99
+BASE DE CÁLCULO INSS: 495,99
+Retenções ISS 2%  Município: BRASILIA / DF
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF19" s="44"><v>2</v></c><c r="AG19" s="25"><v>2</v></c><c r="AH19" s="25" t="s"><v>28</v></c><c r="AI19" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ19" s="25"><v>1</v></c><c r="AK19" s="48" t="s"><v>90</v></c><c r="AL19" s="44" t="s"><v>1151</v></c><c r="AM19" s="44" t="s"><v>1152</v></c><c r="AN19" s="44" t="s"><v>329</v></c><c r="AO19" s="44" t="s"><v>1153</v></c><c r="AP19" s="44" t="s"><v>1077</v></c><c r="AQ19" s="44"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5300108</v></c><c r="AR19" s="44" t="s"><v>1096</v></c><c r="AT19" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>DFGMA88_DF</v></c></row><row r="20" spans="1:46" hidden="1"><c r="A20" s="25" t="s"><v>6</v></c><c r="B20" s="25" t="s"><v>6</v></c><c r="C20" s="25" t="s"><v>5</v></c><c r="D20" s="25" t="s"><v>8</v></c><c r="E20" s="25" t="s"><v>13</v></c><c r="F20" s="25"><v>2600</v></c><c r="G20" s="25" t="s"><v>11</v></c><c r="H20" s="46" t="s"><v>20</v></c><c r="I20" s="25"><v>3552205</v></c><c r="J20" s="25" t="s"><v>15</v></c><c r="K20" s="25" t="s"><v>16</v></c><c r="L20" s="25" t="s"><v>88</v></c><c r="M20" s="25" t="s"><v>18</v></c><c r="N20" s="50"/><c r="O20" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P20" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360342-978 Line 3  PO: 6211HG3360342-978 Line 2  PO: 6211HG3360342-981 Line 1  PO: 6211HG3360342-978 Line 1--</v></c><c r="Q20" s="44"/><c r="R20" s="44" t="s"><v>1097</v></c><c r="S20" s="44"/><c r="T20" s="44" t="s"><v>1076</v></c><c r="U20" s="44" t="s"><v>1077</v></c><c r="V20" s="44"><v>5300108</v></c><c r="W20" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>8494.4027700000006</v></c><c r="X20" s="45"><v>8988.7860000000001</v></c><c r="Y20" s="52"/><c r="Z20" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>314.60751000000005</v></c><c r="AA20" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>179.77572000000001</v></c><c r="AB20" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>179.77572000000001</v></c><c r="AC20" s="44"><v>3.5</v></c><c r="AD20" s="56" t="s"><v>247</v></c><c r="AE20" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360342-978 Line 3  PO: 6211HG3360342-978 Line 2  PO: 6211HG3360342-981 Line 1  PO: 6211HG3360342-978 Line 1   LINE: 
+MUNICIPIO: BRASILIA / DF
+MATERIAL:
+SERVIÇO: 8988,79
+BASE DE CÁLCULO ISS: 8988,79
+BASE DE CÁLCULO INSS: 8988,79
+Retenções ISS 2%  Município: BRASILIA / DF
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF20" s="44"><v>2</v></c><c r="AG20" s="25"><v>2</v></c><c r="AH20" s="25" t="s"><v>28</v></c><c r="AI20" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ20" s="25"><v>1</v></c><c r="AK20" s="48" t="s"><v>90</v></c><c r="AL20" s="44" t="s"><v>1154</v></c><c r="AM20" s="44" t="s"><v>1155</v></c><c r="AN20" s="44" t="s"><v>1156</v></c><c r="AO20" s="44" t="s"><v>1157</v></c><c r="AP20" s="44" t="s"><v>1077</v></c><c r="AQ20" s="44"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>5300108</v></c><c r="AR20" s="44" t="s"><v>1098</v></c><c r="AT20" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>DFTAGA7_DF</v></c></row><row r="21" spans="1:46" hidden="1"><c r="A21" s="25" t="s"><v>6</v></c><c r="B21" s="25" t="s"><v>6</v></c><c r="C21" s="25" t="s"><v>5</v></c><c r="D21" s="25" t="s"><v>8</v></c><c r="E21" s="25" t="s"><v>13</v></c><c r="F21" s="25"><v>2600</v></c><c r="G21" s="25" t="s"><v>11</v></c><c r="H21" s="46" t="s"><v>20</v></c><c r="I21" s="25"><v>3552205</v></c><c r="J21" s="25" t="s"><v>15</v></c><c r="K21" s="25" t="s"><v>16</v></c><c r="L21" s="25" t="s"><v>88</v></c><c r="M21" s="25" t="s"><v>18</v></c><c r="N21" s="50"/><c r="O21" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P21" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360338-936 Line 2  PO: 6211HG3360338-936 Line 1  PO: 6211HG3360338-934 Line 1  PO: 6211HG3360338-934 Line 2--</v></c><c r="Q21" s="44"/><c r="R21" s="44" t="s"><v>1099</v></c><c r="S21" s="44"/><c r="T21" s="44" t="s"><v>1100</v></c><c r="U21" s="44" t="s"><v>16</v></c><c r="V21" s="44" t="s"><v>1166</v></c><c r="W21" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>5293.8342000000002</v></c><c r="X21" s="45"><v>5723.0640000000003</v></c><c r="Y21" s="52"/><c r="Z21" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>200.30724000000004</v></c><c r="AA21" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>228.92256</v></c><c r="AB21" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>228.92256</v></c><c r="AC21" s="25"><v>3.5</v></c><c r="AD21" s="56" t="s"><v>247</v></c><c r="AE21" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360338-936 Line 2  PO: 6211HG3360338-936 Line 1  PO: 6211HG3360338-934 Line 1  PO: 6211HG3360338-934 Line 2   LINE: 
+MUNICIPIO: CARAGUATATUBA / SP
+MATERIAL:
+SERVIÇO: 5723,06
+BASE DE CÁLCULO ISS: 5723,06
+BASE DE CÁLCULO INSS: 5723,06
+Retenções ISS 4%  Município: CARAGUATATUBA / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF21" s="44"><v>4</v></c><c r="AG21" s="25"><v>2</v></c><c r="AH21" s="25" t="s"><v>28</v></c><c r="AI21" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ21" s="25"><v>1</v></c><c r="AK21" s="48" t="s"><v>90</v></c><c r="AL21" s="44" t="s"><v>1177</v></c><c r="AM21" s="44" t="s"><v>1178</v></c><c r="AN21" s="44" t="s"><v>332</v></c><c r="AO21" s="44" t="s"><v>328</v></c><c r="AP21" s="44" t="s"><v>16</v></c><c r="AQ21" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3510500</v></c><c r="AR21" s="44" t="s"><v>1101</v></c><c r="AT21" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>CW1_SP</v></c></row><row r="22" spans="1:46" hidden="1"><c r="A22" s="25" t="s"><v>6</v></c><c r="B22" s="25" t="s"><v>6</v></c><c r="C22" s="25" t="s"><v>5</v></c><c r="D22" s="25" t="s"><v>8</v></c><c r="E22" s="25" t="s"><v>13</v></c><c r="F22" s="25"><v>2600</v></c><c r="G22" s="25" t="s"><v>11</v></c><c r="H22" s="46" t="s"><v>20</v></c><c r="I22" s="25"><v>3552205</v></c><c r="J22" s="25" t="s"><v>15</v></c><c r="K22" s="25" t="s"><v>16</v></c><c r="L22" s="25" t="s"><v>88</v></c><c r="M22" s="25" t="s"><v>18</v></c><c r="N22" s="50"/><c r="O22" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P22" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3295910-763 Line 1--</v></c><c r="Q22" s="44"/><c r="R22" s="44" t="s"><v>1102</v></c><c r="S22" s="44"/><c r="T22" s="44" t="s"><v>1103</v></c><c r="U22" s="44" t="s"><v>16</v></c><c r="V22" s="44"><v>3547809</v></c><c r="W22" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>1341.38085</v></c><c r="X22" s="45"><v>1465.99</v></c><c r="Y22" s="52"/><c r="Z22" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>51.309650000000005</v></c><c r="AA22" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>73.299500000000009</v></c><c r="AB22" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>73.299500000000009</v></c><c r="AC22" s="44"><v>3.5</v></c><c r="AD22" s="56" t="s"><v>247</v></c><c r="AE22" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3295910-763 Line 1   LINE: 
+MUNICIPIO: SANTO ANDRE / SP
+MATERIAL:
+SERVIÇO: 1465,99
+BASE DE CÁLCULO ISS: 1465,99
+BASE DE CÁLCULO INSS: 1465,99
+Retenções ISS 5%  Município: SANTO ANDRE / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF22" s="44"><v>5</v></c><c r="AG22" s="25"><v>2</v></c><c r="AH22" s="25" t="s"><v>28</v></c><c r="AI22" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ22" s="25"><v>1</v></c><c r="AK22" s="48" t="s"><v>90</v></c><c r="AL22" s="44"><v>9210020</v></c><c r="AM22" s="44" t="s"><v>1120</v></c><c r="AN22" s="44"><v>251</v></c><c r="AO22" s="44" t="s"><v>1121</v></c><c r="AP22" s="44" t="s"><v>16</v></c><c r="AQ22" s="44"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3547809</v></c><c r="AR22" s="44" t="s"><v>1104</v></c><c r="AT22" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>SR-SAJL02_SP</v></c></row><row r="23" spans="1:46" hidden="1"><c r="A23" s="25" t="s"><v>6</v></c><c r="B23" s="25" t="s"><v>6</v></c><c r="C23" s="25" t="s"><v>5</v></c><c r="D23" s="25" t="s"><v>8</v></c><c r="E23" s="25" t="s"><v>13</v></c><c r="F23" s="25"><v>2600</v></c><c r="G23" s="25" t="s"><v>11</v></c><c r="H23" s="46" t="s"><v>20</v></c><c r="I23" s="25"><v>3552205</v></c><c r="J23" s="25" t="s"><v>15</v></c><c r="K23" s="25" t="s"><v>16</v></c><c r="L23" s="25" t="s"><v>88</v></c><c r="M23" s="25" t="s"><v>18</v></c><c r="N23" s="50"/><c r="O23" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P23" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360338-880 Line 1--</v></c><c r="Q23" s="44"/><c r="R23" s="44" t="s"><v>1105</v></c><c r="S23" s="44"/><c r="T23" s="44" t="s"><v>1100</v></c><c r="U23" s="44" t="s"><v>16</v></c><c r="V23" s="44" t="s"><v>1166</v></c><c r="W23" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>292.52385000000004</v></c><c r="X23" s="45"><v>316.24200000000002</v></c><c r="Y23" s="52"/><c r="Z23" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>11.068470000000001</v></c><c r="AA23" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>12.649680000000002</v></c><c r="AB23" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>12.649680000000002</v></c><c r="AC23" s="25"><v>3.5</v></c><c r="AD23" s="56" t="s"><v>247</v></c><c r="AE23" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360338-880 Line 1   LINE: 
+MUNICIPIO: CARAGUATATUBA / SP
+MATERIAL:
+SERVIÇO: 316,24
+BASE DE CÁLCULO ISS: 316,24
+BASE DE CÁLCULO INSS: 316,24
+Retenções ISS 4%  Município: CARAGUATATUBA / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF23" s="44"><v>4</v></c><c r="AG23" s="25"><v>2</v></c><c r="AH23" s="25" t="s"><v>28</v></c><c r="AI23" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ23" s="25"><v>1</v></c><c r="AK23" s="48" t="s"><v>90</v></c><c r="AL23" s="44"><v>89898989</v></c><c r="AM23" s="44" t="s"><v>1122</v></c><c r="AN23" s="44" t="s"><v>329</v></c><c r="AO23" s="44" t="s"><v>328</v></c><c r="AP23" s="44" t="s"><v>16</v></c><c r="AQ23" s="25" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3510500</v></c><c r="AR23" s="44" t="s"><v>1106</v></c><c r="AT23" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>KPO_SP</v></c></row><row r="24" spans="1:46" hidden="1"><c r="A24" s="25" t="s"><v>6</v></c><c r="B24" s="25" t="s"><v>6</v></c><c r="C24" s="25" t="s"><v>5</v></c><c r="D24" s="25" t="s"><v>8</v></c><c r="E24" s="25" t="s"><v>13</v></c><c r="F24" s="25"><v>2600</v></c><c r="G24" s="25" t="s"><v>11</v></c><c r="H24" s="46" t="s"><v>20</v></c><c r="I24" s="25"><v>3552205</v></c><c r="J24" s="25" t="s"><v>15</v></c><c r="K24" s="25" t="s"><v>16</v></c><c r="L24" s="25" t="s"><v>88</v></c><c r="M24" s="25" t="s"><v>18</v></c><c r="N24" s="50"/><c r="O24" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P24" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3360338-914 Line 1--</v></c><c r="Q24" s="44"/><c r="R24" s="44" t="s"><v>1107</v></c><c r="S24" s="44"/><c r="T24" s="44" t="s"><v>1108</v></c><c r="U24" s="44" t="s"><v>16</v></c><c r="V24" s="44"><v>3524402</v></c><c r="W24" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>3881.5197300000004</v></c><c r="X24" s="45"><v>4151.3580000000002</v></c><c r="Y24" s="52"/><c r="Z24" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>145.29753000000002</v></c><c r="AA24" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>124.54074</v></c><c r="AB24" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>124.54074</v></c><c r="AC24" s="44"><v>3.5</v></c><c r="AD24" s="56" t="s"><v>247</v></c><c r="AE24" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3360338-914 Line 1   LINE: 
+MUNICIPIO: JACAREI / SP
+MATERIAL:
+SERVIÇO: 4151,36
+BASE DE CÁLCULO ISS: 4151,36
+BASE DE CÁLCULO INSS: 4151,36
+Retenções ISS 3%  Município: JACAREI / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF24" s="44"><v>3</v></c><c r="AG24" s="25"><v>2</v></c><c r="AH24" s="25" t="s"><v>28</v></c><c r="AI24" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ24" s="25"><v>1</v></c><c r="AK24" s="48" t="s"><v>90</v></c><c r="AL24" s="44" t="s"><v>1180</v></c><c r="AM24" s="44" t="s"><v>1179</v></c><c r="AN24" s="44" t="s"><v>332</v></c><c r="AO24" s="44" t="s"><v>331</v></c><c r="AP24" s="44" t="s"><v>16</v></c><c r="AQ24" s="44"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3524402</v></c><c r="AR24" s="44" t="s"><v>1109</v></c><c r="AT24" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>DS4_SP</v></c></row><row r="25" spans="1:46" hidden="1"><c r="A25" s="25" t="s"><v>6</v></c><c r="B25" s="25" t="s"><v>6</v></c><c r="C25" s="25" t="s"><v>5</v></c><c r="D25" s="25" t="s"><v>8</v></c><c r="E25" s="25" t="s"><v>13</v></c><c r="F25" s="25"><v>2600</v></c><c r="G25" s="25" t="s"><v>11</v></c><c r="H25" s="46" t="s"><v>20</v></c><c r="I25" s="25"><v>3552205</v></c><c r="J25" s="25" t="s"><v>15</v></c><c r="K25" s="25" t="s"><v>16</v></c><c r="L25" s="25" t="s"><v>88</v></c><c r="M25" s="25" t="s"><v>18</v></c><c r="N25" s="50"/><c r="O25" s="51"><f t="shared" ca="1" si="0"/><v>46049</v></c><c r="P25" s="44" t="str"><f>automacao[[#This Row],[PO]]&amp;"-"&amp;automacao[[#This Row],[Line]]&amp;"-"&amp;automacao[[#This Row],[Parcela/AC]]</f><v>PO: 6211HG3295910-879 Line 1--</v></c><c r="Q25" s="44"/><c r="R25" s="44" t="s"><v>1110</v></c><c r="S25" s="44"/><c r="T25" s="44" t="s"><v>1111</v></c><c r="U25" s="44" t="s"><v>16</v></c><c r="V25" s="44" t="s"><v>1167</v></c><c r="W25" s="45"><f>automacao[[#This Row],[valor_servico]]-automacao[[#This Row],[valor_inss]]-automacao[[#This Row],[valor_iss_retido]]</f><v>1370.70065</v></c><c r="X25" s="45"><v>1465.99</v></c><c r="Y25" s="52"/><c r="Z25" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[RET. INSS]]/100)</f><v>51.309650000000005</v></c><c r="AA25" s="45"><f>(automacao[[#This Row],[aliquota_iss]]/100)*automacao[[#This Row],[valor_servico]]</f><v>43.979700000000001</v></c><c r="AB25" s="45"><f>automacao[[#This Row],[valor_servico]]*(automacao[[#This Row],[aliquota_iss]]/100)</f><v>43.979700000000001</v></c><c r="AC25" s="44"><v>3.5</v></c><c r="AD25" s="56" t="s"><v>247</v></c><c r="AE25" s="44" t="str"><f>CONCATENATE(
+"Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:",
+CHAR(10),
+"PO: ",automacao[[#This Row],[PO]],,"   ","LINE: ",automacao[[#This Row],[Line]],
+CHAR(10),
+"MUNICIPIO: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"MATERIAL:",
+CHAR(10),
+"SERVIÇO: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO ISS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"BASE DE CÁLCULO INSS: ",ROUND(automacao[[#This Row],[valor_servico]],2),
+CHAR(10),
+"Retenções ISS ",automacao[[#This Row],[aliquota_iss]],"%  Município: ",automacao[[#This Row],[Cidade_Servico]]," / ",automacao[[#This Row],[UF_Servico]],
+CHAR(10),
+"Retenções INSS ",automacao[[#This Row],[RET. INSS]],"%",
+CHAR(10),
+"NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço."
+)</f><v>Execução por empreitada de obras de construção civil e elétrica – adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular, conforme pedidos de compra abaixo:
+PO: PO: 6211HG3295910-879 Line 1   LINE: 
+MUNICIPIO: SOROCABA / SP
+MATERIAL:
+SERVIÇO: 1465,99
+BASE DE CÁLCULO ISS: 1465,99
+BASE DE CÁLCULO INSS: 1465,99
+Retenções ISS 3%  Município: SOROCABA / SP
+Retenções INSS 3,5%
+NFS-e: O ISS desta NFS-e será retido pelo tomador de serviço.</v></c><c r="AF25" s="44"><v>3</v></c><c r="AG25" s="25"><v>2</v></c><c r="AH25" s="25" t="s"><v>28</v></c><c r="AI25" s="25"><f>IF(AND(automacao[[#This Row],[Cidade_Servico]]="BAURU",automacao[[#This Row],[UF_Servico]]="SP"),1,2)</f><v>2</v></c><c r="AJ25" s="25"><v>1</v></c><c r="AK25" s="48" t="s"><v>90</v></c><c r="AL25" s="44"><v>4849030</v></c><c r="AM25" s="44" t="s"><v>1123</v></c><c r="AN25" s="44"><v>1234</v></c><c r="AO25" s="44" t="s"><v>1124</v></c><c r="AP25" s="44" t="s"><v>16</v></c><c r="AQ25" s="44" t="str"><f>automacao[[#This Row],[codigo_municipio_servico]]</f><v>3552205</v></c><c r="AR25" s="44" t="s"><v>1112</v></c><c r="AT25" t="str"><f>_xlfn.CONCAT(automacao[[#This Row],[SITE]],"_",automacao[[#This Row],[UF_Obra]])</f><v>SR-SPGR01_SP</v></c></row><row r="37" spans="48:48"><c r="AV37" s="57"><f>6927.59-242.47-346.38</f><v>6338.74</v></c></row></sheetData><phoneticPr fontId="3" type="noConversion"/><conditionalFormatting sqref="AD2:AD25 AH2:AI25 AF2:AF25 Q2:AB25 AL2:AQ25"><cfRule type="containsBlanks" dxfId="50" priority="3"><formula>LEN(TRIM(Q2))=0</formula></cfRule></conditionalFormatting><pageMargins left="0.511811024" right="0.511811024" top="0.78740157499999996" bottom="0.78740157499999996" header="0.31496062000000002" footer="0.31496062000000002"/><pageSetup paperSize="9" orientation="portrait" horizontalDpi="1200" verticalDpi="1200" r:id="rId1"/><tableParts count="1"><tablePart r:id="rId2"/></tableParts><extLst><ext uri="{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"><x14:dataValidations count="12" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main"><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{5B2E2107-37F5-4B6F-A52B-F8C5322E1C2B}"><x14:formula1><xm:f>Dados!$A$2</xm:f></x14:formula1><xm:sqref>A2:B25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{1B056416-5E93-40ED-BB04-9EB562D735B9}"><x14:formula1><xm:f>Dados!$B$2</xm:f></x14:formula1><xm:sqref>C2:C25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{92FE457A-0E42-4A7C-A78F-BBE1A115203D}"><x14:formula1><xm:f>Dados!$C$2</xm:f></x14:formula1><xm:sqref>D2:D25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{864C72AC-887C-4ED5-A8F0-E782F599EF18}"><x14:formula1><xm:f>Dados!$D$2</xm:f></x14:formula1><xm:sqref>E2:E25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{ABDF5628-7604-4952-8F90-0C29FED4B8BF}"><x14:formula1><xm:f>Dados!$E$2</xm:f></x14:formula1><xm:sqref>F2:F25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{F7DF2C00-2C78-4192-9E17-0EDD39C0A993}"><x14:formula1><xm:f>Dados!$F$2</xm:f></x14:formula1><xm:sqref>G2:G25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{CEC7DD7A-55B7-4D5C-AFF9-0F129A71CB24}"><x14:formula1><xm:f>Dados!$G$2</xm:f></x14:formula1><xm:sqref>H2:H25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{FBE3A361-BF41-491D-8629-CBDDDD5AC18A}"><x14:formula1><xm:f>Dados!$H$2</xm:f></x14:formula1><xm:sqref>J2:J25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{33431A21-A794-4AD4-81DB-9F71B6BC3B4A}"><x14:formula1><xm:f>Dados!$I$2</xm:f></x14:formula1><xm:sqref>K2:K25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{844662A8-A9B5-40A0-ABD8-B02C3F00358A}"><x14:formula1><xm:f>Dados!$J$2</xm:f></x14:formula1><xm:sqref>M2:M25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{2D1ED1AC-5C02-43A7-9E3E-3C064D9B662E}"><x14:formula1><xm:f>Dados!$N$2:$N$3</xm:f></x14:formula1><xm:sqref>AH2:AH25</xm:sqref></x14:dataValidation><x14:dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1" xr:uid="{01FA9C26-3394-4AC0-AE1D-DFA1AAFF0A92}"><x14:formula1><xm:f>Dados!$K$2</xm:f></x14:formula1><xm:sqref>I2:I25</xm:sqref></x14:dataValidation></x14:dataValidations></ext></extLst></worksheet>

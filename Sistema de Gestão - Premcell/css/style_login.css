@@ -1,0 +1,101 @@
+/* Config geral */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Vídeo no fundo */
+.bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.bg-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(15px) brightness(0.7);
+    transform: scale(1.1);
+}
+
+/* Caixa de Login com mais branco */
+.login-box {
+    width: 350px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.25); /* MAIS BRANCO */
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    color: #fff;
+    text-align: center;
+}
+
+/* Título */
+.login-box h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Grupo com ícone */
+.input-group {
+    position: relative;
+    margin: 12px 0;
+}
+
+.input-group i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 16px;
+}
+
+/* Inputs */
+.input-group input {
+    width: 100%;
+    padding: 12px 12px 12px 38px;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+}
+
+.input-group input::placeholder {
+    color: #ddd;
+}
+
+/* Botão */
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #000;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.login-box button:hover {
+    background: #e3e3e3;
+}
