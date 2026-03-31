@@ -245,6 +245,11 @@ body{
   color: var(--text);
 }
 
+.table tr.linha-excluida { opacity: 0.5; text-decoration: line-through; background: #f5f5f5 !important; }
+.table tr.linha-excluida td input { pointer-events: none; }
+.btn-excluir-linha { background: transparent; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; cursor: pointer; color: #c03; }
+.btn-excluir-linha:hover { background: #fff0f0; color: #a00; }
+.btn-excluir-linha:disabled { opacity: 0.5; cursor: default; }
 .table tbody tr:hover {
   background: #f8fafc;
 }
@@ -328,7 +333,7 @@ body{
   border-radius: 14px;
   box-shadow: var(--card-shadow);
   margin-top: 20px;
-  max-width: 600px;
+  max-width: 1200px;
 }
 
 .form-group {
@@ -493,7 +498,7 @@ body{
 }
 
 .emit-page {
-  max-width: 680px;
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
@@ -507,12 +512,13 @@ body{
 .emit-page .form-card,
 .emit-page .emit-step,
 .emit-page #emitirResultado {
-  max-width: 100%;
+  max-width: 1200px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Resumo Etapa 2 - preview para conferência */
+/* Resumo Etapa 2 - preview para conferência - usa espaço da tela */
 .emit-etapa2-preview { width: 100%; max-width: 100%; }
 .emit-resumo-box {
   padding: 16px;
@@ -522,27 +528,42 @@ body{
   overflow: hidden;
 }
 .emit-resumo-box p { margin-bottom: 14px; font-size: 15px; }
-.emit-resumo-box .table-sm {
-  font-size: 13px;
+.emit-resumo-box .emit-preview-table-wrap {
+  max-height: min(65vh, 520px);
+  overflow: auto;
   margin-top: 12px;
-  width: 100%;
-  border-collapse: collapse;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  overflow: hidden;
+}
+.emit-resumo-box .table-sm {
+  font-size: 13px;
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 .emit-resumo-box .table-sm thead {
   background: #f1f5f9;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .emit-resumo-box .table-sm th {
   padding: 10px 12px;
   text-align: left;
   font-weight: 600;
   color: var(--c3);
+  white-space: nowrap;
 }
 .emit-resumo-box .table-sm td {
   padding: 10px 12px;
   border-top: 1px solid #e9ecef;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.emit-resumo-box .table-sm td input {
+  white-space: nowrap;
 }
 .emit-resumo-box .table-sm tbody tr:nth-child(even) {
   background: #fff;
@@ -550,19 +571,19 @@ body{
 .emit-resumo-box .table-sm tbody tr:nth-child(odd) {
   background: #fafbfc;
 }
-.emit-resumo-box .table-sm td:nth-child(1) {
-  max-width: 220px;
-  word-break: break-all;
-  font-size: 12px;
-}
-.emit-resumo-box .table-sm td:nth-child(2) {
-  white-space: nowrap;
-}
-.emit-resumo-box .table-sm td:nth-child(3) {
-  white-space: nowrap;
-  font-weight: 600;
-  color: var(--c3);
-}
+/* Colunas ajustadas: Ref | Site | Valor | Mun.Prestação | Local inc. | Mun.Obra (sem quebra de linha) */
+.emit-resumo-box .table-sm th:nth-child(1),
+.emit-resumo-box .table-sm td:nth-child(1) { width: 28%; }
+.emit-resumo-box .table-sm th:nth-child(2),
+.emit-resumo-box .table-sm td:nth-child(2) { width: 10%; }
+.emit-resumo-box .table-sm th:nth-child(3),
+.emit-resumo-box .table-sm td:nth-child(3) { width: 12%; font-weight: 600; color: var(--c3); }
+.emit-resumo-box .table-sm th:nth-child(4),
+.emit-resumo-box .table-sm td:nth-child(4) { width: 17%; }
+.emit-resumo-box .table-sm th:nth-child(5),
+.emit-resumo-box .table-sm td:nth-child(5) { width: 17%; }
+.emit-resumo-box .table-sm th:nth-child(6),
+.emit-resumo-box .table-sm td:nth-child(6) { width: 16%; }
 
 /* Loading bar - emissão aguardando autorização */
 .emitir-loading-bar {

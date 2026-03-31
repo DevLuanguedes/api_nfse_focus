@@ -528,7 +528,7 @@ async function transformarPlanilhaClienteParaAutomacao(entrada, opcoes = {}) {
   const poShipToCol = numCols >= 60 ? COL.LOCATION : (idxPoShipTo ?? null);
   const usarFallbackCidadeUf = numCols < 60;
 
-  const consolidado = varreduraConsolidar(rows, headers, {
+  let consolidado = varreduraConsolidar(rows, headers, {
     groupBy: idxChave ?? COL.CHAVE,
     location: locationCol,
     poShipTo: poShipToCol,
@@ -542,6 +542,29 @@ async function transformarPlanilhaClienteParaAutomacao(entrada, opcoes = {}) {
     acQty: idxACQty ?? COL.AC_QTY,
     parcelaAC: idxParcelaAC ?? COL.PARCELA_AC,
   });
+
+  // Filtrar linhas excluídas pelo usuário (municípios ou sites que não serão incluídos na planilha)
+  const excluir = opcoes.excluirLinhas || {};
+  const excluirMunicipiosCodigo = new Set(
+    (excluir.municipiosCodigo || []).map((m) => `${String(m.cidade || "").trim().toLowerCase()}|${String(m.uf || "").trim().toUpperCase().slice(0, 2)}`)
+  );
+  const excluirMunicipiosAliquota = new Set(
+    (excluir.municipiosAliquota || []).map((m) => String(m.codigo || "").replace(/\D/g, ""))
+  );
+  const excluirSites = new Set(
+    (excluir.sites || []).map((s) => `${String(s.site_code || "").trim()}|${String(s.uf_servico || "").trim().toUpperCase().slice(0, 2)}`)
+  );
+  if (excluirMunicipiosCodigo.size > 0 || excluirMunicipiosAliquota.size > 0 || excluirSites.size > 0) {
+    consolidado = consolidado.filter((linha) => {
+      const keySite = `${String(linha.site || "").trim()}|${String(linha.UF_Servico || "").trim().toUpperCase().slice(0, 2)}`;
+      if (excluirSites.has(keySite)) return false;
+      const codMun = String(linha.codigo_municipio_servico || "").replace(/\D/g, "");
+      if (excluirMunicipiosAliquota.has(codMun)) return false;
+      const keyMun = `${String(linha.Cidade_Servico || "").trim().toLowerCase()}|${String(linha.UF_Servico || "").trim().toUpperCase().slice(0, 2)}`;
+      if (excluirMunicipiosCodigo.has(keyMun)) return false;
+      return true;
+    });
+  }
 
   // Preenche codigo_municipio_servico via API IBGE (cidade + UF)
   await preencherCodigosMunicipio(consolidado);

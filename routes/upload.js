@@ -8,6 +8,7 @@ const axios = require("axios");
 const db = require("../db");
 const { salvarAliquotaMunicipio } = require("../services/aliquotasMunicipio");
 const { transformarPlanilhaClienteParaAutomacao, atualizarPlanilhaOriginalComNfs } = require("../services/planilhaClienteParaAutomacao");
+const { varreduraConsolidar, indiceColuna, COL } = require("../services/varreduraConsolidar");
 const parseMoney = require("../utils/parseMoney");
 const parseBoolean = require("../utils/parseBoolean");
 const parseData = require("../utils/parseData");
@@ -43,6 +44,139 @@ function ibge7(v) {
   if (s.length === 7) return s;
   if (s.length === 6) return s + "0";
   throw new Error(`IBGE inválido: "${v}"`);
+}
+
+/**
+ * Sincroniza com a Focus apenas as refs presentes na planilha original do cliente
+ * antes de gerar a planilha final com Invoice No*.
+ * Isso evita pular números (ex.: 20064 -> 20158) quando parte das NFs ainda
+ * não tinha numero_nf gravado no banco no momento da emissão.
+ *
+ * - Lê a planilha enviada (formato portal)
+ * - Reaproveita a lógica de varreduraConsolidar para obter todas as Refs
+ * - Consulta o banco pelas ref_api correspondentes
+ * - Para as que ainda não têm numero_nf, consulta a Focus e atualiza o banco
+ */
+async function sincronizarRefsDaPlanilhaComFocus(buffer) {
+  if (!FOCUS_TOKEN) return;
+  try {
+    const sanitizeRef = (r) => String(r ?? "").trim().replace(/[^a-zA-Z0-9]/g, "");
+
+    // Lê planilha original do cliente
+    const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    if (!sheet) return;
+
+    const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+    if (!raw.length) return;
+
+    // Mesmo pré-processamento usado em atualizarPlanilhaOriginalComNfs
+    const semLinhas1e3 = raw.filter((_, i) => i !== 0 && i !== 2);
+    if (semLinhas1e3.length < 2) return;
+
+    const headers = semLinhas1e3[0];
+    const rows = semLinhas1e3.slice(1);
+    if (!rows.length) return;
+
+    // Mesmo mapeamento de colunas usado em atualizarPlanilhaOriginalComNfs
+    const numCols = Array.isArray(headers) ? headers.length : 0;
+    const usarColunasFixas = numCols > (COL.PORTAL_INVOICE_AMOUNT ?? 67);
+
+    // Em atualizarPlanilhaOriginalComNfs usamos:
+    //   groupBy: indiceColuna(... "Site Code"/"BI"/"Chave"/"Manufacturer") ?? COL.CHAVE
+    //   location / poShipTo / serviceCode / value / po / line / unitPrice / acQty / parcelaAC
+    const idxChave = indiceColuna(headers, "Site Code", "BI", "Chave", "SiteCode", "Manufacturer");
+    const groupBy = idxChave ?? COL.CHAVE;
+
+    const consolidado = varreduraConsolidar(rows, headers, {
+      groupBy,
+      location: raw[0]?.length >= 60 ? null : (indiceColuna(headers, "Location", "BH") ?? COL.LOCATION),
+      poShipTo: raw[0]?.length >= 60 ? COL.LOCATION : (indiceColuna(headers, "PO Ship To", "Ship To") ?? null),
+      cidade: null,
+      uf: null,
+      serviceCode: indiceColuna(headers, "LC Code") ?? COL.LC_CODE,
+      value: indiceColuna(headers, "TOTAL") ?? COL.VALOR,
+      po: indiceColuna(headers, "PO", "PO No.") ?? COL.PO,
+      line: indiceColuna(headers, "Line", "Line No.") ?? COL.LINE,
+      unitPrice: indiceColuna(headers, "Unit Price") ?? COL.UNIT_PRICE,
+      acQty: indiceColuna(headers, "AC Qty") ?? COL.AC_QTY,
+      parcelaAC: indiceColuna(headers, "Parcela/AC") ?? COL.PARCELA_AC,
+    });
+
+    if (!Array.isArray(consolidado) || consolidado.length === 0) return;
+
+    const refsSan = Array.from(
+      new Set(
+        consolidado
+          .map((item) => sanitizeRef(item.Ref))
+          .filter((r) => r && r.length > 0)
+      )
+    );
+    if (refsSan.length === 0) return;
+
+    // Consulta banco para saber quais refs ainda estão sem numero_nf
+    const placeholders = refsSan.map((_, i) => `$${i + 1}`).join(", ");
+    const r = await db.query(
+      `SELECT ref_api, numero_nf FROM notas_fiscais WHERE ref_api IN (${placeholders})`,
+      refsSan
+    );
+
+    const refsSemNumero = (r.rows || [])
+      .filter((row) => !row.numero_nf || String(row.numero_nf).trim() === "")
+      .map((row) => row.ref_api)
+      .filter(Boolean);
+
+    if (refsSemNumero.length === 0) return;
+
+    console.log("[atualizar-planilha-com-nfs] Sincronizando", refsSemNumero.length, "refs com Focus antes de gerar planilha do cliente...");
+
+    for (const ref of refsSemNumero) {
+      const refSan = sanitizeRef(ref);
+      if (!refSan) continue;
+      try {
+        const url = `${FOCUS_URL}/${encodeURIComponent(refSan)}`;
+        const resp = await axios.get(url, {
+          auth: { username: FOCUS_TOKEN, password: "" },
+          headers: { "Content-Type": "application/json" },
+          timeout: 15000,
+          validateStatus: () => true,
+        });
+
+        const data = resp.data || {};
+        if (resp.status !== 200) {
+          console.warn("[atualizar-planilha-com-nfs] Focus não retornou 200 para ref:", refSan, "status:", resp.status);
+          continue;
+        }
+
+        const numeroNf = extrairNumeroFocus(data);
+        const codigoVerif = extrairCodigoVerificacaoFocus(data);
+        const status = data.status != null ? String(data.status) : null;
+
+        if (!numeroNf && !status) continue;
+
+        await db.query(
+          `
+          UPDATE notas_fiscais
+          SET numero_nf = COALESCE(NULLIF(TRIM($1::text), ''), numero_nf),
+              codigo_verificacao = COALESCE(NULLIF(TRIM($2::text), ''), codigo_verificacao),
+              status_nf = COALESCE($3, status_nf),
+              payload_retorno = $4,
+              atualizado_em = NOW()
+          WHERE ref_api = $5
+          `,
+          [numeroNf ?? "", codigoVerif ?? "", status ?? "", JSON.stringify(data), refSan]
+        );
+        if (numeroNf) {
+          console.log("[atualizar-planilha-com-nfs] Atualizada ref:", refSan, "-> numero_nf:", numeroNf);
+        }
+      } catch (err) {
+        console.warn("[atualizar-planilha-com-nfs] Erro ao sincronizar ref:", refSan, err.message);
+      }
+    }
+  } catch (err) {
+    console.warn("[atualizar-planilha-com-nfs] Erro geral ao sincronizar refs com Focus:", err.message);
+  }
 }
 
 function isSubitemObra(ctn6) {
@@ -601,7 +735,7 @@ router.get("/sincronizar-notas-focus", async (req, res) => {
     }
 
     const r = await db.query(
-      `SELECT ref_api FROM notas_fiscais WHERE ref_api IS NOT NULL AND TRIM(ref_api) <> '' ORDER BY criado_em DESC LIMIT 200`
+      `SELECT ref_api FROM notas_fiscais WHERE ref_api IS NOT NULL AND TRIM(ref_api) <> '' ORDER BY criado_em DESC LIMIT 1000`
     );
     const refs = (r.rows || []).map((row) => String(row.ref_api).trim()).filter(Boolean);
     if (refs.length === 0) {
@@ -828,7 +962,20 @@ router.post("/transformar-planilha", upload.single("arquivo"), async (req, res) 
         codigosPrestacao = undefined;
       }
     }
-    const opcoes = { templatePath, retornarMunicipiosSemAliquota: true, codigosPrestacao: Array.isArray(codigosPrestacao) ? codigosPrestacao : undefined };
+    let excluirLinhas = req.body?.excluirLinhas;
+    if (typeof excluirLinhas === "string") {
+      try {
+        excluirLinhas = JSON.parse(excluirLinhas);
+      } catch {
+        excluirLinhas = undefined;
+      }
+    }
+    const opcoes = {
+      templatePath,
+      retornarMunicipiosSemAliquota: true,
+      codigosPrestacao: Array.isArray(codigosPrestacao) ? codigosPrestacao : undefined,
+      excluirLinhas: excluirLinhas && typeof excluirLinhas === "object" ? excluirLinhas : undefined,
+    };
     const result = await transformarPlanilhaClienteParaAutomacao(req.file.buffer, opcoes);
 
     if (result && typeof result === "object") {
@@ -905,6 +1052,10 @@ router.post("/atualizar-planilha-com-nfs", upload.single("arquivo"), async (req,
     if (!req.file || !req.file.buffer) {
       return res.status(400).json({ sucesso: false, erro: "Nenhum arquivo enviado." });
     }
+
+    // Antes de gerar a planilha, sincroniza as refs desta planilha com a Focus
+    // para garantir que o banco tenha o numero_nf mais atualizado possível.
+    await sincronizarRefsDaPlanilhaComFocus(req.file.buffer);
 
     const { rows } = await db.query(
       `SELECT ref_api, numero_nf, valor_servicos, data_emissao
