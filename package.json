@@ -11,6 +11,7 @@
     "transformar-planilha": "node scripts/transformar_planilha_cliente.js",
     "extrair-municipios": "node scripts/extrair_municipios_planilha.js",
     "criar-tabela-aliquotas": "node scripts/criar_tabela_municipio_aliquota_iss.js",
+    "criar-tabela-notas-recebidas": "node scripts/criar_tabela_notas_recebidas.js",
     "backup": "node scripts/backup_db.js",
     "restore": "node scripts/restore_db.js",
     "verificar-tabelas": "node scripts/verificar_tabelas.js",

@@ -65,6 +65,11 @@
             <span class="label">Emitir Notas</span>
           </li>
 
+          <li data-target="recebidas">
+            <i class="fa-solid fa-inbox"></i>
+            <span class="label">Notas Recebidas</span>
+          </li>
+
           <li data-target="aliquotas">
             <i class="fa-solid fa-percent"></i>
             <span class="label">Alíquotas ISS</span>
@@ -159,13 +164,13 @@
       if (!status) return `<span class="badge badge-blue">Desconhecido</span>`;
       const s = status.toLowerCase();
 
-      if (s === 'autorizada' || s === 'emitida') {
+      if (s === 'autorizada' || s === 'autorizado' || s === 'emitida') {
         return `<span class="badge badge-green">Autorizada</span>`;
       }
       if (s === 'pendente' || s === 'processando') {
         return `<span class="badge badge-blue">Pendente</span>`;
       }
-      if (s === 'cancelada') {
+      if (s === 'cancelada' || s === 'cancelado') {
         return `<span class="badge badge-red">Cancelada</span>`;
       }
       if (s === 'erro' || s === 'erro_autorizacao') {
@@ -660,6 +665,144 @@ ${JSON.stringify(nota.payload_retorno || "Sem detalhes", null, 2)}
     } catch (err) {
       console.error(err);
       alert("Erro ao carregar detalhes da nota");
+    }
+  });
+}
+
+// ===================== NOTAS RECEBIDAS =====================
+if (page === "recebidas") {
+  view.innerHTML = `
+    <h2>Notas Recebidas</h2>
+    <p class="subtitle">NFS-e emitidas por terceiros contra o CNPJ da empresa (evento nfsen_recebida da Focus NFe).</p>
+
+    <div class="consultar-notas-toolbar">
+      <div class="search-box">
+        <input type="text" id="searchNFRecebida" placeholder="Buscar por prestador, CNPJ, chave, situação...">
+        <button class="btn-primary" id="btnSearchNFRecebida">
+          <i class="fa-solid fa-magnifying-glass"></i> Buscar
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="table" id="tableNFRecebida">
+        <thead>
+          <tr>
+            <th>Prestador</th>
+            <th>CNPJ/CPF Prestador</th>
+            <th>Valor</th>
+            <th>Situação</th>
+            <th>Data Emissão</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyNFRecebida">
+          <tr>
+            <td colspan="6">Carregando notas...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const tbodyRecebida = document.getElementById("tbodyNFRecebida");
+  const searchInputRecebida = document.getElementById("searchNFRecebida");
+  const btnSearchRecebida = document.getElementById("btnSearchNFRecebida");
+
+  let notasRecebidasCache = [];
+
+  function renderNotasRecebidasTable(lista) {
+    tbodyRecebida.innerHTML = "";
+
+    if (!lista.length) {
+      tbodyRecebida.innerHTML = `<tr><td colspan="6">Nenhuma nota recebida encontrada.</td></tr>`;
+      return;
+    }
+
+    lista.forEach(nota => {
+      const prestador = nota.nome_prestador || "-";
+      const documento = nota.documento_prestador || "-";
+      const valor = formatCurrency(nota.valor_total);
+      const statusBadge = statusToBadge(nota.situacao);
+      const data = formatDate(nota.data_emissao || nota.criado_em);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${prestador}</td>
+        <td>${documento}</td>
+        <td>${valor}</td>
+        <td>${statusBadge}</td>
+        <td>${data}</td>
+        <td>
+          <button class="btn-small" data-id="${nota.id}">
+            Ver
+          </button>
+        </td>
+      `;
+      tbodyRecebida.appendChild(tr);
+    });
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/notas-recebidas`);
+    if (!response.ok) throw new Error("Erro ao buscar notas recebidas na API");
+
+    const data = await response.json();
+    notasRecebidasCache = data || [];
+    renderNotasRecebidasTable(notasRecebidasCache);
+  } catch (err) {
+    console.error(err);
+    tbodyRecebida.innerHTML = `<tr><td colspan="6">Erro ao carregar notas recebidas. Verifique a API.</td></tr>`;
+  }
+
+  function aplicarFiltroRecebidas() {
+    const termo = searchInputRecebida.value.toLowerCase().trim();
+
+    if (!termo) {
+      renderNotasRecebidasTable(notasRecebidasCache);
+      return;
+    }
+
+    const filtradas = notasRecebidasCache.filter(nota => {
+      const texto = `
+        ${nota.nome_prestador || ""}
+        ${nota.documento_prestador || ""}
+        ${nota.chave_nfse || ""}
+        ${nota.situacao || ""}
+      `.toLowerCase();
+
+      return texto.includes(termo);
+    });
+
+    renderNotasRecebidasTable(filtradas);
+  }
+
+  searchInputRecebida.addEventListener("keyup", aplicarFiltroRecebidas);
+  btnSearchRecebida.addEventListener("click", aplicarFiltroRecebidas);
+
+  tbodyRecebida.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("btn-small")) return;
+
+    const id = e.target.getAttribute("data-id");
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/notas-recebidas/${id}`);
+      if (!resp.ok) throw new Error("Erro ao buscar nota recebida");
+
+      const nota = await resp.json();
+
+      alert(`
+PRESTADOR: ${nota.nome_prestador}
+CNPJ/CPF: ${nota.documento_prestador}
+CHAVE NFS-e: ${nota.chave_nfse}
+
+SITUAÇÃO: ${nota.situacao}
+VALOR: ${formatCurrency(nota.valor_total)}
+DATA EMISSÃO: ${formatDate(nota.data_emissao)}
+      `);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao carregar detalhes da nota recebida");
     }
   });
 }

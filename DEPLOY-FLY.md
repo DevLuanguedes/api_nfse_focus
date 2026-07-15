@@ -50,7 +50,13 @@ Isso define a variável `DATABASE_URL` no app.
 ### 6. Definir secrets (token Focus NFe)
 ```bash
 fly secrets set FOCUS_TOKEN="seu_token_focus_aqui"
+fly secrets set WEBHOOK_RECEBIDAS_TOKEN="um_token_secreto_qualquer"
 ```
+O `WEBHOOK_RECEBIDAS_TOKEN` protege a rota `POST /webhook/focus/nfse-recebida` — configure o mesmo valor
+como query string na URL do webhook cadastrada no painel da Focus NFe (evento `nfsen_recebida`):
+`https://api-sig-premcell.fly.dev/webhook/focus/nfse-recebida?token=um_token_secreto_qualquer`.
+Depois de anexar o banco, rode `node scripts/criar_tabela_notas_recebidas.js` (ou `npm run criar-tabelas`)
+para criar a tabela `notas_recebidas`.
 
 ### 7. Deploy
 Na pasta do projeto (onde está o `fly.toml`):

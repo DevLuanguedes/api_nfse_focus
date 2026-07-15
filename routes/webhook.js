@@ -6,6 +6,8 @@ function sanitizeRef(ref) {
   return String(ref ?? "").trim().replace(/[^a-zA-Z0-9]/g, "");
 }
 
+const WEBHOOK_RECEBIDAS_TOKEN = process.env.WEBHOOK_RECEBIDAS_TOKEN;
+
 router.post("/focus/nfse", async (req, res) => {
   try {
     console.log("📩 WEBHOOK FOCUS RECEBIDO");
@@ -50,6 +52,69 @@ router.post("/focus/nfse", async (req, res) => {
     res.sendStatus(200);
   } catch (err) {
     console.error("ERRO WEBHOOK:", err);
+    res.sendStatus(200);
+  }
+});
+
+/**
+ * POST /webhook/focus/nfse-recebida?token=...
+ * Evento "nfsen_recebida" da Focus NFe: notas emitidas por terceiros contra o CNPJ da empresa.
+ * Protegido por token (configurar WEBHOOK_RECEBIDAS_TOKEN e usar a mesma URL/token no painel da Focus).
+ */
+router.post("/focus/nfse-recebida", async (req, res) => {
+  try {
+    if (WEBHOOK_RECEBIDAS_TOKEN && req.query.token !== WEBHOOK_RECEBIDAS_TOKEN) {
+      return res.sendStatus(401);
+    }
+
+    console.log("📩 WEBHOOK FOCUS NFSE RECEBIDA");
+    console.log(JSON.stringify(req.body, null, 2));
+
+    const dados = req.body || {};
+    const chaveNfse = String(dados.chave_nfse ?? "").trim();
+
+    if (!chaveNfse) {
+      return res.sendStatus(200);
+    }
+
+    await db.query(
+      `
+      INSERT INTO notas_recebidas (
+        chave_nfse, focus_id, nome_prestador, documento_prestador,
+        valor_total, data_emissao, data_geracao, situacao, versao, payload
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      ON CONFLICT (chave_nfse) DO UPDATE SET
+        focus_id = COALESCE(EXCLUDED.focus_id, notas_recebidas.focus_id),
+        nome_prestador = COALESCE(EXCLUDED.nome_prestador, notas_recebidas.nome_prestador),
+        documento_prestador = COALESCE(EXCLUDED.documento_prestador, notas_recebidas.documento_prestador),
+        valor_total = COALESCE(EXCLUDED.valor_total, notas_recebidas.valor_total),
+        data_emissao = COALESCE(EXCLUDED.data_emissao, notas_recebidas.data_emissao),
+        data_geracao = COALESCE(EXCLUDED.data_geracao, notas_recebidas.data_geracao),
+        situacao = COALESCE(EXCLUDED.situacao, notas_recebidas.situacao),
+        versao = COALESCE(EXCLUDED.versao, notas_recebidas.versao),
+        payload = EXCLUDED.payload,
+        atualizado_em = NOW()
+      `,
+      [
+        chaveNfse,
+        dados.id ?? null,
+        dados.nome_prestador ?? null,
+        dados.documento_prestador ?? null,
+        dados.valor_total ?? null,
+        dados.data_emissao ?? null,
+        dados.data_geracao ?? null,
+        dados.situacao ?? null,
+        dados.versao != null ? String(dados.versao) : null,
+        JSON.stringify(dados),
+      ]
+    );
+
+    console.log("[Webhook] nota recebida gravada, chave_nfse:", chaveNfse);
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("ERRO WEBHOOK NFSE RECEBIDA:", err);
     res.sendStatus(200);
   }
 });

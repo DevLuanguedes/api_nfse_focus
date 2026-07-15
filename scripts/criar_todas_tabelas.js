@@ -79,6 +79,26 @@ const SCRIPTS = [
     );
   `,
   },
+  {
+    name: "notas_recebidas",
+    sql: `
+    CREATE TABLE IF NOT EXISTS notas_recebidas (
+      id SERIAL PRIMARY KEY,
+      chave_nfse VARCHAR(60) NOT NULL UNIQUE,
+      focus_id VARCHAR(60),
+      nome_prestador VARCHAR(255),
+      documento_prestador VARCHAR(32),
+      valor_total NUMERIC(15,2),
+      data_emissao TIMESTAMP WITH TIME ZONE,
+      data_geracao TIMESTAMP WITH TIME ZONE,
+      situacao VARCHAR(50),
+      versao VARCHAR(20),
+      payload JSONB,
+      criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `,
+  },
 ];
 
 async function main() {
