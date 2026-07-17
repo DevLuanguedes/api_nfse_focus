@@ -31,7 +31,13 @@ module.exports = async function mapLinhaParaFocus(linha, prestador) {
       item_lista_servico: linha["item_lista_servico"], //OK
       descricao_servico: linha["descricao_servico"],    // OK
       codigo_tributario_municipio: linha["codigo_tributario_municipio"],
-      tributacao_iss: linha["tributacao_iss"]   //OK
+      tributacao_iss: linha["tributacao_iss"],   //OK
+      informacoes_complementares: [
+        linha["codigo_nbs"] ? `NBS: ${linha["codigo_nbs"]}` : "",
+        linha["CEP_Obra"] ? `CEP Obra: ${String(linha["CEP_Obra"]).replace(/\D/g, "")}` : "",
+        linha["Bairro_Obra"] ? `Bairro Obra: ${linha["Bairro_Obra"]}` : "",
+        linha["Cidade_Servico"] ? `Cidade Obra: ${linha["Cidade_Servico"]}` : "",
+      ].filter(Boolean).join(" | ") + "| CBS 0,9%| IBS 0,1%"
     },
 
     data_emissao: parseData(linha["data_emissao"]),   // OK

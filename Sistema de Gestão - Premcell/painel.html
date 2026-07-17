@@ -677,12 +677,16 @@ if (page === "recebidas") {
 
     <div class="consultar-notas-toolbar">
       <div class="search-box">
-        <input type="text" id="searchNFRecebida" placeholder="Buscar por prestador, CNPJ, chave, situação...">
-        <button class="btn-primary" id="btnSearchNFRecebida">
-          <i class="fa-solid fa-magnifying-glass"></i> Buscar
-        </button>
+        <input type="text" id="searchNFRecebida" placeholder="Buscar por prestador, CNPJ ou chave...">
       </div>
+      <input type="date" id="dataInicialRecebida" title="Data inicial">
+      <input type="date" id="dataFinalRecebida" title="Data final">
+      <button class="btn-primary" id="btnSearchNFRecebida">
+        <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+      </button>
     </div>
+
+    <div id="resumoRecebidas" class="text-small" style="margin-bottom:8px;"></div>
 
     <div class="table-container">
       <table class="table" id="tableNFRecebida">
@@ -703,13 +707,31 @@ if (page === "recebidas") {
         </tbody>
       </table>
     </div>
+
+    <div class="paginacao" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+      <button class="btn-small" id="btnPaginaAnteriorRecebida">
+        <i class="fa-solid fa-chevron-left"></i> Anterior
+      </button>
+      <span id="paginaAtualRecebida">Página 1</span>
+      <button class="btn-small" id="btnProximaPaginaRecebida">
+        Próxima <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
   `;
 
   const tbodyRecebida = document.getElementById("tbodyNFRecebida");
+  const resumoRecebida = document.getElementById("resumoRecebidas");
   const searchInputRecebida = document.getElementById("searchNFRecebida");
+  const dataInicialRecebida = document.getElementById("dataInicialRecebida");
+  const dataFinalRecebida = document.getElementById("dataFinalRecebida");
   const btnSearchRecebida = document.getElementById("btnSearchNFRecebida");
+  const paginaAtualEl = document.getElementById("paginaAtualRecebida");
+  const btnPaginaAnterior = document.getElementById("btnPaginaAnteriorRecebida");
+  const btnProximaPagina = document.getElementById("btnProximaPaginaRecebida");
 
-  let notasRecebidasCache = [];
+  const POR_PAGINA_RECEBIDA = 50;
+  let paginaRecebida = 1;
+  let totalPaginasRecebida = 1;
 
   function renderNotasRecebidasTable(lista) {
     tbodyRecebida.innerHTML = "";
@@ -733,55 +755,71 @@ if (page === "recebidas") {
         <td>${valor}</td>
         <td>${statusBadge}</td>
         <td>${data}</td>
-        <td>
-          <button class="btn-small" data-id="${nota.id}">
-            Ver
-          </button>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn-small btn-ver-recebida" data-id="${nota.id}">Ver</button>
+          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/notas-recebidas/${nota.id}/pdf" target="_blank" rel="noopener" title="Ver DANFSe em PDF">PDF</a>
+          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/notas-recebidas/${nota.id}/xml" title="Baixar XML">XML</a>
         </td>
       `;
       tbodyRecebida.appendChild(tr);
     });
   }
 
-  try {
-    const response = await fetch(`${API_BASE}/api/notas-recebidas`);
-    if (!response.ok) throw new Error("Erro ao buscar notas recebidas na API");
+  async function carregarNotasRecebidas() {
+    tbodyRecebida.innerHTML = `<tr><td colspan="6">Carregando notas...</td></tr>`;
 
-    const data = await response.json();
-    notasRecebidasCache = data || [];
-    renderNotasRecebidasTable(notasRecebidasCache);
-  } catch (err) {
-    console.error(err);
-    tbodyRecebida.innerHTML = `<tr><td colspan="6">Erro ao carregar notas recebidas. Verifique a API.</td></tr>`;
-  }
-
-  function aplicarFiltroRecebidas() {
-    const termo = searchInputRecebida.value.toLowerCase().trim();
-
-    if (!termo) {
-      renderNotasRecebidasTable(notasRecebidasCache);
-      return;
-    }
-
-    const filtradas = notasRecebidasCache.filter(nota => {
-      const texto = `
-        ${nota.nome_prestador || ""}
-        ${nota.documento_prestador || ""}
-        ${nota.chave_nfse || ""}
-        ${nota.situacao || ""}
-      `.toLowerCase();
-
-      return texto.includes(termo);
+    const params = new URLSearchParams({
+      pagina: String(paginaRecebida),
+      por_pagina: String(POR_PAGINA_RECEBIDA),
     });
+    if (searchInputRecebida.value.trim()) params.set("busca", searchInputRecebida.value.trim());
+    if (dataInicialRecebida.value) params.set("data_inicial", dataInicialRecebida.value);
+    if (dataFinalRecebida.value) params.set("data_final", dataFinalRecebida.value);
 
-    renderNotasRecebidasTable(filtradas);
+    try {
+      const response = await fetch(`${API_BASE}/api/notas-recebidas?${params.toString()}`);
+      if (!response.ok) throw new Error("Erro ao buscar notas recebidas na API");
+
+      const resposta = await response.json();
+      totalPaginasRecebida = resposta.total_paginas || 1;
+
+      renderNotasRecebidasTable(resposta.dados || []);
+      resumoRecebida.textContent = `${resposta.total || 0} nota(s) encontrada(s)`;
+      paginaAtualEl.textContent = `Página ${resposta.pagina} de ${totalPaginasRecebida}`;
+      btnPaginaAnterior.disabled = resposta.pagina <= 1;
+      btnProximaPagina.disabled = resposta.pagina >= totalPaginasRecebida;
+    } catch (err) {
+      console.error(err);
+      tbodyRecebida.innerHTML = `<tr><td colspan="6">Erro ao carregar notas recebidas. Verifique a API.</td></tr>`;
+      resumoRecebida.textContent = "";
+    }
   }
 
-  searchInputRecebida.addEventListener("keyup", aplicarFiltroRecebidas);
-  btnSearchRecebida.addEventListener("click", aplicarFiltroRecebidas);
+  btnSearchRecebida.addEventListener("click", () => {
+    paginaRecebida = 1;
+    carregarNotasRecebidas();
+  });
+  searchInputRecebida.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") {
+      paginaRecebida = 1;
+      carregarNotasRecebidas();
+    }
+  });
+  btnPaginaAnterior.addEventListener("click", () => {
+    if (paginaRecebida > 1) {
+      paginaRecebida -= 1;
+      carregarNotasRecebidas();
+    }
+  });
+  btnProximaPagina.addEventListener("click", () => {
+    if (paginaRecebida < totalPaginasRecebida) {
+      paginaRecebida += 1;
+      carregarNotasRecebidas();
+    }
+  });
 
   tbodyRecebida.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("btn-small")) return;
+    if (!e.target.classList.contains("btn-ver-recebida")) return;
 
     const id = e.target.getAttribute("data-id");
 
@@ -805,6 +843,8 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       alert("Erro ao carregar detalhes da nota recebida");
     }
   });
+
+  await carregarNotasRecebidas();
 }
 
       // Funções compartilhadas para excluir linhas no cadastro (usadas em Transformar e Emitir)

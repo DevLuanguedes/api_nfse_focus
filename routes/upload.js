@@ -220,9 +220,14 @@ function montarPayloadNfsen(linha) {
   const ref = sanitizeRef(refPlanilha);
   if (!ref) throw new Error('Campo "Ref" vazio/ inválido (após sanitização).');
 
-  // Datas
-  const dataEmissao = parseData(getLinha(linha, "data_emissao", "Data Emissão", "Data_Emissao"));
-  const dataCompetencia = String(dataEmissao).slice(0, 10); // YYYY-MM-DD
+  // Datas (calendário Brasil; parseData já devolve YYYY-MM-DD)
+  let dataEmissao = parseData(getLinha(linha, "data_emissao", "Data Emissão", "Data_Emissao"));
+  const hojeBr = new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+  const ymd = String(dataEmissao).slice(0, 10);
+  if (ymd > hojeBr) {
+    dataEmissao = hojeBr;
+  }
+  const dataCompetencia = String(dataEmissao).slice(0, 10);
 
   // Prestador (config)
   const cnpjPrestador = onlyDigits(prestador?.cnpj_prestador);
@@ -299,6 +304,12 @@ function montarPayloadNfsen(linha) {
   let valorCofins = 0;
   let valorRetidoIrrf = 0;
   let valorRetidoCsll = 0;
+  let valorCbs = 0;
+  let valorIbsTotal = 0;
+  let valorIbsUf = 0;
+  let valorIbsMun = 0;
+  let ibsCbsSituacaoTributaria = null;
+  let ibsCbsClassificacaoTributaria = null;
 
   // Alíquotas para envio na DPS: Emissor Nacional espera valor em % (0.65 e 3), não dividido por 100.
   let aliquotaPisEnvio = aliquotaPis;
@@ -340,6 +351,19 @@ function montarPayloadNfsen(linha) {
         `Serviço 7.02 sem código do município de prestação (IBGE 7 dígitos). Cidade/UF: ${cidade || "?"} / ${uf || "?"}. Use a etapa Transformar e informe o código para este município.`
       );
     }
+
+    // Reforma tributária (parâmetros confirmados pelo contador para 070202)
+    // Base = 100% do valor do serviço; CBS 0,9%; IBS 0,1% (50% UF / 50% Município).
+    const baseIbsCbs = round2(valorServico);
+    valorCbs = round2(baseIbsCbs * 0.009);
+    valorIbsTotal = round2(baseIbsCbs * 0.001);
+    valorIbsUf = round2(baseIbsCbs * 0.0005);
+    // Ajuste de centavos para garantir coerência: IBS_UF + IBS_MUN = IBS_TOTAL
+    valorIbsMun = round2(valorIbsTotal - valorIbsUf);
+
+    // Campos oficiais Focus NFSe Nacional (reforma tributária)
+    ibsCbsSituacaoTributaria = "200";
+    ibsCbsClassificacaoTributaria = "200046";
   }
 
   const payload = {
@@ -359,14 +383,18 @@ function montarPayloadNfsen(linha) {
     codigo_opcao_simples_nacional: parseBoolean(getLinha(linha, "optante_simples_nacional")) ? 3 : 1,
     regime_especial_tributacao: 0,
 
-    valor_total_tributos_federais: valorTotalTributosFederais,
-    valor_total_tributos_municipais: getLinha(linha, "valor_iss_retido"),
+    valor_total_tributos_federais: round2((Number(valorTotalTributosFederais) || 0) + (Number(valorCbs) || 0)),
+    valor_total_tributos_estaduais: valorIbsUf > 0 ? valorIbsUf : undefined,
+    valor_total_tributos_municipais: round2((parseMoney(getLinha(linha, "valor_iss_retido")) || 0) + (Number(valorIbsMun) || 0)),
 
     informacoes_complementares: [
       codigoNbs ? `NBS: ${codigoNbs}` : null,
       getLinha(linha, "CEP_Obra") ? `CEP Obra: ${getLinha(linha, "CEP_Obra")}` : null,
       getLinha(linha, "Bairro_Obra") ? `Bairro Obra: ${getLinha(linha, "Bairro_Obra")}` : null,
       getLinha(linha, "Cidade_Servico") ? `Cidade Obra: ${getLinha(linha, "Cidade_Servico")}` : null,
+      valorCbs > 0 || valorIbsTotal > 0
+        ? "CBS 0,9%| IBS 0,1%"
+        : null,
       isServico703
         ? "Tributos federais retidos: IR 1,5% + PIS 0,65% + COFINS 3,0% + CSLL 1,0%."
         : null,
@@ -411,6 +439,8 @@ function montarPayloadNfsen(linha) {
     // Focus: valor_irrf -> vRetIRRF, valor_csll -> vRetCSLL (Documentação Focus NFSe Nacional)
     valor_irrf: valorRetidoIrrf,
     valor_csll: valorRetidoCsll,
+    ...(ibsCbsSituacaoTributaria ? { ibs_cbs_situacao_tributaria: ibsCbsSituacaoTributaria } : {}),
+    ...(ibsCbsClassificacaoTributaria ? { ibs_cbs_classificacao_tributaria: ibsCbsClassificacaoTributaria } : {}),
   };
 
   // Valor líquido = valor do serviço menos todos os tributos retidos (vLiq no XML)
