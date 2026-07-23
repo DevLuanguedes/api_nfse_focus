@@ -58,6 +58,10 @@ como query string na URL do webhook cadastrada no painel da Focus NFe (evento `n
 Depois de anexar o banco, rode `node scripts/criar_tabela_notas_recebidas.js` (ou `npm run criar-tabelas`)
 para criar a tabela `notas_recebidas`.
 
+O mesmo `WEBHOOK_RECEBIDAS_TOKEN` protege `POST /webhook/focus/nfe-recebida` (evento `nfe_recebida`,
+NF-e modelo 55 recebidas): `https://api-sig-premcell.fly.dev/webhook/focus/nfe-recebida?token=um_token_secreto_qualquer`.
+Rode `node scripts/criar_tabela_nfe_recebidas.js` (ou `npm run criar-tabelas`) para criar a tabela `nfe_recebidas`.
+
 ### 7. Deploy
 Na pasta do projeto (onde está o `fly.toml`):
 ```bash

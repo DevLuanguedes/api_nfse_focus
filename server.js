@@ -15,6 +15,7 @@ app.use(express.json());
 // ===== ROTAS =====
 const notasRoutes = require('./routes/notas');
 const notasRecebidasRoutes = require('./routes/notasRecebidas');
+const nfeRecebidasRoutes = require('./routes/nfeRecebidas');
 const dashboardRoutes = require('./routes/dashboard');
 const debugRoutes = require('./routes/debug');
 const authRoutes = require('./routes/auth');
@@ -44,6 +45,7 @@ app.get('/api/versao', (req, res) => {
 // ===== REGISTRO DAS ROTAS =====
 app.use('/api/notas', notasRoutes);
 app.use('/api/notas-recebidas', notasRecebidasRoutes);
+app.use('/api/nfe-recebidas', nfeRecebidasRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/api/auth', authRoutes);

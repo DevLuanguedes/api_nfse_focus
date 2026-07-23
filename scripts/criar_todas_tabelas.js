@@ -99,6 +99,29 @@ const SCRIPTS = [
     );
   `,
   },
+  {
+    name: "nfe_recebidas",
+    sql: `
+    CREATE TABLE IF NOT EXISTS nfe_recebidas (
+      id SERIAL PRIMARY KEY,
+      chave_nfe VARCHAR(60) NOT NULL UNIQUE,
+      focus_id VARCHAR(60),
+      nome_emitente VARCHAR(255),
+      cnpj_emitente VARCHAR(32),
+      valor_total NUMERIC(15,2),
+      data_emissao TIMESTAMP WITH TIME ZONE,
+      data_geracao TIMESTAMP WITH TIME ZONE,
+      situacao VARCHAR(50),
+      versao VARCHAR(20),
+      manifestacao VARCHAR(30),
+      manifestacao_justificativa TEXT,
+      manifestada_em TIMESTAMP WITH TIME ZONE,
+      payload JSONB,
+      criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `,
+  },
 ];
 
 async function main() {

@@ -70,6 +70,11 @@
             <span class="label">Notas Recebidas</span>
           </li>
 
+          <li data-target="nfe-recebidas">
+            <i class="fa-solid fa-truck-ramp-box"></i>
+            <span class="label">NF-e Recebidas</span>
+          </li>
+
           <li data-target="aliquotas">
             <i class="fa-solid fa-percent"></i>
             <span class="label">Alíquotas ISS</span>
@@ -845,6 +850,298 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
   });
 
   await carregarNotasRecebidas();
+}
+
+// ===================== NF-E RECEBIDAS =====================
+if (page === "nfe-recebidas") {
+  view.innerHTML = `
+    <h2>NF-e Recebidas</h2>
+    <p class="subtitle">NF-e (modelo 55) emitidas por terceiros contra o CNPJ da empresa (evento nfe_recebida da Focus NFe).</p>
+
+    <div class="consultar-notas-toolbar">
+      <div class="search-box">
+        <input type="text" id="searchNFeRecebida" placeholder="Buscar por emitente, CNPJ ou chave...">
+      </div>
+      <input type="date" id="dataInicialNFeRecebida" title="Data inicial">
+      <input type="date" id="dataFinalNFeRecebida" title="Data final">
+      <button class="btn-primary" id="btnSearchNFeRecebida">
+        <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+      </button>
+    </div>
+
+    <div id="resumoNFeRecebidas" class="text-small" style="margin-bottom:8px;"></div>
+
+    <div class="table-container">
+      <table class="table" id="tableNFeRecebida">
+        <thead>
+          <tr>
+            <th>Emitente</th>
+            <th>CNPJ Emitente</th>
+            <th>Valor</th>
+            <th>Situação</th>
+            <th>Manifestação</th>
+            <th>Data Emissão</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyNFeRecebida">
+          <tr>
+            <td colspan="7">Carregando NF-e...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paginacao" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+      <button class="btn-small" id="btnPaginaAnteriorNFeRecebida">
+        <i class="fa-solid fa-chevron-left"></i> Anterior
+      </button>
+      <span id="paginaAtualNFeRecebida">Página 1</span>
+      <button class="btn-small" id="btnProximaPaginaNFeRecebida">
+        Próxima <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Modal de recusa (manifestação do destinatário) -->
+    <div id="modalRecusarNFe" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:12px;padding:24px;max-width:480px;width:90%;">
+        <h3 style="margin-top:0;">Recusar NF-e</h3>
+        <p class="text-small">Escolha o motivo da recusa (manifestação do destinatário):</p>
+
+        <div style="display:flex;flex-direction:column;gap:8px;margin:16px 0;">
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer;">
+            <input type="radio" name="tipoRecusaNFe" value="desconhecimento">
+            Não reconheço essa operação
+          </label>
+          <label style="display:flex;gap:8px;align-items:center;cursor:pointer;">
+            <input type="radio" name="tipoRecusaNFe" value="nao_realizada">
+            Operação não foi realizada
+          </label>
+        </div>
+
+        <div id="justificativaRecusaNFeBox" style="display:none;margin-bottom:16px;">
+          <label style="display:block;margin-bottom:4px;font-size:13px;">Justificativa (15 a 255 caracteres) *</label>
+          <textarea id="justificativaRecusaNFe" rows="3" style="width:100%;border:1px solid #ccc;border-radius:8px;padding:8px;" placeholder="Descreva o motivo..."></textarea>
+        </div>
+
+        <div id="msgRecusaNFe" class="text-small" style="margin-bottom:12px;"></div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button class="btn-small" id="btnCancelarRecusaNFe">Cancelar</button>
+          <button class="btn-primary" id="btnConfirmarRecusaNFe">Confirmar Recusa</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const tbodyNFeRecebida = document.getElementById("tbodyNFeRecebida");
+  const resumoNFeRecebida = document.getElementById("resumoNFeRecebidas");
+  const searchInputNFeRecebida = document.getElementById("searchNFeRecebida");
+  const dataInicialNFeRecebida = document.getElementById("dataInicialNFeRecebida");
+  const dataFinalNFeRecebida = document.getElementById("dataFinalNFeRecebida");
+  const btnSearchNFeRecebida = document.getElementById("btnSearchNFeRecebida");
+  const paginaAtualNFeEl = document.getElementById("paginaAtualNFeRecebida");
+  const btnPaginaAnteriorNFe = document.getElementById("btnPaginaAnteriorNFeRecebida");
+  const btnProximaPaginaNFe = document.getElementById("btnProximaPaginaNFeRecebida");
+
+  const modalRecusarNFe = document.getElementById("modalRecusarNFe");
+  const justificativaBoxNFe = document.getElementById("justificativaRecusaNFeBox");
+  const justificativaTextareaNFe = document.getElementById("justificativaRecusaNFe");
+  const msgRecusaNFe = document.getElementById("msgRecusaNFe");
+  const btnCancelarRecusaNFe = document.getElementById("btnCancelarRecusaNFe");
+  const btnConfirmarRecusaNFe = document.getElementById("btnConfirmarRecusaNFe");
+
+  const POR_PAGINA_NFE_RECEBIDA = 50;
+  let paginaNFeRecebida = 1;
+  let totalPaginasNFeRecebida = 1;
+  let idRecusaAtual = null;
+
+  function manifestacaoToBadge(m) {
+    if (!m) return `<span class="badge badge-blue">Pendente</span>`;
+    if (m === "confirmacao" || m === "ciencia") return `<span class="badge badge-green">${m === "ciencia" ? "Ciência" : "Confirmada"}</span>`;
+    if (m === "desconhecimento") return `<span class="badge badge-red">Não reconhecida</span>`;
+    if (m === "nao_realizada") return `<span class="badge badge-red">Não realizada</span>`;
+    return `<span class="badge badge-blue">${m}</span>`;
+  }
+
+  function renderNFeRecebidaTable(lista) {
+    tbodyNFeRecebida.innerHTML = "";
+
+    if (!lista.length) {
+      tbodyNFeRecebida.innerHTML = `<tr><td colspan="7">Nenhuma NF-e recebida encontrada.</td></tr>`;
+      return;
+    }
+
+    lista.forEach(nota => {
+      const emitente = nota.nome_emitente || "-";
+      const documento = nota.cnpj_emitente || "-";
+      const valor = formatCurrency(nota.valor_total);
+      const statusBadge = statusToBadge(nota.situacao);
+      const manifestBadge = manifestacaoToBadge(nota.manifestacao);
+      const data = formatDate(nota.data_emissao || nota.criado_em);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${emitente}</td>
+        <td>${documento}</td>
+        <td>${valor}</td>
+        <td>${statusBadge}</td>
+        <td>${manifestBadge}</td>
+        <td>${data}</td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn-small btn-ver-nfe-recebida" data-id="${nota.id}">Ver</button>
+          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/nfe-recebidas/${nota.id}/pdf" target="_blank" rel="noopener" title="Ver DANFe em PDF">PDF</a>
+          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/nfe-recebidas/${nota.id}/xml" title="Baixar XML">XML</a>
+          <button class="btn-small btn-recusar-nfe" data-id="${nota.id}" style="background:#c0392b;">Recusar</button>
+        </td>
+      `;
+      tbodyNFeRecebida.appendChild(tr);
+    });
+  }
+
+  async function carregarNFeRecebidas() {
+    tbodyNFeRecebida.innerHTML = `<tr><td colspan="7">Carregando NF-e...</td></tr>`;
+
+    const params = new URLSearchParams({
+      pagina: String(paginaNFeRecebida),
+      por_pagina: String(POR_PAGINA_NFE_RECEBIDA),
+    });
+    if (searchInputNFeRecebida.value.trim()) params.set("busca", searchInputNFeRecebida.value.trim());
+    if (dataInicialNFeRecebida.value) params.set("data_inicial", dataInicialNFeRecebida.value);
+    if (dataFinalNFeRecebida.value) params.set("data_final", dataFinalNFeRecebida.value);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/nfe-recebidas?${params.toString()}`);
+      if (!response.ok) throw new Error("Erro ao buscar NF-e recebidas na API");
+
+      const resposta = await response.json();
+      totalPaginasNFeRecebida = resposta.total_paginas || 1;
+
+      renderNFeRecebidaTable(resposta.dados || []);
+      resumoNFeRecebida.textContent = `${resposta.total || 0} NF-e(s) encontrada(s)`;
+      paginaAtualNFeEl.textContent = `Página ${resposta.pagina} de ${totalPaginasNFeRecebida}`;
+      btnPaginaAnteriorNFe.disabled = resposta.pagina <= 1;
+      btnProximaPaginaNFe.disabled = resposta.pagina >= totalPaginasNFeRecebida;
+    } catch (err) {
+      console.error(err);
+      tbodyNFeRecebida.innerHTML = `<tr><td colspan="7">Erro ao carregar NF-e recebidas. Verifique a API.</td></tr>`;
+      resumoNFeRecebida.textContent = "";
+    }
+  }
+
+  btnSearchNFeRecebida.addEventListener("click", () => {
+    paginaNFeRecebida = 1;
+    carregarNFeRecebidas();
+  });
+  searchInputNFeRecebida.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") {
+      paginaNFeRecebida = 1;
+      carregarNFeRecebidas();
+    }
+  });
+  btnPaginaAnteriorNFe.addEventListener("click", () => {
+    if (paginaNFeRecebida > 1) {
+      paginaNFeRecebida -= 1;
+      carregarNFeRecebidas();
+    }
+  });
+  btnProximaPaginaNFe.addEventListener("click", () => {
+    if (paginaNFeRecebida < totalPaginasNFeRecebida) {
+      paginaNFeRecebida += 1;
+      carregarNFeRecebidas();
+    }
+  });
+
+  tbodyNFeRecebida.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("btn-ver-nfe-recebida")) {
+      const id = e.target.getAttribute("data-id");
+      try {
+        const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${id}`);
+        if (!resp.ok) throw new Error("Erro ao buscar NF-e");
+        const nota = await resp.json();
+        alert(`
+EMITENTE: ${nota.nome_emitente}
+CNPJ: ${nota.cnpj_emitente}
+CHAVE NF-e: ${nota.chave_nfe}
+
+SITUAÇÃO: ${nota.situacao}
+MANIFESTAÇÃO: ${nota.manifestacao || "Pendente"}
+VALOR: ${formatCurrency(nota.valor_total)}
+DATA EMISSÃO: ${formatDate(nota.data_emissao)}
+        `);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao carregar detalhes da NF-e recebida");
+      }
+      return;
+    }
+
+    if (e.target.classList.contains("btn-recusar-nfe")) {
+      idRecusaAtual = e.target.getAttribute("data-id");
+      msgRecusaNFe.textContent = "";
+      msgRecusaNFe.style.color = "";
+      justificativaTextareaNFe.value = "";
+      justificativaBoxNFe.style.display = "none";
+      document.querySelectorAll('input[name="tipoRecusaNFe"]').forEach(r => r.checked = false);
+      modalRecusarNFe.style.display = "flex";
+    }
+  });
+
+  document.querySelectorAll('input[name="tipoRecusaNFe"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      justificativaBoxNFe.style.display = radio.value === "nao_realizada" ? "block" : "none";
+    });
+  });
+
+  btnCancelarRecusaNFe.addEventListener("click", () => {
+    modalRecusarNFe.style.display = "none";
+    idRecusaAtual = null;
+  });
+
+  btnConfirmarRecusaNFe.addEventListener("click", async () => {
+    const tipoSelecionado = document.querySelector('input[name="tipoRecusaNFe"]:checked');
+    if (!tipoSelecionado) {
+      msgRecusaNFe.textContent = "Escolha um motivo.";
+      msgRecusaNFe.style.color = "red";
+      return;
+    }
+    const tipo = tipoSelecionado.value;
+    const justificativa = justificativaTextareaNFe.value.trim();
+
+    if (tipo === "nao_realizada" && (justificativa.length < 15 || justificativa.length > 255)) {
+      msgRecusaNFe.textContent = "Justificativa deve ter entre 15 e 255 caracteres.";
+      msgRecusaNFe.style.color = "red";
+      return;
+    }
+
+    btnConfirmarRecusaNFe.disabled = true;
+    msgRecusaNFe.textContent = "Enviando manifestação...";
+    msgRecusaNFe.style.color = "";
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${idRecusaAtual}/manifestar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo, justificativa: tipo === "nao_realizada" ? justificativa : undefined }),
+      });
+      const data = await resp.json();
+
+      if (!resp.ok || !data.sucesso) {
+        throw new Error(data.erro || "Erro ao registrar manifestação");
+      }
+
+      modalRecusarNFe.style.display = "none";
+      idRecusaAtual = null;
+      await carregarNFeRecebidas();
+    } catch (err) {
+      msgRecusaNFe.textContent = err.message;
+      msgRecusaNFe.style.color = "red";
+    } finally {
+      btnConfirmarRecusaNFe.disabled = false;
+    }
+  });
+
+  await carregarNFeRecebidas();
 }
 
       // Funções compartilhadas para excluir linhas no cadastro (usadas em Transformar e Emitir)
