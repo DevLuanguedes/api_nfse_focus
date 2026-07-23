@@ -150,14 +150,15 @@ router.post("/focus/nfe-recebida", async (req, res) => {
       dados.cnpj_emitente ?? dados.documento_emitente ?? dados.emitente_cnpj ?? null;
     const valorTotal =
       dados.valor_total ?? dados.valor_nf ?? dados.valor_nfe ?? null;
+    const manifestacaoFocus = dados.manifestacao_destinatario ?? null;
 
     await db.query(
       `
       INSERT INTO nfe_recebidas (
         chave_nfe, focus_id, nome_emitente, cnpj_emitente,
-        valor_total, data_emissao, data_geracao, situacao, versao, payload
+        valor_total, data_emissao, data_geracao, situacao, versao, manifestacao, payload
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       ON CONFLICT (chave_nfe) DO UPDATE SET
         focus_id = COALESCE(EXCLUDED.focus_id, nfe_recebidas.focus_id),
         nome_emitente = COALESCE(EXCLUDED.nome_emitente, nfe_recebidas.nome_emitente),
@@ -167,6 +168,7 @@ router.post("/focus/nfe-recebida", async (req, res) => {
         data_geracao = COALESCE(EXCLUDED.data_geracao, nfe_recebidas.data_geracao),
         situacao = COALESCE(EXCLUDED.situacao, nfe_recebidas.situacao),
         versao = COALESCE(EXCLUDED.versao, nfe_recebidas.versao),
+        manifestacao = COALESCE(nfe_recebidas.manifestacao, EXCLUDED.manifestacao),
         payload = EXCLUDED.payload,
         atualizado_em = NOW()
       `,
@@ -180,6 +182,7 @@ router.post("/focus/nfe-recebida", async (req, res) => {
         dados.data_geracao ?? null,
         dados.situacao ?? null,
         dados.versao != null ? String(dados.versao) : null,
+        manifestacaoFocus,
         JSON.stringify(dados),
       ]
     );
