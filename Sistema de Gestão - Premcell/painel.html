@@ -105,12 +105,12 @@
 
           <li data-target="recebidas">
             <i class="fa-solid fa-inbox"></i>
-            <span class="label">Notas Recebidas</span>
+            <span class="label">Notas Serviços</span>
           </li>
 
           <li data-target="nfe-recebidas">
             <i class="fa-solid fa-truck-ramp-box"></i>
-            <span class="label">NF-e Recebidas</span>
+            <span class="label">NF-e Compras</span>
           </li>
 
           <li data-target="aliquotas">
@@ -317,8 +317,8 @@
       "home": { icone: "fa-house", titulo: "Home" },
       "consultar": { icone: "fa-file-invoice", titulo: "Consultar Notas" },
       "emitir": { icone: "fa-file-circle-plus", titulo: "Emissão Automática de Notas", subtitulo: "Fluxo em 3 etapas: (1) transformar planilha do cliente, (2) emitir notas com a planilha de emissão, (3) atualizar planilha do cliente com os números das NFs." },
-      "recebidas": { icone: "fa-inbox", titulo: "Notas Recebidas", subtitulo: "NFS-e emitidas por terceiros contra o CNPJ da empresa (evento nfsen_recebida da Focus NFe)." },
-      "nfe-recebidas": { icone: "fa-truck-ramp-box", titulo: "NF-e Recebidas", subtitulo: "NF-e (modelo 55) emitidas por terceiros contra o CNPJ da empresa (evento nfe_recebida da Focus NFe)." },
+      "recebidas": { icone: "fa-inbox", titulo: "Notas Serviços", subtitulo: "NFS-e emitidas por terceiros contra o CNPJ da empresa (evento nfsen_recebida da Focus NFe)." },
+      "nfe-recebidas": { icone: "fa-truck-ramp-box", titulo: "NF-e Compras", subtitulo: "NF-e (modelo 55) emitidas por terceiros contra o CNPJ da empresa (evento nfe_recebida da Focus NFe)." },
       "aliquotas": { icone: "fa-percent", titulo: "Cadastro de Alíquotas ISS por Município", subtitulo: "Cadastre aqui as alíquotas de ISS. Quando você transformar uma planilha ou emitir notas, os municípios que faltarem serão pedidos na hora e gravados aqui automaticamente." },
       "enderecos-obra": { icone: "fa-map-location-dot", titulo: "Cadastro de Endereços de Obra por Site e UF", subtitulo: "Cadastre aqui o endereço da obra por site e UF do serviço. Na transformação da planilha, os campos CEP_Obra, Logradouro_Obra, Numero_Obra, Bairro_Obra, UF_Obra e Codigo_Municipio_Obra serão preenchidos automaticamente. Se faltar algum, o sistema pede o cadastro na hora." },
       "relatorios": { icone: "fa-chart-line", titulo: "Relatórios", subtitulo: "Resumo atualizado a partir do banco de dados." },
@@ -928,6 +928,7 @@ if (page === "nfe-recebidas") {
   const columnDefsNFeRecebida = [
     { headerName: "Emitente", field: "nome_emitente", flex: 1.6 },
     { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 1 },
+    { headerName: "Chave de Acesso", field: "chave_nfe", flex: 1.8, minWidth: 220, cellStyle: { fontFamily: "monospace", fontSize: "12px" } },
     { headerName: "Valor", field: "valor_total", flex: 0.8, cellRenderer: p => formatCurrency(p.value) },
     { headerName: "Situação", field: "situacao", flex: 0.8, cellRenderer: p => statusToBadge(p.value) },
     { headerName: "Manifestação", field: "manifestacao", flex: 0.9, cellRenderer: p => manifestacaoToBadge(p.value) },
