@@ -11,6 +11,44 @@
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- AG Grid (Community) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32/styles/ag-theme-quartz.css">
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32/dist/ag-grid-community.min.js"></script>
+
+  <style>
+    .grid-container {
+      height: 520px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    .grid-acoes {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      height: 100%;
+    }
+    .grid-btn-acao {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: none;
+      background: var(--c3, #4a5568);
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 13px;
+      transition: .15s ease;
+    }
+    .grid-btn-acao:hover { background: var(--c4, #2d3748); }
+    .grid-btn-acao.perigo { background: #c0392b; }
+    .grid-btn-acao.perigo:hover { background: #922b21; }
+    .grid-btn-acao:disabled { opacity: .4; cursor: not-allowed; }
+  </style>
 </head>
 
 <body>
@@ -183,6 +221,37 @@
       }
 
       return `<span class="badge badge-blue">${status}</span>`;
+    }
+
+    function manifestacaoToBadge(m) {
+      if (!m) return `<span class="badge badge-blue">Pendente</span>`;
+      if (m === "confirmacao" || m === "ciencia") return `<span class="badge badge-green">${m === "ciencia" ? "Ciência" : "Confirmada"}</span>`;
+      if (m === "desconhecimento") return `<span class="badge badge-red">Não reconhecida</span>`;
+      if (m === "nao_realizada") return `<span class="badge badge-red">Não realizada</span>`;
+      return `<span class="badge badge-blue">${m}</span>`;
+    }
+
+    // ===== GRID PADRÃO (AG Grid) — usado em Consultar Notas, Notas Recebidas e NF-e Recebidas =====
+    function criarBotaoAcao({ icone, titulo, dataAction, dataId, href, target, classe, desabilitado }) {
+      const classes = "grid-btn-acao" + (classe ? " " + classe : "");
+      if (href) {
+        return `<a class="${classes}" href="${href}" ${target ? `target="${target}" rel="noopener"` : ""} title="${titulo}"><i class="fa-solid ${icone}"></i></a>`;
+      }
+      return `<button type="button" class="${classes}" data-action="${dataAction}" data-id="${dataId}" title="${titulo}" ${desabilitado ? "disabled" : ""}><i class="fa-solid ${icone}"></i></button>`;
+    }
+
+    function criarGrid(containerEl, columnDefs, rowData, extraOptions = {}) {
+      const gridOptions = Object.assign({
+        columnDefs,
+        rowData,
+        defaultColDef: { resizable: true, sortable: true, filter: false, flex: 1, minWidth: 100 },
+        domLayout: "normal",
+        pagination: false,
+        suppressCellFocus: true,
+        animateRows: true,
+        overlayNoRowsTemplate: '<span style="padding:12px;color:#888;">Nenhum registro encontrado.</span>',
+      }, extraOptions);
+      return agGrid.createGrid(containerEl, gridOptions);
     }
 
     // ===== VIA CEP – preenchimento automático por CEP =====
@@ -473,9 +542,6 @@ if (page === "consultar") {
     <div class="consultar-notas-toolbar">
       <div class="search-box">
         <input type="text" id="searchNF" placeholder="Buscar por ref, número NF, cliente, status...">
-        <button class="btn-primary" id="btnSearchNF">
-          <i class="fa-solid fa-magnifying-glass"></i> Buscar
-        </button>
       </div>
       <button type="button" id="btnSincronizarFocus" class="btn-primary btn-sincronizar-focus" title="Consultar na API Focus e atualizar números da NF no banco">
         <i class="fa-solid fa-cloud-arrow-down"></i> Sincronizar com Focus
@@ -485,127 +551,60 @@ if (page === "consultar") {
       </a>
     </div>
 
-    <div class="table-container">
-      <table class="table" id="tableNF">
-        <thead>
-          <tr>
-            <th>Ref</th>
-            <th>Nº NF</th>
-            <th>Cliente</th>
-            <th>Valor</th>
-            <th>Status</th>
-            <th>Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyNF">
-          <tr>
-            <td colspan="7">Carregando notas...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="gridConsultarNotas" class="grid-container ag-theme-quartz"></div>
   `;
 
-  const tbody = document.getElementById("tbodyNF");
   const searchInput = document.getElementById("searchNF");
-  const btnSearch = document.getElementById("btnSearchNF");
   const btnExportar = document.getElementById("btnExportarExcel");
+  const btnSincronizarFocus = document.getElementById("btnSincronizarFocus");
+  const gridEl = document.getElementById("gridConsultarNotas");
 
   let notasCache = [];
-  let listaAtualNotas = [];
 
-  // ===== BUSCAR NOTAS NA API =====
-  try {
-    const response = await fetch(`${API_BASE}/api/notas`);
-    if (!response.ok) {
-      throw new Error("Erro ao buscar notas na API");
+  const columnDefsConsultar = [
+    { headerName: "Ref", field: "ref_api", flex: 1.4 },
+    { headerName: "Nº NF", field: "numero_nf", flex: 0.8, valueFormatter: p => (p.value != null && String(p.value).trim() !== "" ? p.value : "-") },
+    { headerName: "Cliente", field: "cliente_nome", flex: 1.6 },
+    { headerName: "Valor", field: "valor_servicos", flex: 0.9, cellRenderer: p => formatCurrency(p.value) },
+    { headerName: "Status", field: "status_nf", flex: 0.9, cellRenderer: p => statusToBadge(p.value) },
+    {
+      headerName: "Data", flex: 0.9,
+      valueGetter: p => p.data.data_emissao || p.data.criado_em,
+      cellRenderer: p => formatDate(p.value),
+    },
+    {
+      headerName: "Ações", field: "id", flex: 0.7, sortable: false, resizable: false,
+      cellRenderer: p => `<div class="grid-acoes">${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-nota", dataId: p.value })}</div>`,
+    },
+  ];
+
+  const gridApiConsultar = criarGrid(gridEl, columnDefsConsultar, [], {
+    pagination: true,
+    paginationPageSize: 20,
+    paginationPageSizeSelector: [20, 50, 100],
+  });
+
+  async function carregarNotas() {
+    try {
+      const response = await fetch(`${API_BASE}/api/notas`);
+      if (!response.ok) throw new Error("Erro ao buscar notas na API");
+      const data = await response.json();
+      notasCache = Array.isArray(data) ? data : [];
+      gridApiConsultar.setGridOption("rowData", notasCache);
+    } catch (err) {
+      console.error(err);
+      notasCache = [];
+      gridApiConsultar.setGridOption("rowData", []);
     }
-
-    const data = await response.json();
-    notasCache = data || [];
-
-    if (!Array.isArray(notasCache) || notasCache.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7">Nenhuma nota encontrada.</td>
-        </tr>
-      `;
-      listaAtualNotas = [];
-    } else {
-      renderNotasTable(notasCache);
-    }
-
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7">Erro ao carregar notas. Verifique a API.</td>
-      </tr>
-    `;
-    listaAtualNotas = [];
   }
 
-  // ===== RENDERIZA TABELA =====
-  function renderNotasTable(lista) {
-    listaAtualNotas = lista;
-    tbody.innerHTML = "";
+  await carregarNotas();
 
-    lista.forEach(nota => {
-      const ref = nota.ref_api || "-";
-      const numeroNf = nota.numero_nf != null && String(nota.numero_nf).trim() !== "" ? nota.numero_nf : "-";
-      const cliente = nota.cliente_nome || "-";
-      const valor = formatCurrency(nota.valor_servicos);
-      const statusBadge = statusToBadge(nota.status_nf);
-      const data = formatDate(nota.data_emissao || nota.criado_em);
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${ref}</td>
-        <td>${numeroNf}</td>
-        <td>${cliente}</td>
-        <td>${valor}</td>
-        <td>${statusBadge}</td>
-        <td>${data}</td>
-        <td>
-          <button class="btn-small" data-id="${nota.id}">
-            Ver
-          </button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // ===== FILTRO =====
-  function aplicarFiltro() {
-    const termo = searchInput.value.toLowerCase().trim();
-
-    if (!termo) {
-      renderNotasTable(notasCache);
-      return;
-    }
-
-    const filtradas = notasCache.filter(nota => {
-      const texto = `
-        ${nota.numero_nf || ""}
-        ${nota.ref_api || ""}
-        ${nota.cliente_nome || ""}
-        ${nota.status_nf || ""}
-        ${nota.valor_servicos || ""}
-      `.toLowerCase();
-
-      return texto.includes(termo);
-    });
-
-    renderNotasTable(filtradas);
-  }
-
-  searchInput.addEventListener("keyup", aplicarFiltro);
-  btnSearch.addEventListener("click", aplicarFiltro);
+  searchInput.addEventListener("input", () => {
+    gridApiConsultar.setGridOption("quickFilterText", searchInput.value);
+  });
 
   // ===== SINCRONIZAR COM FOCUS =====
-  const btnSincronizarFocus = document.getElementById("btnSincronizarFocus");
   if (btnSincronizarFocus) {
     btnSincronizarFocus.addEventListener("click", async function() {
       const btn = this;
@@ -617,10 +616,7 @@ if (page === "consultar") {
         const data = await resp.json();
         if (data.ok) {
           alert("Sincronização concluída.\n\nAtualizadas: " + (data.atualizadas || 0) + " de " + (data.total_refs || 0) + " refs.\n" + (data.erros && data.erros.length ? "Erros: " + data.erros.length : ""));
-          const response = await fetch(API_BASE + "/api/notas");
-          const list = await response.json();
-          notasCache = Array.isArray(list) ? list : [];
-          if (notasCache.length === 0) listaAtualNotas = []; else renderNotasTable(notasCache);
+          await carregarNotas();
         } else {
           alert("Erro: " + (data.erro || ""));
         }
@@ -641,10 +637,11 @@ if (page === "consultar") {
   }
 
   // ===== BOTÃO VER (DETALHE DA NOTA) =====
-  tbody.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("btn-small")) return;
+  gridEl.addEventListener("click", async (e) => {
+    const btn = e.target.closest('[data-action="ver-nota"]');
+    if (!btn) return;
 
-    const id = e.target.getAttribute("data-id");
+    const id = btn.getAttribute("data-id");
 
     try {
       const resp = await fetch(`${API_BASE}/api/notas/${id}`);
@@ -693,25 +690,7 @@ if (page === "recebidas") {
 
     <div id="resumoRecebidas" class="text-small" style="margin-bottom:8px;"></div>
 
-    <div class="table-container">
-      <table class="table" id="tableNFRecebida">
-        <thead>
-          <tr>
-            <th>Prestador</th>
-            <th>CNPJ/CPF Prestador</th>
-            <th>Valor</th>
-            <th>Situação</th>
-            <th>Data Emissão</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyNFRecebida">
-          <tr>
-            <td colspan="6">Carregando notas...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="gridNotasRecebidas" class="grid-container ag-theme-quartz"></div>
 
     <div class="paginacao" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
       <button class="btn-small" id="btnPaginaAnteriorRecebida">
@@ -724,7 +703,6 @@ if (page === "recebidas") {
     </div>
   `;
 
-  const tbodyRecebida = document.getElementById("tbodyNFRecebida");
   const resumoRecebida = document.getElementById("resumoRecebidas");
   const searchInputRecebida = document.getElementById("searchNFRecebida");
   const dataInicialRecebida = document.getElementById("dataInicialRecebida");
@@ -733,46 +711,35 @@ if (page === "recebidas") {
   const paginaAtualEl = document.getElementById("paginaAtualRecebida");
   const btnPaginaAnterior = document.getElementById("btnPaginaAnteriorRecebida");
   const btnProximaPagina = document.getElementById("btnProximaPaginaRecebida");
+  const gridElRecebida = document.getElementById("gridNotasRecebidas");
 
   const POR_PAGINA_RECEBIDA = 50;
   let paginaRecebida = 1;
   let totalPaginasRecebida = 1;
 
-  function renderNotasRecebidasTable(lista) {
-    tbodyRecebida.innerHTML = "";
+  const columnDefsRecebida = [
+    { headerName: "Prestador", field: "nome_prestador", flex: 1.6 },
+    { headerName: "CNPJ/CPF Prestador", field: "documento_prestador", flex: 1 },
+    { headerName: "Valor", field: "valor_total", flex: 0.8, cellRenderer: p => formatCurrency(p.value) },
+    { headerName: "Situação", field: "situacao", flex: 0.8, cellRenderer: p => statusToBadge(p.value) },
+    {
+      headerName: "Data Emissão", flex: 0.9,
+      valueGetter: p => p.data.data_emissao || p.data.criado_em,
+      cellRenderer: p => formatDate(p.value),
+    },
+    {
+      headerName: "Ações", field: "id", flex: 1, sortable: false, resizable: false,
+      cellRenderer: p => `<div class="grid-acoes">
+        ${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-recebida", dataId: p.value })}
+        ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFSe em PDF", href: `${API_BASE}/api/notas-recebidas/${p.value}/pdf`, target: "_blank" })}
+        ${criarBotaoAcao({ icone: "fa-file-code", titulo: "Baixar XML", href: `${API_BASE}/api/notas-recebidas/${p.value}/xml` })}
+      </div>`,
+    },
+  ];
 
-    if (!lista.length) {
-      tbodyRecebida.innerHTML = `<tr><td colspan="6">Nenhuma nota recebida encontrada.</td></tr>`;
-      return;
-    }
-
-    lista.forEach(nota => {
-      const prestador = nota.nome_prestador || "-";
-      const documento = nota.documento_prestador || "-";
-      const valor = formatCurrency(nota.valor_total);
-      const statusBadge = statusToBadge(nota.situacao);
-      const data = formatDate(nota.data_emissao || nota.criado_em);
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${prestador}</td>
-        <td>${documento}</td>
-        <td>${valor}</td>
-        <td>${statusBadge}</td>
-        <td>${data}</td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn-small btn-ver-recebida" data-id="${nota.id}">Ver</button>
-          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/notas-recebidas/${nota.id}/pdf" target="_blank" rel="noopener" title="Ver DANFSe em PDF">PDF</a>
-          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/notas-recebidas/${nota.id}/xml" title="Baixar XML">XML</a>
-        </td>
-      `;
-      tbodyRecebida.appendChild(tr);
-    });
-  }
+  const gridApiRecebida = criarGrid(gridElRecebida, columnDefsRecebida, []);
 
   async function carregarNotasRecebidas() {
-    tbodyRecebida.innerHTML = `<tr><td colspan="6">Carregando notas...</td></tr>`;
-
     const params = new URLSearchParams({
       pagina: String(paginaRecebida),
       por_pagina: String(POR_PAGINA_RECEBIDA),
@@ -788,15 +755,15 @@ if (page === "recebidas") {
       const resposta = await response.json();
       totalPaginasRecebida = resposta.total_paginas || 1;
 
-      renderNotasRecebidasTable(resposta.dados || []);
+      gridApiRecebida.setGridOption("rowData", resposta.dados || []);
       resumoRecebida.textContent = `${resposta.total || 0} nota(s) encontrada(s)`;
       paginaAtualEl.textContent = `Página ${resposta.pagina} de ${totalPaginasRecebida}`;
       btnPaginaAnterior.disabled = resposta.pagina <= 1;
       btnProximaPagina.disabled = resposta.pagina >= totalPaginasRecebida;
     } catch (err) {
       console.error(err);
-      tbodyRecebida.innerHTML = `<tr><td colspan="6">Erro ao carregar notas recebidas. Verifique a API.</td></tr>`;
-      resumoRecebida.textContent = "";
+      gridApiRecebida.setGridOption("rowData", []);
+      resumoRecebida.textContent = "Erro ao carregar notas recebidas. Verifique a API.";
     }
   }
 
@@ -823,10 +790,11 @@ if (page === "recebidas") {
     }
   });
 
-  tbodyRecebida.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("btn-ver-recebida")) return;
+  gridElRecebida.addEventListener("click", async (e) => {
+    const btn = e.target.closest('[data-action="ver-recebida"]');
+    if (!btn) return;
 
-    const id = e.target.getAttribute("data-id");
+    const id = btn.getAttribute("data-id");
 
     try {
       const resp = await fetch(`${API_BASE}/api/notas-recebidas/${id}`);
@@ -871,26 +839,7 @@ if (page === "nfe-recebidas") {
 
     <div id="resumoNFeRecebidas" class="text-small" style="margin-bottom:8px;"></div>
 
-    <div class="table-container">
-      <table class="table" id="tableNFeRecebida">
-        <thead>
-          <tr>
-            <th>Emitente</th>
-            <th>CNPJ Emitente</th>
-            <th>Valor</th>
-            <th>Situação</th>
-            <th>Manifestação</th>
-            <th>Data Emissão</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyNFeRecebida">
-          <tr>
-            <td colspan="7">Carregando NF-e...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="gridNFeRecebidas" class="grid-container ag-theme-quartz"></div>
 
     <div class="paginacao" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
       <button class="btn-small" id="btnPaginaAnteriorNFeRecebida">
@@ -934,7 +883,6 @@ if (page === "nfe-recebidas") {
     </div>
   `;
 
-  const tbodyNFeRecebida = document.getElementById("tbodyNFeRecebida");
   const resumoNFeRecebida = document.getElementById("resumoNFeRecebidas");
   const searchInputNFeRecebida = document.getElementById("searchNFeRecebida");
   const dataInicialNFeRecebida = document.getElementById("dataInicialNFeRecebida");
@@ -943,6 +891,7 @@ if (page === "nfe-recebidas") {
   const paginaAtualNFeEl = document.getElementById("paginaAtualNFeRecebida");
   const btnPaginaAnteriorNFe = document.getElementById("btnPaginaAnteriorNFeRecebida");
   const btnProximaPaginaNFe = document.getElementById("btnProximaPaginaNFeRecebida");
+  const gridElNFeRecebida = document.getElementById("gridNFeRecebidas");
 
   const modalRecusarNFe = document.getElementById("modalRecusarNFe");
   const justificativaBoxNFe = document.getElementById("justificativaRecusaNFeBox");
@@ -956,53 +905,32 @@ if (page === "nfe-recebidas") {
   let totalPaginasNFeRecebida = 1;
   let idRecusaAtual = null;
 
-  function manifestacaoToBadge(m) {
-    if (!m) return `<span class="badge badge-blue">Pendente</span>`;
-    if (m === "confirmacao" || m === "ciencia") return `<span class="badge badge-green">${m === "ciencia" ? "Ciência" : "Confirmada"}</span>`;
-    if (m === "desconhecimento") return `<span class="badge badge-red">Não reconhecida</span>`;
-    if (m === "nao_realizada") return `<span class="badge badge-red">Não realizada</span>`;
-    return `<span class="badge badge-blue">${m}</span>`;
-  }
+  const columnDefsNFeRecebida = [
+    { headerName: "Emitente", field: "nome_emitente", flex: 1.6 },
+    { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 1 },
+    { headerName: "Valor", field: "valor_total", flex: 0.8, cellRenderer: p => formatCurrency(p.value) },
+    { headerName: "Situação", field: "situacao", flex: 0.8, cellRenderer: p => statusToBadge(p.value) },
+    { headerName: "Manifestação", field: "manifestacao", flex: 0.9, cellRenderer: p => manifestacaoToBadge(p.value) },
+    {
+      headerName: "Data Emissão", flex: 0.9,
+      valueGetter: p => p.data.data_emissao || p.data.criado_em,
+      cellRenderer: p => formatDate(p.value),
+    },
+    {
+      headerName: "Ações", field: "id", flex: 1.4, sortable: false, resizable: false,
+      cellRenderer: p => `<div class="grid-acoes">
+        ${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-nfe", dataId: p.value })}
+        ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFe em PDF", href: `${API_BASE}/api/nfe-recebidas/${p.value}/pdf`, target: "_blank" })}
+        ${criarBotaoAcao({ icone: "fa-file-code", titulo: "Baixar XML", href: `${API_BASE}/api/nfe-recebidas/${p.value}/xml` })}
+        ${criarBotaoAcao({ icone: "fa-signature", titulo: "Dar ciência da operação (necessário para liberar XML/PDF completos)", dataAction: "ciencia-nfe", dataId: p.value, desabilitado: !!p.data.manifestacao })}
+        ${criarBotaoAcao({ icone: "fa-ban", titulo: "Recusar", dataAction: "recusar-nfe", dataId: p.value, classe: "perigo" })}
+      </div>`,
+    },
+  ];
 
-  function renderNFeRecebidaTable(lista) {
-    tbodyNFeRecebida.innerHTML = "";
-
-    if (!lista.length) {
-      tbodyNFeRecebida.innerHTML = `<tr><td colspan="7">Nenhuma NF-e recebida encontrada.</td></tr>`;
-      return;
-    }
-
-    lista.forEach(nota => {
-      const emitente = nota.nome_emitente || "-";
-      const documento = nota.cnpj_emitente || "-";
-      const valor = formatCurrency(nota.valor_total);
-      const statusBadge = statusToBadge(nota.situacao);
-      const manifestBadge = manifestacaoToBadge(nota.manifestacao);
-      const data = formatDate(nota.data_emissao || nota.criado_em);
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${emitente}</td>
-        <td>${documento}</td>
-        <td>${valor}</td>
-        <td>${statusBadge}</td>
-        <td>${manifestBadge}</td>
-        <td>${data}</td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn-small btn-ver-nfe-recebida" data-id="${nota.id}">Ver</button>
-          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/nfe-recebidas/${nota.id}/pdf" target="_blank" rel="noopener" title="Ver DANFe em PDF">PDF</a>
-          <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/nfe-recebidas/${nota.id}/xml" title="Baixar XML">XML</a>
-          <button class="btn-small btn-ciencia-nfe" data-id="${nota.id}" ${nota.manifestacao ? "disabled" : ""} title="Dar ciência da operação (necessário para liberar XML/PDF completos)">Dar Ciência</button>
-          <button class="btn-small btn-recusar-nfe" data-id="${nota.id}" style="background:#c0392b;">Recusar</button>
-        </td>
-      `;
-      tbodyNFeRecebida.appendChild(tr);
-    });
-  }
+  const gridApiNFeRecebida = criarGrid(gridElNFeRecebida, columnDefsNFeRecebida, []);
 
   async function carregarNFeRecebidas() {
-    tbodyNFeRecebida.innerHTML = `<tr><td colspan="7">Carregando NF-e...</td></tr>`;
-
     const params = new URLSearchParams({
       pagina: String(paginaNFeRecebida),
       por_pagina: String(POR_PAGINA_NFE_RECEBIDA),
@@ -1018,15 +946,15 @@ if (page === "nfe-recebidas") {
       const resposta = await response.json();
       totalPaginasNFeRecebida = resposta.total_paginas || 1;
 
-      renderNFeRecebidaTable(resposta.dados || []);
+      gridApiNFeRecebida.setGridOption("rowData", resposta.dados || []);
       resumoNFeRecebida.textContent = `${resposta.total || 0} NF-e(s) encontrada(s)`;
       paginaAtualNFeEl.textContent = `Página ${resposta.pagina} de ${totalPaginasNFeRecebida}`;
       btnPaginaAnteriorNFe.disabled = resposta.pagina <= 1;
       btnProximaPaginaNFe.disabled = resposta.pagina >= totalPaginasNFeRecebida;
     } catch (err) {
       console.error(err);
-      tbodyNFeRecebida.innerHTML = `<tr><td colspan="7">Erro ao carregar NF-e recebidas. Verifique a API.</td></tr>`;
-      resumoNFeRecebida.textContent = "";
+      gridApiNFeRecebida.setGridOption("rowData", []);
+      resumoNFeRecebida.textContent = "Erro ao carregar NF-e recebidas. Verifique a API.";
     }
   }
 
@@ -1053,9 +981,10 @@ if (page === "nfe-recebidas") {
     }
   });
 
-  tbodyNFeRecebida.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("btn-ver-nfe-recebida")) {
-      const id = e.target.getAttribute("data-id");
+  gridElNFeRecebida.addEventListener("click", async (e) => {
+    const btnVer = e.target.closest('[data-action="ver-nfe"]');
+    if (btnVer) {
+      const id = btnVer.getAttribute("data-id");
       try {
         const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${id}`);
         if (!resp.ok) throw new Error("Erro ao buscar NF-e");
@@ -1077,11 +1006,11 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       return;
     }
 
-    if (e.target.classList.contains("btn-ciencia-nfe")) {
-      const id = e.target.getAttribute("data-id");
-      const btn = e.target;
-      btn.disabled = true;
-      btn.textContent = "Enviando...";
+    const btnCiencia = e.target.closest('[data-action="ciencia-nfe"]');
+    if (btnCiencia) {
+      const id = btnCiencia.getAttribute("data-id");
+      btnCiencia.disabled = true;
+      btnCiencia.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
       try {
         const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${id}/manifestar`, {
           method: "POST",
@@ -1093,14 +1022,15 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
         await carregarNFeRecebidas();
       } catch (err) {
         alert("Erro ao dar ciência: " + err.message);
-        btn.disabled = false;
-        btn.textContent = "Dar Ciência";
+        btnCiencia.disabled = false;
+        btnCiencia.innerHTML = '<i class="fa-solid fa-signature"></i>';
       }
       return;
     }
 
-    if (e.target.classList.contains("btn-recusar-nfe")) {
-      idRecusaAtual = e.target.getAttribute("data-id");
+    const btnRecusar = e.target.closest('[data-action="recusar-nfe"]');
+    if (btnRecusar) {
+      idRecusaAtual = btnRecusar.getAttribute("data-id");
       msgRecusaNFe.textContent = "";
       msgRecusaNFe.style.color = "";
       justificativaTextareaNFe.value = "";
