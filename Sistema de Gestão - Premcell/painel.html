@@ -312,9 +312,36 @@
       }
     })();
 
+    // ===== CABEÇALHO ÚNICO DE PÁGINA (ícone + título + subtítulo) =====
+    const PAGE_INFO = {
+      "home": { icone: "fa-house", titulo: "Home" },
+      "consultar": { icone: "fa-file-invoice", titulo: "Consultar Notas" },
+      "emitir": { icone: "fa-file-circle-plus", titulo: "Emissão Automática de Notas", subtitulo: "Fluxo em 3 etapas: (1) transformar planilha do cliente, (2) emitir notas com a planilha de emissão, (3) atualizar planilha do cliente com os números das NFs." },
+      "recebidas": { icone: "fa-inbox", titulo: "Notas Recebidas", subtitulo: "NFS-e emitidas por terceiros contra o CNPJ da empresa (evento nfsen_recebida da Focus NFe)." },
+      "nfe-recebidas": { icone: "fa-truck-ramp-box", titulo: "NF-e Recebidas", subtitulo: "NF-e (modelo 55) emitidas por terceiros contra o CNPJ da empresa (evento nfe_recebida da Focus NFe)." },
+      "aliquotas": { icone: "fa-percent", titulo: "Cadastro de Alíquotas ISS por Município", subtitulo: "Cadastre aqui as alíquotas de ISS. Quando você transformar uma planilha ou emitir notas, os municípios que faltarem serão pedidos na hora e gravados aqui automaticamente." },
+      "enderecos-obra": { icone: "fa-map-location-dot", titulo: "Cadastro de Endereços de Obra por Site e UF", subtitulo: "Cadastre aqui o endereço da obra por site e UF do serviço. Na transformação da planilha, os campos CEP_Obra, Logradouro_Obra, Numero_Obra, Bairro_Obra, UF_Obra e Codigo_Municipio_Obra serão preenchidos automaticamente. Se faltar algum, o sistema pede o cadastro na hora." },
+      "relatorios": { icone: "fa-chart-line", titulo: "Relatórios", subtitulo: "Resumo atualizado a partir do banco de dados." },
+      "admin": { icone: "fa-user-shield", titulo: "Administração de Usuários" },
+      "transformar": { icone: "fa-file-export", titulo: "Transformar Planilha", subtitulo: "Envie a planilha do portal (formato do cliente). A planilha original terá Ref, ISS_City, ISS_State, ISS_Base, ISS Rate e valor preenchidos para submissão no portal. A planilha transformada é usada na emissão. Se algum município não tiver alíquota ou site+UF não tiver endereço, o sistema pede o cadastro na hora." },
+    };
+
+    function renderizarCabecalhoPagina(page) {
+      const info = PAGE_INFO[page] || { icone: "fa-circle", titulo: page };
+      breadcrumbs.innerHTML = `
+        <div class="page-header">
+          <div class="page-header-icone"><i class="fa-solid ${info.icone}"></i></div>
+          <div>
+            <h1>${info.titulo}</h1>
+            ${info.subtitulo ? `<p>${info.subtitulo}</p>` : ""}
+          </div>
+        </div>
+      `;
+    }
+
     // ===== FUNÇÃO SPA =====
     async function loadPage(page) {
-      breadcrumbs.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+      renderizarCabecalhoPagina(page);
 
       // ===================== HOME =====================
       if (page === "home") {
@@ -384,8 +411,6 @@
 
         view.innerHTML = `
           <div class="admin-usuarios">
-            <h2>Administração de Usuários</h2>
-
             <section class="admin-form">
               <h3>Novo usuário</h3>
               <div class="form-grid">
@@ -537,10 +562,9 @@
 // ===================== CONSULTAR NOTAS =====================
 if (page === "consultar") {
   view.innerHTML = `
-    <h2>Consultar Notas</h2>
-
     <div class="consultar-notas-toolbar">
-      <div class="search-box">
+      <div class="campo-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchNF" placeholder="Buscar por ref, número NF, cliente, status...">
       </div>
       <button type="button" id="btnSincronizarFocus" class="btn-primary btn-sincronizar-focus" title="Consultar na API Focus e atualizar números da NF no banco">
@@ -674,17 +698,15 @@ ${JSON.stringify(nota.payload_retorno || "Sem detalhes", null, 2)}
 // ===================== NOTAS RECEBIDAS =====================
 if (page === "recebidas") {
   view.innerHTML = `
-    <h2>Notas Recebidas</h2>
-    <p class="subtitle">NFS-e emitidas por terceiros contra o CNPJ da empresa (evento nfsen_recebida da Focus NFe).</p>
-
     <div class="consultar-notas-toolbar">
-      <div class="search-box">
+      <div class="campo-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchNFRecebida" placeholder="Buscar por prestador, CNPJ ou chave...">
       </div>
-      <input type="date" id="dataInicialRecebida" title="Data inicial">
-      <input type="date" id="dataFinalRecebida" title="Data final">
+      <label class="campo-data">De <input type="date" id="dataInicialRecebida"></label>
+      <label class="campo-data">Até <input type="date" id="dataFinalRecebida"></label>
       <button class="btn-primary" id="btnSearchNFRecebida">
-        <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+        <i class="fa-solid fa-filter"></i> Filtrar
       </button>
     </div>
 
@@ -823,17 +845,15 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 // ===================== NF-E RECEBIDAS =====================
 if (page === "nfe-recebidas") {
   view.innerHTML = `
-    <h2>NF-e Recebidas</h2>
-    <p class="subtitle">NF-e (modelo 55) emitidas por terceiros contra o CNPJ da empresa (evento nfe_recebida da Focus NFe).</p>
-
     <div class="consultar-notas-toolbar">
-      <div class="search-box">
+      <div class="campo-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchNFeRecebida" placeholder="Buscar por emitente, CNPJ ou chave...">
       </div>
-      <input type="date" id="dataInicialNFeRecebida" title="Data inicial">
-      <input type="date" id="dataFinalNFeRecebida" title="Data final">
+      <label class="campo-data">De <input type="date" id="dataInicialNFeRecebida"></label>
+      <label class="campo-data">Até <input type="date" id="dataFinalNFeRecebida"></label>
       <button class="btn-primary" id="btnSearchNFeRecebida">
-        <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+        <i class="fa-solid fa-filter"></i> Filtrar
       </button>
     </div>
 
@@ -1119,8 +1139,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       // ===================== TRANSFORMAR PLANILHA =====================
       if (page === "transformar") {
         view.innerHTML = `
-          <h2>Transformar planilha do cliente</h2>
-          <p class="subtitle">Envie a planilha do portal (formato do cliente). A planilha original terá Ref, ISS_City, ISS_State, ISS_Base, ISS Rate e valor preenchidos para submissão no portal. A planilha transformada é usada na emissão. Se algum município não tiver alíquota ou site+UF não tiver endereço, o sistema pede o cadastro na hora.</p>
           <div class="card form-card">
             <div class="form-group">
               <label>Planilha do cliente (.xlsx / .xlsm)</label>
@@ -1533,10 +1551,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       if (page === "aliquotas") {
         view.innerHTML = `
           <div class="aliquotas-page">
-            <div class="aliquotas-header">
-              <h2>Cadastro de alíquotas ISS por município</h2>
-              <p class="subtitle">Cadastre aqui as alíquotas de ISS. Quando você transformar uma planilha ou emitir notas, os municípios que faltarem serão pedidos na hora e gravados aqui automaticamente.</p>
-            </div>
             <div class="aliquotas-grid">
               <div class="card form-card aliquotas-form-card">
                 <h3 id="alqFormTitle">Novo município</h3>
@@ -1685,10 +1699,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       if (page === "enderecos-obra") {
         view.innerHTML = `
           <div class="enderecos-page">
-            <div class="enderecos-header">
-              <h2>Cadastro de endereços de obra por site e UF</h2>
-              <p class="subtitle">Cadastre aqui o endereço da obra por site e UF do serviço. Na transformação da planilha, os campos CEP_Obra, Logradouro_Obra, Numero_Obra, Bairro_Obra, UF_Obra e Codigo_Municipio_Obra serão preenchidos automaticamente. Se faltar algum, o sistema pede o cadastro na hora.</p>
-            </div>
             <div class="enderecos-grid">
               <div class="card form-card enderecos-form-card">
                 <h3 id="endFormTitle">Novo endereço de obra</h3>
@@ -1927,12 +1937,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       // ===================== EMITIR NOTAS (FLUXO EM ETAPAS) =====================
       if (page === "emitir") {
         view.innerHTML = `
-          <h2>Emissão Automática de Notas</h2>
-          <p class="subtitle">
-            Fluxo em 3 etapas: (1) transformar planilha do cliente, (2) emitir notas com a planilha de emissão,
-            (3) atualizar planilha do cliente com os números das NFs.
-          </p>
-
           <div class="steps-bar">
             <div class="step-item step-1 active">1. Transformar</div>
             <div class="step-item step-2">2. Emitir</div>
@@ -2461,8 +2465,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       // ===================== RELATÓRIOS =====================
       if (page === "relatorios") {
         view.innerHTML = `
-          <h2>Relatórios</h2>
-          <p class="subtitle">Resumo atualizado a partir do banco de dados.</p>
           <div id="relatorioResumo" class="relatorio-resumo">
             <p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>
           </div>`;

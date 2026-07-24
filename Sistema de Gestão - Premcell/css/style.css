@@ -141,9 +141,39 @@ body{
 }
 
 .breadcrumbs{
-  font-size:13px;
-  color:var(--muted);
-  margin-bottom:16px;
+  margin-bottom:20px;
+}
+
+/* Cabeçalho único de página (ícone + título + subtítulo) — substitui breadcrumb + <h2> repetidos */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eceff3;
+}
+.page-header .page-header-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--c3);
+  color: #fff;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.page-header h1 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  color: #1f2937;
+}
+.page-header p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--muted);
 }
 
 /* CARDS */
@@ -730,19 +760,73 @@ body{
   margin-top: 20px;
 }
 
-/* Consultar Notas - toolbar com busca e exportar */
+/* Barra de filtros padrão (Consultar Notas, Notas Recebidas, NF-e Recebidas) */
 .consultar-notas-toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+  background: #fff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   margin-bottom: 20px;
 }
-.consultar-notas-toolbar .search-box {
+
+.campo-busca {
   flex: 1;
-  min-width: 200px;
-  margin-bottom: 0;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fafafa;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0 14px;
+  transition: all .2s ease-in-out;
 }
+.campo-busca:focus-within {
+  border-color: #4a90e2;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+.campo-busca i {
+  color: #9aa1ab;
+  font-size: 14px;
+}
+.campo-busca input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 11px 0;
+  font-size: 14px;
+  outline: none;
+}
+
+.campo-data {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.campo-data input[type="date"] {
+  padding: 9px 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fafafa;
+  outline: none;
+  color: #333;
+  transition: all .2s ease-in-out;
+}
+.campo-data input[type="date"]:focus {
+  border-color: #4a90e2;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
 .btn-exportar-excel {
   display: inline-flex;
   align-items: center;
@@ -782,57 +866,6 @@ body{
 .btn-sincronizar-focus:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-/* Caixa de busca */
-.search-box {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  align-items: center;
-}
-
-/* Input da busca */
-.search-box input {
-  flex: 1;
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 15px;
-  transition: all .2s ease-in-out;
-  outline: none;
-  background: #fafafa;
-}
-
-.search-box input:focus {
-  border-color: #4a90e2;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-}
-
-/* Botão de buscar */
-.search-box button {
-  padding: 12px 18px;
-  font-size: 15px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  background: #4a90e2;
-  color: #fff;
-  font-weight: 600;
-  transition: all .2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.search-box button:hover {
-  background: #3d7dc8;
-  transform: translateY(-1px);
 }
 
 /* ===== MODAL ===== */
