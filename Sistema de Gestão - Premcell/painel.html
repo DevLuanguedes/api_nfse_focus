@@ -992,6 +992,7 @@ if (page === "nfe-recebidas") {
           <button class="btn-small btn-ver-nfe-recebida" data-id="${nota.id}">Ver</button>
           <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/nfe-recebidas/${nota.id}/pdf" target="_blank" rel="noopener" title="Ver DANFe em PDF">PDF</a>
           <a class="btn-small" style="text-decoration:none;display:inline-block;" href="${API_BASE}/api/nfe-recebidas/${nota.id}/xml" title="Baixar XML">XML</a>
+          <button class="btn-small btn-ciencia-nfe" data-id="${nota.id}" ${nota.manifestacao ? "disabled" : ""} title="Dar ciência da operação (necessário para liberar XML/PDF completos)">Dar Ciência</button>
           <button class="btn-small btn-recusar-nfe" data-id="${nota.id}" style="background:#c0392b;">Recusar</button>
         </td>
       `;
@@ -1072,6 +1073,28 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       } catch (err) {
         console.error(err);
         alert("Erro ao carregar detalhes da NF-e recebida");
+      }
+      return;
+    }
+
+    if (e.target.classList.contains("btn-ciencia-nfe")) {
+      const id = e.target.getAttribute("data-id");
+      const btn = e.target;
+      btn.disabled = true;
+      btn.textContent = "Enviando...";
+      try {
+        const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${id}/manifestar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tipo: "ciencia" }),
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.sucesso) throw new Error(data.erro || "Erro ao dar ciência");
+        await carregarNFeRecebidas();
+      } catch (err) {
+        alert("Erro ao dar ciência: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "Dar Ciência";
       }
       return;
     }
