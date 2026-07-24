@@ -947,10 +947,10 @@ if (page === "nfe-recebidas") {
   let idRecusaAtual = null;
 
   const columnDefsNFeRecebida = [
-    { headerName: "Emitente", field: "nome_emitente", flex: 1.6 },
-    { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 1 },
+    { headerName: "Emitente", field: "nome_emitente", flex: 1.2 },
+    { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 0.8 },
     {
-      headerName: "Chave de Acesso", field: "chave_nfe", flex: 1.8, minWidth: 220,
+      headerName: "Chave de Acesso", field: "chave_nfe", flex: 2.5, minWidth: 400,
       cellRenderer: p => `<div style="display:flex;align-items:center;gap:6px;height:100%;">
         <span style="font-family:monospace;font-size:12px;">${p.value || "-"}</span>
         ${p.value ? criarBotaoAcao({ icone: "fa-copy", titulo: "Copiar chave de acesso", dataAction: "copiar-chave", dataId: p.value }) : ""}
