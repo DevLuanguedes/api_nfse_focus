@@ -254,6 +254,27 @@
       return agGrid.createGrid(containerEl, gridOptions);
     }
 
+    async function copiarTexto(texto, btnFeedback) {
+      try {
+        await navigator.clipboard.writeText(texto);
+      } catch (e) {
+        // Fallback para contextos sem permissão/HTTPS
+        const temp = document.createElement("textarea");
+        temp.value = texto;
+        temp.style.position = "fixed";
+        temp.style.opacity = "0";
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+      if (btnFeedback) {
+        const iconeOriginal = btnFeedback.innerHTML;
+        btnFeedback.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => { btnFeedback.innerHTML = iconeOriginal; }, 1200);
+      }
+    }
+
     // ===== VIA CEP – preenchimento automático por CEP =====
     async function buscarCepViaCep(cep) {
       const digits = String(cep || "").replace(/\D/g, "");
@@ -928,7 +949,13 @@ if (page === "nfe-recebidas") {
   const columnDefsNFeRecebida = [
     { headerName: "Emitente", field: "nome_emitente", flex: 1.6 },
     { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 1 },
-    { headerName: "Chave de Acesso", field: "chave_nfe", flex: 1.8, minWidth: 220, cellStyle: { fontFamily: "monospace", fontSize: "12px" } },
+    {
+      headerName: "Chave de Acesso", field: "chave_nfe", flex: 1.8, minWidth: 220,
+      cellRenderer: p => `<div style="display:flex;align-items:center;gap:6px;height:100%;">
+        <span style="font-family:monospace;font-size:12px;">${p.value || "-"}</span>
+        ${p.value ? criarBotaoAcao({ icone: "fa-copy", titulo: "Copiar chave de acesso", dataAction: "copiar-chave", dataId: p.value }) : ""}
+      </div>`,
+    },
     { headerName: "Valor", field: "valor_total", flex: 0.8, cellRenderer: p => formatCurrency(p.value) },
     { headerName: "Situação", field: "situacao", flex: 0.8, cellRenderer: p => statusToBadge(p.value) },
     { headerName: "Manifestação", field: "manifestacao", flex: 0.9, cellRenderer: p => manifestacaoToBadge(p.value) },
@@ -1003,6 +1030,12 @@ if (page === "nfe-recebidas") {
   });
 
   gridElNFeRecebida.addEventListener("click", async (e) => {
+    const btnCopiar = e.target.closest('[data-action="copiar-chave"]');
+    if (btnCopiar) {
+      await copiarTexto(btnCopiar.getAttribute("data-id"), btnCopiar);
+      return;
+    }
+
     const btnVer = e.target.closest('[data-action="ver-nfe"]');
     if (btnVer) {
       const id = btnVer.getAttribute("data-id");
