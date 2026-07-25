@@ -51,4 +51,53 @@ router.get('/resumo', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/dashboard/mensal
+ * Totais mensais (ano atual) de notas de serviços recebidas (NFS-e) e de compras (NF-e),
+ * para os gráficos da aba Relatórios.
+ */
+router.get('/mensal', async (req, res) => {
+  try {
+    const result = await db.query(`
+      WITH meses AS (
+        SELECT generate_series(1, 12) AS mes
+      ),
+      servicos AS (
+        SELECT EXTRACT(MONTH FROM COALESCE(data_emissao, criado_em))::int AS mes,
+               SUM(valor_total) AS total
+        FROM notas_recebidas
+        WHERE EXTRACT(YEAR FROM COALESCE(data_emissao, criado_em)) = EXTRACT(YEAR FROM CURRENT_DATE)
+        GROUP BY 1
+      ),
+      compras AS (
+        SELECT EXTRACT(MONTH FROM COALESCE(data_emissao, criado_em))::int AS mes,
+               SUM(valor_total) AS total
+        FROM nfe_recebidas
+        WHERE EXTRACT(YEAR FROM COALESCE(data_emissao, criado_em)) = EXTRACT(YEAR FROM CURRENT_DATE)
+        GROUP BY 1
+      )
+      SELECT
+        m.mes,
+        COALESCE(s.total, 0) AS servicos,
+        COALESCE(c.total, 0) AS compras
+      FROM meses m
+      LEFT JOIN servicos s ON s.mes = m.mes
+      LEFT JOIN compras c ON c.mes = m.mes
+      ORDER BY m.mes
+    `);
+
+    res.json({
+      ano: new Date().getFullYear(),
+      meses: result.rows.map(r => ({
+        mes: r.mes,
+        servicos: Number(r.servicos) || 0,
+        compras: Number(r.compras) || 0,
+      })),
+    });
+  } catch (err) {
+    console.error('Erro ao buscar totais mensais:', err);
+    res.status(500).json({ erro: 'Erro ao buscar totais mensais' });
+  }
+});
+
 module.exports = router;

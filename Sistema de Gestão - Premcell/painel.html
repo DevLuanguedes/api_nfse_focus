@@ -48,6 +48,70 @@
     .grid-btn-acao.perigo { background: #c0392b; }
     .grid-btn-acao.perigo:hover { background: #922b21; }
     .grid-btn-acao:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ===== Gráficos (Relatórios) ===== */
+    .viz-root {
+      color-scheme: light;
+      --surface-1:      #fcfcfb;
+      --text-primary:   #0b0b0b;
+      --text-secondary: #52514e;
+      --text-muted:     #898781;
+      --gridline:       #e1e0d9;
+      --baseline:       #c3c2b7;
+      --series-1:       #2a78d6;
+      --series-2:       #eb6834;
+    }
+    .grafico-card {
+      background: var(--surface-1);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .grafico-card h3 {
+      margin: 0 0 2px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .grafico-card .grafico-subtitulo {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .grafico-svg-wrap { position: relative; width: 100%; }
+    .grafico-svg-wrap svg { width: 100%; height: auto; display: block; }
+    .grafico-barra { transition: opacity .1s ease; }
+    .grafico-banda { cursor: pointer; outline: none; }
+    .grafico-banda:hover .grafico-barra,
+    .grafico-banda:focus-visible .grafico-barra { opacity: .82; }
+    .grafico-eixo-texto { fill: var(--text-muted); font-size: 11px; }
+    .grafico-legenda { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+    .grafico-legenda-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+    .grafico-legenda-chave { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+    .grafico-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: var(--text-primary);
+      color: #fff;
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      opacity: 0;
+      transition: opacity .1s ease;
+      white-space: nowrap;
+      z-index: 10;
+      transform: translate(-50%, -100%);
+    }
+    .grafico-tooltip .tt-valor { font-weight: 700; }
+    .grafico-tooltip .tt-serie { display: flex; align-items: center; gap: 6px; }
+    .grafico-tooltip .tt-chave { width: 8px; height: 2px; display: inline-block; }
+    .graficos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .graficos-grid .grafico-card.full { grid-column: 1 / -1; }
+    @media (max-width: 900px) {
+      .graficos-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 
@@ -273,6 +337,155 @@
         btnFeedback.innerHTML = '<i class="fa-solid fa-check"></i>';
         setTimeout(() => { btnFeedback.innerHTML = iconeOriginal; }, 1200);
       }
+    }
+
+    // ===== GRÁFICOS DE BARRAS (SVG puro) — usado na aba Relatórios =====
+    const MESES_ABREV = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    function formatCompactoEixo(v) {
+      if (Math.abs(v) >= 1000) return (v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "k";
+      return v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+    }
+
+    function numeroNiceMax(valor) {
+      if (valor <= 0) return 100;
+      const exp = Math.floor(Math.log10(valor));
+      const base = Math.pow(10, exp);
+      const mult = valor / base;
+      let niceMult;
+      if (mult <= 1) niceMult = 1;
+      else if (mult <= 2) niceMult = 2;
+      else if (mult <= 5) niceMult = 5;
+      else niceMult = 10;
+      return niceMult * base;
+    }
+
+    function criarBarraPath(x, y, largura, altura, raio) {
+      if (altura <= 0) return "";
+      const r = Math.min(raio, largura / 2, altura);
+      if (altura < r || r <= 0) {
+        return `M${x},${y + altura} L${x},${y} L${x + largura},${y} L${x + largura},${y + altura} Z`;
+      }
+      return `M${x},${y + altura}
+        L${x},${y + r}
+        Q${x},${y} ${x + r},${y}
+        L${x + largura - r},${y}
+        Q${x + largura},${y} ${x + largura},${y + r}
+        L${x + largura},${y + altura}
+        Z`;
+    }
+
+    /**
+     * Renderiza um gráfico de barras (1 ou 2 séries) num container.
+     * @param {string} containerId - id do elemento onde o SVG será inserido
+     * @param {Array<object>} dados - [{ mes: 1..12, [chaveSerie]: number, ... }]
+     * @param {Array<{key:string,label:string,cor:string}>} series
+     * @param {number} ano
+     */
+    function renderizarGraficoBarras(containerId, dados, series, ano) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const larguraLogica = 760;
+      const alturaLogica = 300;
+      const margem = { top: 16, right: 12, bottom: 28, left: 50 };
+      const larguraPlot = larguraLogica - margem.left - margem.right;
+      const alturaPlot = alturaLogica - margem.top - margem.bottom;
+      const yBase = margem.top + alturaPlot;
+
+      const maiorValor = Math.max(1, ...dados.map(d => Math.max(...series.map(s => Number(d[s.key]) || 0))));
+      const maxEixo = numeroNiceMax(maiorValor * 1.15);
+      const numPassos = 4;
+
+      const larguraBanda = larguraPlot / dados.length;
+      const gap = 2;
+      const larguraBarra = Math.min(24, (larguraBanda - gap * (series.length + 1)) / series.length);
+
+      let svgConteudo = "";
+
+      for (let i = 0; i <= numPassos; i++) {
+        const valor = (maxEixo / numPassos) * i;
+        const y = yBase - (valor / maxEixo) * alturaPlot;
+        svgConteudo += `<line x1="${margem.left}" y1="${y}" x2="${larguraLogica - margem.right}" y2="${y}" stroke="var(--gridline)" stroke-width="1" />`;
+        svgConteudo += `<text x="${margem.left - 8}" y="${y + 4}" text-anchor="end" class="grafico-eixo-texto">${formatCompactoEixo(valor)}</text>`;
+      }
+      svgConteudo += `<line x1="${margem.left}" y1="${yBase}" x2="${larguraLogica - margem.right}" y2="${yBase}" stroke="var(--baseline)" stroke-width="1" />`;
+
+      dados.forEach((d) => {
+        const idx = d.mes - 1;
+        const xBanda = margem.left + idx * larguraBanda;
+        let barrasSvg = "";
+        series.forEach((s, si) => {
+          const valor = Number(d[s.key]) || 0;
+          const altura = (valor / maxEixo) * alturaPlot;
+          const x = xBanda + gap + si * (larguraBarra + gap);
+          const y = yBase - altura;
+          barrasSvg += `<path class="grafico-barra" d="${criarBarraPath(x, y, larguraBarra, altura, 4)}" fill="${s.cor}"></path>`;
+        });
+        svgConteudo += `<text x="${xBanda + larguraBanda / 2}" y="${alturaLogica - 8}" text-anchor="middle" class="grafico-eixo-texto">${MESES_ABREV[idx]}</text>`;
+        svgConteudo += `<g class="grafico-banda" data-mes="${d.mes}" tabindex="0">${barrasSvg}<rect x="${xBanda}" y="${margem.top}" width="${larguraBanda}" height="${alturaPlot}" fill="transparent"></rect></g>`;
+      });
+
+      container.innerHTML = `
+        <div class="grafico-svg-wrap">
+          <svg viewBox="0 0 ${larguraLogica} ${alturaLogica}" preserveAspectRatio="xMidYMid meet">${svgConteudo}</svg>
+          <div class="grafico-tooltip"></div>
+        </div>
+        ${series.length > 1 ? `<div class="grafico-legenda">${series.map(s => `<span class="grafico-legenda-item"><span class="grafico-legenda-chave" style="background:${s.cor}"></span>${s.label}</span>`).join("")}</div>` : ""}
+      `;
+
+      const svgWrap = container.querySelector(".grafico-svg-wrap");
+      const svgEl = svgWrap.querySelector("svg");
+      const tooltip = svgWrap.querySelector(".grafico-tooltip");
+
+      function montarTooltip(mes) {
+        const item = dados.find(d => d.mes === mes);
+        tooltip.innerHTML = "";
+        const titulo = document.createElement("div");
+        titulo.style.fontWeight = "700";
+        titulo.style.marginBottom = "4px";
+        titulo.textContent = `${MESES_ABREV[mes - 1]}/${ano}`;
+        tooltip.appendChild(titulo);
+        series.forEach(s => {
+          const linha = document.createElement("div");
+          linha.className = "tt-serie";
+          const chave = document.createElement("span");
+          chave.className = "tt-chave";
+          chave.style.background = s.cor;
+          const nome = document.createTextNode(s.label + ": ");
+          const valorEl = document.createElement("span");
+          valorEl.className = "tt-valor";
+          valorEl.textContent = formatCurrency(item ? item[s.key] : 0);
+          linha.appendChild(chave);
+          linha.appendChild(nome);
+          linha.appendChild(valorEl);
+          tooltip.appendChild(linha);
+        });
+      }
+
+      function posicionarTooltip(clientX, clientY) {
+        const rectWrap = svgWrap.getBoundingClientRect();
+        const xRel = ((clientX - rectWrap.left) / rectWrap.width) * 100;
+        tooltip.style.left = xRel + "%";
+        tooltip.style.top = (clientY - rectWrap.top - 12) + "px";
+        tooltip.style.opacity = "1";
+      }
+
+      svgEl.querySelectorAll(".grafico-banda").forEach(banda => {
+        const mes = Number(banda.getAttribute("data-mes"));
+
+        banda.addEventListener("pointermove", (evt) => {
+          montarTooltip(mes);
+          posicionarTooltip(evt.clientX, evt.clientY);
+        });
+        banda.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; });
+        banda.addEventListener("focus", () => {
+          const rectBanda = banda.getBoundingClientRect();
+          montarTooltip(mes);
+          posicionarTooltip(rectBanda.left + rectBanda.width / 2, rectBanda.top);
+        });
+        banda.addEventListener("blur", () => { tooltip.style.opacity = "0"; });
+      });
     }
 
     // ===== VIA CEP – preenchimento automático por CEP =====
@@ -2501,7 +2714,9 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
         view.innerHTML = `
           <div id="relatorioResumo" class="relatorio-resumo">
             <p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>
-          </div>`;
+          </div>
+          <div id="relatorioGraficos" class="viz-root" style="margin-top:24px;"></div>
+        `;
         (async function() {
           const div = document.getElementById("relatorioResumo");
           try {
@@ -2528,6 +2743,47 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               <p class="subtitle" style="margin-top:20px;">Os números são consultados em tempo real na abertura desta tela.</p>`;
           } catch (err) {
             div.innerHTML = "<p class=\"enderecos-empty\">Erro ao carregar resumo. Verifique a API.</p>";
+          }
+        })();
+
+        (async function() {
+          const divGraficos = document.getElementById("relatorioGraficos");
+          try {
+            const res = await fetch(API_BASE + "/api/dashboard/mensal");
+            if (!res.ok) throw new Error("Erro ao buscar totais mensais");
+            const data = await res.json();
+            const meses = data.meses || [];
+            const ano = data.ano;
+
+            const SERIE_SERVICOS = { key: "servicos", label: "Notas de Serviços Recebidas", cor: "var(--series-1)" };
+            const SERIE_COMPRAS = { key: "compras", label: "Notas de Compras", cor: "var(--series-2)" };
+
+            divGraficos.innerHTML = `
+              <div class="graficos-grid">
+                <div class="grafico-card">
+                  <h3>Notas de Serviços Recebidas</h3>
+                  <p class="grafico-subtitulo">Total por mês em ${ano}</p>
+                  <div id="graficoServicos"></div>
+                </div>
+                <div class="grafico-card">
+                  <h3>Notas de Compras</h3>
+                  <p class="grafico-subtitulo">Total por mês em ${ano}</p>
+                  <div id="graficoCompras"></div>
+                </div>
+                <div class="grafico-card full">
+                  <h3>Serviços x Compras</h3>
+                  <p class="grafico-subtitulo">Comparativo mensal em ${ano}</p>
+                  <div id="graficoComparativo"></div>
+                </div>
+              </div>
+            `;
+
+            renderizarGraficoBarras("graficoServicos", meses, [SERIE_SERVICOS], ano);
+            renderizarGraficoBarras("graficoCompras", meses, [SERIE_COMPRAS], ano);
+            renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano);
+          } catch (err) {
+            console.error(err);
+            divGraficos.innerHTML = '<p class="enderecos-empty">Erro ao carregar gráficos. Verifique a API.</p>';
           }
         })();
       }
