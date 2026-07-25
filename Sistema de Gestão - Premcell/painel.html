@@ -342,11 +342,6 @@
     // ===== GRÁFICOS DE BARRAS (SVG puro) — usado na aba Relatórios =====
     const MESES_ABREV = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
-    function formatCompactoEixo(v) {
-      if (Math.abs(v) >= 1000) return (v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "k";
-      return v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
-    }
-
     function numeroNiceMax(valor) {
       if (valor <= 0) return 100;
       const exp = Math.floor(Math.log10(valor));
@@ -382,32 +377,38 @@
      * @param {Array<{key:string,label:string,cor:string}>} series
      * @param {number} ano
      */
-    function renderizarGraficoBarras(containerId, dados, series, ano) {
+    function renderizarGraficoBarras(containerId, dados, series, ano, opts = {}) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
+      const empilhado = !!opts.empilhado;
+
       const larguraLogica = 760;
       const alturaLogica = 300;
-      const margem = { top: 16, right: 12, bottom: 28, left: 50 };
+      const margem = { top: 16, right: 12, bottom: 28, left: 12 };
       const larguraPlot = larguraLogica - margem.left - margem.right;
       const alturaPlot = alturaLogica - margem.top - margem.bottom;
       const yBase = margem.top + alturaPlot;
 
-      const maiorValor = Math.max(1, ...dados.map(d => Math.max(...series.map(s => Number(d[s.key]) || 0))));
+      const maiorValor = empilhado
+        ? Math.max(1, ...dados.map(d => series.reduce((soma, s) => soma + (Number(d[s.key]) || 0), 0)))
+        : Math.max(1, ...dados.map(d => Math.max(...series.map(s => Number(d[s.key]) || 0))));
       const maxEixo = numeroNiceMax(maiorValor * 1.15);
       const numPassos = 4;
 
       const larguraBanda = larguraPlot / dados.length;
       const gap = 2;
-      const larguraBarra = Math.min(24, (larguraBanda - gap * (series.length + 1)) / series.length);
+      const larguraBarra = empilhado
+        ? Math.min(28, larguraBanda - gap * 2)
+        : Math.min(24, (larguraBanda - gap * (series.length + 1)) / series.length);
 
       let svgConteudo = "";
 
+      // Gridlines de referência (sem rótulo numérico — valor exato fica no hover)
       for (let i = 0; i <= numPassos; i++) {
         const valor = (maxEixo / numPassos) * i;
         const y = yBase - (valor / maxEixo) * alturaPlot;
         svgConteudo += `<line x1="${margem.left}" y1="${y}" x2="${larguraLogica - margem.right}" y2="${y}" stroke="var(--gridline)" stroke-width="1" />`;
-        svgConteudo += `<text x="${margem.left - 8}" y="${y + 4}" text-anchor="end" class="grafico-eixo-texto">${formatCompactoEixo(valor)}</text>`;
       }
       svgConteudo += `<line x1="${margem.left}" y1="${yBase}" x2="${larguraLogica - margem.right}" y2="${yBase}" stroke="var(--baseline)" stroke-width="1" />`;
 
@@ -415,13 +416,31 @@
         const idx = d.mes - 1;
         const xBanda = margem.left + idx * larguraBanda;
         let barrasSvg = "";
-        series.forEach((s, si) => {
-          const valor = Number(d[s.key]) || 0;
-          const altura = (valor / maxEixo) * alturaPlot;
-          const x = xBanda + gap + si * (larguraBarra + gap);
-          const y = yBase - altura;
-          barrasSvg += `<path class="grafico-barra" d="${criarBarraPath(x, y, larguraBarra, altura, 4)}" fill="${s.cor}"></path>`;
-        });
+
+        if (empilhado) {
+          const x = xBanda + (larguraBanda - larguraBarra) / 2;
+          let acumulado = 0;
+          series.forEach((s, si) => {
+            const valor = Number(d[s.key]) || 0;
+            const yTopoBruto = yBase - ((acumulado + valor) / maxEixo) * alturaPlot;
+            const yBaseSegmento = yBase - (acumulado / maxEixo) * alturaPlot;
+            const ehUltimo = si === series.length - 1;
+            const yTopo = si === 0 ? yTopoBruto : yTopoBruto + gap;
+            const altura = Math.max(0, yBaseSegmento - yTopo);
+            const raio = ehUltimo ? 4 : 0;
+            barrasSvg += `<path class="grafico-barra" d="${criarBarraPath(x, yTopo, larguraBarra, altura, raio)}" fill="${s.cor}"></path>`;
+            acumulado += valor;
+          });
+        } else {
+          series.forEach((s, si) => {
+            const valor = Number(d[s.key]) || 0;
+            const altura = (valor / maxEixo) * alturaPlot;
+            const x = xBanda + gap + si * (larguraBarra + gap);
+            const y = yBase - altura;
+            barrasSvg += `<path class="grafico-barra" d="${criarBarraPath(x, y, larguraBarra, altura, 4)}" fill="${s.cor}"></path>`;
+          });
+        }
+
         svgConteudo += `<text x="${xBanda + larguraBanda / 2}" y="${alturaLogica - 8}" text-anchor="middle" class="grafico-eixo-texto">${MESES_ABREV[idx]}</text>`;
         svgConteudo += `<g class="grafico-banda" data-mes="${d.mes}" tabindex="0">${barrasSvg}<rect x="${xBanda}" y="${margem.top}" width="${larguraBanda}" height="${alturaPlot}" fill="transparent"></rect></g>`;
       });
@@ -2780,7 +2799,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 
             renderizarGraficoBarras("graficoServicos", meses, [SERIE_SERVICOS], ano);
             renderizarGraficoBarras("graficoCompras", meses, [SERIE_COMPRAS], ano);
-            renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano);
+            renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano, { empilhado: true });
           } catch (err) {
             console.error(err);
             divGraficos.innerHTML = '<p class="enderecos-empty">Erro ao carregar gráficos. Verifique a API.</p>';
