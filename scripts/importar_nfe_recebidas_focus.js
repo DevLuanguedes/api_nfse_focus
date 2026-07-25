@@ -43,7 +43,7 @@ async function upsertNota(dados) {
       situacao = COALESCE(EXCLUDED.situacao, nfe_recebidas.situacao),
       versao = COALESCE(EXCLUDED.versao, nfe_recebidas.versao),
       manifestacao = COALESCE(nfe_recebidas.manifestacao, EXCLUDED.manifestacao),
-      payload = EXCLUDED.payload,
+      payload = CASE WHEN EXCLUDED.valor_total IS NOT NULL THEN EXCLUDED.payload ELSE nfe_recebidas.payload END,
       atualizado_em = NOW()
     `,
     [
