@@ -480,6 +480,17 @@
           linha.appendChild(valorEl);
           tooltip.appendChild(linha);
         });
+
+        if (opts.mostrarTotal && series.length > 1) {
+          const total = series.reduce((soma, s) => soma + (item ? Number(item[s.key]) || 0 : 0), 0);
+          const linhaTotal = document.createElement("div");
+          linhaTotal.style.marginTop = "4px";
+          linhaTotal.style.paddingTop = "4px";
+          linhaTotal.style.borderTop = "1px solid rgba(255,255,255,0.25)";
+          linhaTotal.style.fontWeight = "700";
+          linhaTotal.textContent = "Total: " + formatCurrency(total);
+          tooltip.appendChild(linhaTotal);
+        }
       }
 
       function posicionarTooltip(clientX, clientY) {
@@ -2799,7 +2810,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 
             renderizarGraficoBarras("graficoServicos", meses, [SERIE_SERVICOS], ano);
             renderizarGraficoBarras("graficoCompras", meses, [SERIE_COMPRAS], ano);
-            renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano, { empilhado: true });
+            renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano, { empilhado: true, mostrarTotal: true });
           } catch (err) {
             console.error(err);
             divGraficos.innerHTML = '<p class="enderecos-empty">Erro ao carregar gráficos. Verifique a API.</p>';
