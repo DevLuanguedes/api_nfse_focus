@@ -1152,12 +1152,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 // ===================== NF-E RECEBIDAS =====================
 if (page === "nfe-recebidas") {
   view.innerHTML = `
-    <div id="categoriasNFe" class="viz-root grafico-card">
-      <h3>Compras por Categoria (NCM)</h3>
-      <p class="grafico-subtitulo">Itens das NF-e recebidas em ${new Date().getFullYear()}, agrupados pelo capítulo do NCM</p>
-      <div id="categoriasNFeConteudo"><p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p></div>
-    </div>
-
     <div class="consultar-notas-toolbar">
       <div class="campo-busca">
         <i class="fa-solid fa-magnifying-glass"></i>
@@ -1269,23 +1263,6 @@ if (page === "nfe-recebidas") {
   ];
 
   const gridApiNFeRecebida = criarGrid(gridElNFeRecebida, columnDefsNFeRecebida, []);
-
-  async function carregarCategoriasNFe() {
-    try {
-      const resp = await fetch(`${API_BASE}/api/nfe-recebidas/categorias`);
-      if (!resp.ok) throw new Error("Erro ao buscar categorias");
-      const data = await resp.json();
-      const itens = (data.categorias || []).map(c => ({
-        label: c.categoria,
-        valor: c.total,
-        nota: `${c.qtd_itens} ${c.qtd_itens === 1 ? "item" : "itens"}`,
-      }));
-      renderizarListaRanking("categoriasNFeConteudo", itens, "var(--series-2)");
-    } catch (err) {
-      console.error(err);
-      document.getElementById("categoriasNFeConteudo").innerHTML = '<p class="enderecos-empty">Erro ao carregar categorias.</p>';
-    }
-  }
 
   async function carregarNFeRecebidas() {
     const params = new URLSearchParams({
@@ -1458,7 +1435,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
   });
 
   await carregarNFeRecebidas();
-  await carregarCategoriasNFe();
 }
 
       // Funções compartilhadas para excluir linhas no cadastro (usadas em Transformar e Emitir)
@@ -2872,12 +2848,32 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   <p class="grafico-subtitulo">Comparativo mensal em ${ano}</p>
                   <div id="graficoComparativo"></div>
                 </div>
+                <div class="grafico-card full">
+                  <h3>Compras por Categoria (NCM)</h3>
+                  <p class="grafico-subtitulo">Itens das NF-e recebidas em ${ano}, agrupados pelo capítulo do NCM</p>
+                  <div id="categoriasNFeConteudo"><p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p></div>
+                </div>
               </div>
             `;
 
             renderizarGraficoBarras("graficoServicos", meses, [SERIE_SERVICOS], ano);
             renderizarGraficoBarras("graficoCompras", meses, [SERIE_COMPRAS], ano);
             renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano, { empilhado: true, mostrarTotal: true });
+
+            try {
+              const resCategorias = await fetch(API_BASE + "/api/nfe-recebidas/categorias");
+              if (!resCategorias.ok) throw new Error("Erro ao buscar categorias");
+              const dataCategorias = await resCategorias.json();
+              const itensCategorias = (dataCategorias.categorias || []).map(c => ({
+                label: c.categoria,
+                valor: c.total,
+                nota: `${c.qtd_itens} ${c.qtd_itens === 1 ? "item" : "itens"}`,
+              }));
+              renderizarListaRanking("categoriasNFeConteudo", itensCategorias, "var(--series-2)");
+            } catch (errCategorias) {
+              console.error(errCategorias);
+              document.getElementById("categoriasNFeConteudo").innerHTML = '<p class="enderecos-empty">Erro ao carregar categorias.</p>';
+            }
           } catch (err) {
             console.error(err);
             divGraficos.innerHTML = '<p class="enderecos-empty">Erro ao carregar gráficos. Verifique a API.</p>';
