@@ -13,6 +13,8 @@
     "criar-tabela-aliquotas": "node scripts/criar_tabela_municipio_aliquota_iss.js",
     "criar-tabela-notas-recebidas": "node scripts/criar_tabela_notas_recebidas.js",
     "criar-tabela-nfe-recebidas": "node scripts/criar_tabela_nfe_recebidas.js",
+    "criar-tabela-nfe-itens": "node scripts/criar_tabela_nfe_itens.js",
+    "importar-itens-nfe": "node scripts/importar_itens_nfe.js",
     "backup": "node scripts/backup_db.js",
     "restore": "node scripts/restore_db.js",
     "verificar-tabelas": "node scripts/verificar_tabelas.js",
@@ -28,6 +30,7 @@
     "csv-parse": "^6.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "fast-xml-parser": "^5.10.1",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
     "xlsx": "^0.18.5"

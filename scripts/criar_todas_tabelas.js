@@ -122,6 +122,27 @@ const SCRIPTS = [
     );
   `,
   },
+  {
+    name: "nfe_recebidas_itens",
+    sql: `
+    CREATE TABLE IF NOT EXISTS nfe_recebidas_itens (
+      id SERIAL PRIMARY KEY,
+      nfe_recebida_id INTEGER REFERENCES nfe_recebidas(id) ON DELETE CASCADE,
+      chave_nfe VARCHAR(60) NOT NULL,
+      numero_item INTEGER NOT NULL,
+      codigo_produto VARCHAR(60),
+      descricao TEXT,
+      ncm VARCHAR(10),
+      cfop VARCHAR(10),
+      quantidade NUMERIC(15,4),
+      valor_unitario NUMERIC(15,4),
+      valor_total NUMERIC(15,2),
+      criado_em TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      UNIQUE (chave_nfe, numero_item)
+    );
+    CREATE INDEX IF NOT EXISTS idx_nfe_itens_ncm ON nfe_recebidas_itens (ncm);
+  `,
+  },
 ];
 
 async function main() {

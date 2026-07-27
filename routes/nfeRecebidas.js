@@ -5,11 +5,50 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const db = require('../db');
+const { categoriaPorNcm } = require('../services/ncmCategorias');
 
 const FOCUS_TOKEN = process.env.FOCUS_TOKEN;
 const FOCUS_URL_RECEBIDAS = 'https://api.focusnfe.com.br/v2/nfes_recebidas';
 
 const TIPOS_MANIFESTO_VALIDOS = ['ciencia', 'confirmacao', 'desconhecimento', 'nao_realizada'];
+
+/**
+ * GET /api/nfe-recebidas/categorias
+ * Totais de itens comprados agrupados por categoria (capítulo NCM).
+ * Query params: ano (default: ano atual)
+ */
+router.get('/categorias', async (req, res) => {
+  try {
+    const ano = parseInt(req.query.ano, 10) || new Date().getFullYear();
+
+    const result = await db.query(
+      `
+      SELECT
+        LEFT(i.ncm, 2) AS capitulo,
+        SUM(i.valor_total) AS total,
+        COUNT(*) AS qtd_itens
+      FROM nfe_recebidas_itens i
+      JOIN nfe_recebidas n ON n.id = i.nfe_recebida_id
+      WHERE EXTRACT(YEAR FROM COALESCE(n.data_emissao, n.criado_em)) = $1
+      GROUP BY 1
+      ORDER BY total DESC
+      `,
+      [ano]
+    );
+
+    const categorias = result.rows.map((r) => ({
+      capitulo: r.capitulo,
+      categoria: categoriaPorNcm(r.capitulo),
+      total: Number(r.total) || 0,
+      qtd_itens: Number(r.qtd_itens) || 0,
+    }));
+
+    res.json({ ano, categorias });
+  } catch (err) {
+    console.error('Erro ao buscar categorias de itens:', err);
+    res.status(500).json({ erro: 'Erro ao buscar categorias de itens' });
+  }
+});
 
 async function buscarChavePorId(id) {
   const r = await db.query('SELECT chave_nfe FROM nfe_recebidas WHERE id = $1', [id]);
