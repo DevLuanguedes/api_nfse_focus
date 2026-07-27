@@ -68,7 +68,11 @@ async function main() {
   let semItens = 0;
   let erros = 0;
 
+  // Focus limita ~100 requisições/60s; 700ms entre chamadas fica bem abaixo disso.
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
   for (const nota of pendentes.rows) {
+    await esperar(700);
     try {
       const resp = await axios.get(`${FOCUS_URL_RECEBIDAS}/${nota.chave_nfe}.xml`, {
         auth: { username: FOCUS_TOKEN, password: "" },
