@@ -112,6 +112,14 @@
     @media (max-width: 900px) {
       .graficos-grid { grid-template-columns: 1fr; }
     }
+
+    /* Lista ranqueada (ex.: compras por categoria NCM) */
+    .ranking-lista { display: flex; flex-direction: column; gap: 12px; max-height: 420px; overflow-y: auto; }
+    .ranking-item-topo { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+    .ranking-item-label { color: var(--text-primary); font-weight: 600; }
+    .ranking-item-valor { color: var(--text-secondary); white-space: nowrap; }
+    .ranking-barra-trilho { height: 8px; border-radius: 4px; background: var(--gridline); overflow: hidden; }
+    .ranking-barra-preenchida { height: 100%; border-radius: 4px; }
   </style>
 </head>
 
@@ -516,6 +524,41 @@
         });
         banda.addEventListener("blur", () => { tooltip.style.opacity = "0"; });
       });
+    }
+
+    /**
+     * Renderiza uma lista ranqueada (nome + barra horizontal + valor), ordenada
+     * do maior pro menor. Usada na análise de compras por categoria (NCM).
+     * @param {string} containerId
+     * @param {Array<{label:string, valor:number, nota?:string}>} itens
+     * @param {string} cor
+     */
+    function renderizarListaRanking(containerId, itens, cor) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (!itens.length) {
+        container.innerHTML = '<p class="enderecos-empty">Nenhum item encontrado.</p>';
+        return;
+      }
+
+      const maior = Math.max(...itens.map(i => i.valor));
+
+      container.innerHTML = `
+        <div class="ranking-lista">
+          ${itens.map(item => `
+            <div class="ranking-item">
+              <div class="ranking-item-topo">
+                <span class="ranking-item-label">${item.label}</span>
+                <span class="ranking-item-valor">${formatCurrency(item.valor)}${item.nota ? ` <span class="text-muted">(${item.nota})</span>` : ""}</span>
+              </div>
+              <div class="ranking-barra-trilho">
+                <div class="ranking-barra-preenchida" style="width:${maior > 0 ? (item.valor / maior) * 100 : 0}%;background:${cor};"></div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
     }
 
     // ===== VIA CEP – preenchimento automático por CEP =====
@@ -1109,6 +1152,12 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 // ===================== NF-E RECEBIDAS =====================
 if (page === "nfe-recebidas") {
   view.innerHTML = `
+    <div id="categoriasNFe" class="viz-root grafico-card">
+      <h3>Compras por Categoria (NCM)</h3>
+      <p class="grafico-subtitulo">Itens das NF-e recebidas em ${new Date().getFullYear()}, agrupados pelo capítulo do NCM</p>
+      <div id="categoriasNFeConteudo"><p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p></div>
+    </div>
+
     <div class="consultar-notas-toolbar">
       <div class="campo-busca">
         <i class="fa-solid fa-magnifying-glass"></i>
@@ -1220,6 +1269,23 @@ if (page === "nfe-recebidas") {
   ];
 
   const gridApiNFeRecebida = criarGrid(gridElNFeRecebida, columnDefsNFeRecebida, []);
+
+  async function carregarCategoriasNFe() {
+    try {
+      const resp = await fetch(`${API_BASE}/api/nfe-recebidas/categorias`);
+      if (!resp.ok) throw new Error("Erro ao buscar categorias");
+      const data = await resp.json();
+      const itens = (data.categorias || []).map(c => ({
+        label: c.categoria,
+        valor: c.total,
+        nota: `${c.qtd_itens} ${c.qtd_itens === 1 ? "item" : "itens"}`,
+      }));
+      renderizarListaRanking("categoriasNFeConteudo", itens, "var(--series-2)");
+    } catch (err) {
+      console.error(err);
+      document.getElementById("categoriasNFeConteudo").innerHTML = '<p class="enderecos-empty">Erro ao carregar categorias.</p>';
+    }
+  }
 
   async function carregarNFeRecebidas() {
     const params = new URLSearchParams({
@@ -1392,6 +1458,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
   });
 
   await carregarNFeRecebidas();
+  await carregarCategoriasNFe();
 }
 
       // Funções compartilhadas para excluir linhas no cadastro (usadas em Transformar e Emitir)
