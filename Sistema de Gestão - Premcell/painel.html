@@ -639,6 +639,34 @@
       return resp;
     }
 
+    // ===== ABRIR/BAIXAR ARQUIVO AUTENTICADO (PDF/XML) =====
+    // Links <a href> comuns não conseguem levar o token JWT; por isso PDF/XML
+    // são buscados via apiFetch e abertos/baixados a partir do blob.
+    async function abrirArquivoAutenticado(url, nomeArquivo, modo) {
+      try {
+        const resp = await apiFetch(url);
+        if (!resp.ok) throw new Error("Erro ao baixar arquivo (HTTP " + resp.status + ")");
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        if (modo === "pdf") {
+          window.open(blobUrl, "_blank");
+        } else {
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = nomeArquivo;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }
+
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao abrir arquivo: " + err.message);
+      }
+    }
+
     // ===== VERSÃO DA API (mostra no header qual aplicação está rodando) =====
     (async function carregarVersao() {
       const el = document.getElementById("versao-numero");
@@ -1096,8 +1124,8 @@ if (page === "recebidas") {
       headerName: "Ações", field: "id", flex: 1, sortable: false, resizable: false,
       cellRenderer: p => `<div class="grid-acoes">
         ${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-recebida", dataId: p.value })}
-        ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFSe em PDF", href: `${API_BASE}/api/notas-recebidas/${p.value}/pdf`, target: "_blank" })}
-        ${criarBotaoAcao({ icone: "fa-file-code", titulo: "Baixar XML", href: `${API_BASE}/api/notas-recebidas/${p.value}/xml` })}
+        ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFSe em PDF", dataAction: "pdf-recebida", dataId: p.value })}
+        ${criarBotaoAcao({ icone: "fa-file-code", titulo: "Baixar XML", dataAction: "xml-recebida", dataId: p.value })}
       </div>`,
     },
   ];
@@ -1156,6 +1184,20 @@ if (page === "recebidas") {
   });
 
   gridElRecebida.addEventListener("click", async (e) => {
+    const btnPdf = e.target.closest('[data-action="pdf-recebida"]');
+    if (btnPdf) {
+      const id = btnPdf.getAttribute("data-id");
+      abrirArquivoAutenticado(`${API_BASE}/api/notas-recebidas/${id}/pdf`, `nfse_${id}.pdf`, "pdf");
+      return;
+    }
+
+    const btnXml = e.target.closest('[data-action="xml-recebida"]');
+    if (btnXml) {
+      const id = btnXml.getAttribute("data-id");
+      abrirArquivoAutenticado(`${API_BASE}/api/notas-recebidas/${id}/xml`, `nfse_${id}.xml`, "xml");
+      return;
+    }
+
     const btn = e.target.closest('[data-action="ver-recebida"]');
     if (!btn) return;
 
@@ -1290,8 +1332,8 @@ if (page === "nfe-recebidas") {
       headerName: "Ações", field: "id", flex: 1.4, sortable: false, resizable: false,
       cellRenderer: p => `<div class="grid-acoes">
         ${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-nfe", dataId: p.value })}
-        ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFe em PDF", href: `${API_BASE}/api/nfe-recebidas/${p.value}/pdf`, target: "_blank" })}
-        ${criarBotaoAcao({ icone: "fa-file-code", titulo: "Baixar XML", href: `${API_BASE}/api/nfe-recebidas/${p.value}/xml` })}
+        ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFe em PDF", dataAction: "pdf-nfe", dataId: p.value })}
+        ${criarBotaoAcao({ icone: "fa-file-code", titulo: "Baixar XML", dataAction: "xml-nfe", dataId: p.value })}
         ${criarBotaoAcao({ icone: "fa-signature", titulo: "Dar ciência da operação (necessário para liberar XML/PDF completos)", dataAction: "ciencia-nfe", dataId: p.value, desabilitado: !!p.data.manifestacao })}
         ${criarBotaoAcao({ icone: "fa-ban", titulo: "Recusar", dataAction: "recusar-nfe", dataId: p.value, classe: "perigo" })}
       </div>`,
@@ -1355,6 +1397,20 @@ if (page === "nfe-recebidas") {
     const btnCopiar = e.target.closest('[data-action="copiar-chave"]');
     if (btnCopiar) {
       await copiarTexto(btnCopiar.getAttribute("data-id"), btnCopiar);
+      return;
+    }
+
+    const btnPdf = e.target.closest('[data-action="pdf-nfe"]');
+    if (btnPdf) {
+      const id = btnPdf.getAttribute("data-id");
+      abrirArquivoAutenticado(`${API_BASE}/api/nfe-recebidas/${id}/pdf`, `nfe_${id}.pdf`, "pdf");
+      return;
+    }
+
+    const btnXml = e.target.closest('[data-action="xml-nfe"]');
+    if (btnXml) {
+      const id = btnXml.getAttribute("data-id");
+      abrirArquivoAutenticado(`${API_BASE}/api/nfe-recebidas/${id}/xml`, `nfe_${id}.xml`, "xml");
       return;
     }
 
