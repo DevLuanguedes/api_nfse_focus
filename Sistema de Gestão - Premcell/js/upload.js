@@ -70,7 +70,7 @@
         btn.innerHTML = "<i class=\"fa-solid fa-spinner fa-spin\"></i> Emitindo notas...";
       }
 
-      var resp = await fetch(API_BASE + "/api/upload/emitir", { method: "POST", body: formData });
+      var resp = await apiFetch(API_BASE + "/api/upload/emitir", { method: "POST", body: formData });
       var data = await resp.json();
 
       if (!data || data.sucesso !== true) {
@@ -109,7 +109,7 @@
               clearInterval(idVerificar);
               return;
             }
-            fetch(API_BASE + "/api/upload/status-refs?refs=" + encodeURIComponent(refsSemNumero.join(",")))
+            apiFetch(API_BASE + "/api/upload/status-refs?refs=" + encodeURIComponent(refsSemNumero.join(",")))
               .then(function(r) { return r.json(); })
               .then(function(res) {
                 if (!res.ok || !res.resultados) return;

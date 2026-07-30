@@ -23,6 +23,7 @@ const uploadRoutes = require('./routes/upload');
 const municipiosAliquotasRoutes = require('./routes/municipiosAliquotas');
 const siteEnderecosRoutes = require('./routes/siteEnderecos');
 const webhookRoutes = require("./routes/webhook");
+const { autenticar, permitir } = require('./middleware/auth');
 
 app.use("/webhook", webhookRoutes);
 
@@ -43,15 +44,19 @@ app.get('/api/versao', (req, res) => {
 });
 
 // ===== REGISTRO DAS ROTAS =====
-app.use('/api/notas', notasRoutes);
-app.use('/api/notas-recebidas', notasRecebidasRoutes);
-app.use('/api/nfe-recebidas', nfeRecebidasRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+// Roles: 'admin' e 'operador' têm acesso completo; 'consulta_recebidas' só vê notas recebidas.
+const TODAS_ROLES = ['admin', 'operador', 'consulta_recebidas'];
+const ROLES_COMPLETAS = ['admin', 'operador'];
+
+app.use('/api/notas', autenticar, permitir(...ROLES_COMPLETAS), notasRoutes);
+app.use('/api/notas-recebidas', autenticar, permitir(...TODAS_ROLES), notasRecebidasRoutes);
+app.use('/api/nfe-recebidas', autenticar, permitir(...TODAS_ROLES), nfeRecebidasRoutes);
+app.use('/api/dashboard', autenticar, permitir(...ROLES_COMPLETAS), dashboardRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/municipios-aliquotas', municipiosAliquotasRoutes);
-app.use('/api/site-enderecos', siteEnderecosRoutes);
+app.use('/api/upload', autenticar, permitir(...ROLES_COMPLETAS), uploadRoutes);
+app.use('/api/municipios-aliquotas', autenticar, permitir(...ROLES_COMPLETAS), municipiosAliquotasRoutes);
+app.use('/api/site-enderecos', autenticar, permitir(...ROLES_COMPLETAS), siteEnderecosRoutes);
 
 // Painel (frontend): http://localhost:3000/painel.html (depois das rotas de API)
 app.use(express.static(path.join(__dirname, 'Sistema de Gestão - Premcell')));

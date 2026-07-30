@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { autenticar, permitir, JWT_SECRET } = require('../middleware/auth');
 
 /**
  * POST /api/auth/login
@@ -46,9 +48,12 @@ router.post('/login', async (req, res) => {
       role: user.role
     };
 
+    const token = jwt.sign(usuarioFront, JWT_SECRET, { expiresIn: '12h' });
+
     return res.json({
       sucesso: true,
-      usuario: usuarioFront
+      usuario: usuarioFront,
+      token
     });
 
   } catch (err) {
@@ -59,10 +64,9 @@ router.post('/login', async (req, res) => {
 
 /**
  * GET /api/auth/usuarios
- * Lista todos os usuários (para tela de administração)
- * OBS: por enquanto sem autenticação forte – proteger no front
+ * Lista todos os usuários (para tela de administração). Somente admin.
  */
-router.get('/usuarios', async (_req, res) => {
+router.get('/usuarios', autenticar, permitir('admin'), async (_req, res) => {
   try {
     const r = await db.query(
       `SELECT id, nome, email, role, ativo, created_at, updated_at
@@ -78,10 +82,10 @@ router.get('/usuarios', async (_req, res) => {
 
 /**
  * POST /api/auth/usuarios
- * Cria novo usuário.
+ * Cria novo usuário. Somente admin.
  * Body: { nome, email, senha, role }
  */
-router.post('/usuarios', async (req, res) => {
+router.post('/usuarios', autenticar, permitir('admin'), async (req, res) => {
   try {
     const { nome, email, senha, role } = req.body || {};
 
@@ -111,10 +115,10 @@ router.post('/usuarios', async (req, res) => {
 
 /**
  * PATCH /api/auth/usuarios/:id
- * Atualiza role e/ou ativo.
+ * Atualiza role e/ou ativo. Somente admin.
  * Body: { role?, ativo? }
  */
-router.patch('/usuarios/:id', async (req, res) => {
+router.patch('/usuarios/:id', autenticar, permitir('admin'), async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isFinite(id)) {

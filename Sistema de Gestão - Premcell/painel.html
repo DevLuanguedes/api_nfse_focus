@@ -235,7 +235,16 @@
       window.location.href = "/login.html";
     }
 
-    // Preenche nome/cargo e mostra menu Admin para role=admin
+    // Perfis com acesso restrito: só enxergam os data-target listados aqui.
+    // Ausente da lista = acesso completo (admin/operador).
+    const ABAS_PERMITIDAS_POR_ROLE = {
+      consulta_recebidas: ["recebidas", "nfe-recebidas"],
+    };
+    const PAGINA_INICIAL_POR_ROLE = {
+      consulta_recebidas: "recebidas",
+    };
+
+    // Preenche nome/cargo, mostra menu Admin para role=admin e restringe abas por perfil
     document.addEventListener("DOMContentLoaded", () => {
       const nomeEl = document.querySelector(".user-name");
       const roleEl = document.querySelector(".user-role");
@@ -245,6 +254,15 @@
       const adminItem = document.querySelector('li[data-target="admin"]');
       if (adminItem && usuarioLogado?.role === "admin") {
         adminItem.style.display = "";
+      }
+
+      const abasPermitidas = ABAS_PERMITIDAS_POR_ROLE[usuarioLogado?.role];
+      if (abasPermitidas) {
+        document.querySelectorAll(".sidebar li[data-target]").forEach((li) => {
+          if (!abasPermitidas.includes(li.getAttribute("data-target"))) {
+            li.style.display = "none";
+          }
+        });
       }
     });
 
@@ -603,6 +621,24 @@
     // API está no mesmo servidor; usa a origem da página (localhost:3000 ou api-sig-premcell.fly.dev)
     const API_BASE = /^https?:\/\//.test(window.location.origin) ? window.location.origin : "http://localhost:3000";
 
+    // ===== CHAMADA AUTENTICADA À API (anexa o token salvo no login) =====
+    async function apiFetch(url, options = {}) {
+      const token = localStorage.getItem("auth_token");
+      const headers = Object.assign({}, options.headers || {});
+      if (token) headers["Authorization"] = "Bearer " + token;
+
+      const resp = await fetch(url, Object.assign({}, options, { headers }));
+
+      if (resp.status === 401) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("usuario_logado");
+        window.location.href = "/login.html";
+        throw new Error("Sessão expirada. Faça login novamente.");
+      }
+
+      return resp;
+    }
+
     // ===== VERSÃO DA API (mostra no header qual aplicação está rodando) =====
     (async function carregarVersao() {
       const el = document.getElementById("versao-numero");
@@ -684,7 +720,7 @@
 
         // Após montar a home, buscar os dados do dashboard
         try {
-          const res = await fetch(`${API_BASE}/api/dashboard/resumo`);
+          const res = await apiFetch(`${API_BASE}/api/dashboard/resumo`);
           if (!res.ok) throw new Error("Erro ao buscar resumo");
 
           const data = await res.json();
@@ -767,7 +803,7 @@
 
         async function carregarUsuarios() {
           try {
-            const res = await fetch(`${API_BASE}/api/auth/usuarios`);
+            const res = await apiFetch(`${API_BASE}/api/auth/usuarios`);
             if (!res.ok) throw new Error("Erro ao listar");
             const lista = await res.json();
             if (!Array.isArray(lista) || lista.length === 0) {
@@ -812,7 +848,7 @@
           }
 
           try {
-            const res = await fetch(`${API_BASE}/api/auth/usuarios`, {
+            const res = await apiFetch(`${API_BASE}/api/auth/usuarios`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ nome, email, senha, role }),
@@ -846,7 +882,7 @@
           const ativo = !!ativoChk?.checked;
 
           try {
-            const res = await fetch(`${API_BASE}/api/auth/usuarios/${id}`, {
+            const res = await apiFetch(`${API_BASE}/api/auth/usuarios/${id}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ role, ativo }),
@@ -917,7 +953,7 @@ if (page === "consultar") {
 
   async function carregarNotas() {
     try {
-      const response = await fetch(`${API_BASE}/api/notas`);
+      const response = await apiFetch(`${API_BASE}/api/notas`);
       if (!response.ok) throw new Error("Erro ao buscar notas na API");
       const data = await response.json();
       notasCache = Array.isArray(data) ? data : [];
@@ -943,7 +979,7 @@ if (page === "consultar") {
       btn.disabled = true;
       btn.innerHTML = "<i class=\"fa-solid fa-spinner fa-spin\"></i> Sincronizando...";
       try {
-        const resp = await fetch(API_BASE + "/api/upload/sincronizar-notas-focus");
+        const resp = await apiFetch(API_BASE + "/api/upload/sincronizar-notas-focus");
         const data = await resp.json();
         if (data.ok) {
           alert("Sincronização concluída.\n\nAtualizadas: " + (data.atualizadas || 0) + " de " + (data.total_refs || 0) + " refs.\n" + (data.erros && data.erros.length ? "Erros: " + data.erros.length : ""));
@@ -975,7 +1011,7 @@ if (page === "consultar") {
     const id = btn.getAttribute("data-id");
 
     try {
-      const resp = await fetch(`${API_BASE}/api/notas/${id}`);
+      const resp = await apiFetch(`${API_BASE}/api/notas/${id}`);
       if (!resp.ok) throw new Error("Erro ao buscar nota");
 
       const nota = await resp.json();
@@ -1078,7 +1114,7 @@ if (page === "recebidas") {
     if (dataFinalRecebida.value) params.set("data_final", dataFinalRecebida.value);
 
     try {
-      const response = await fetch(`${API_BASE}/api/notas-recebidas?${params.toString()}`);
+      const response = await apiFetch(`${API_BASE}/api/notas-recebidas?${params.toString()}`);
       if (!response.ok) throw new Error("Erro ao buscar notas recebidas na API");
 
       const resposta = await response.json();
@@ -1126,7 +1162,7 @@ if (page === "recebidas") {
     const id = btn.getAttribute("data-id");
 
     try {
-      const resp = await fetch(`${API_BASE}/api/notas-recebidas/${id}`);
+      const resp = await apiFetch(`${API_BASE}/api/notas-recebidas/${id}`);
       if (!resp.ok) throw new Error("Erro ao buscar nota recebida");
 
       const nota = await resp.json();
@@ -1274,7 +1310,7 @@ if (page === "nfe-recebidas") {
     if (dataFinalNFeRecebida.value) params.set("data_final", dataFinalNFeRecebida.value);
 
     try {
-      const response = await fetch(`${API_BASE}/api/nfe-recebidas?${params.toString()}`);
+      const response = await apiFetch(`${API_BASE}/api/nfe-recebidas?${params.toString()}`);
       if (!response.ok) throw new Error("Erro ao buscar NF-e recebidas na API");
 
       const resposta = await response.json();
@@ -1326,7 +1362,7 @@ if (page === "nfe-recebidas") {
     if (btnVer) {
       const id = btnVer.getAttribute("data-id");
       try {
-        const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${id}`);
+        const resp = await apiFetch(`${API_BASE}/api/nfe-recebidas/${id}`);
         if (!resp.ok) throw new Error("Erro ao buscar NF-e");
         const nota = await resp.json();
         alert(`
@@ -1352,7 +1388,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       btnCiencia.disabled = true;
       btnCiencia.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
       try {
-        const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${id}/manifestar`, {
+        const resp = await apiFetch(`${API_BASE}/api/nfe-recebidas/${id}/manifestar`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ tipo: "ciencia" }),
@@ -1412,7 +1448,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
     msgRecusaNFe.style.color = "";
 
     try {
-      const resp = await fetch(`${API_BASE}/api/nfe-recebidas/${idRecusaAtual}/manifestar`, {
+      const resp = await apiFetch(`${API_BASE}/api/nfe-recebidas/${idRecusaAtual}/manifestar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tipo, justificativa: tipo === "nao_realizada" ? justificativa : undefined }),
@@ -1495,7 +1531,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           fd.append("arquivo", arquivo);
           if (Array.isArray(codigosPrestacao) && codigosPrestacao.length > 0) fd.append("codigosPrestacao", JSON.stringify(codigosPrestacao));
           if (excluirLinhas && typeof excluirLinhas === "object" && (excluirLinhas.municipiosCodigo?.length || excluirLinhas.municipiosAliquota?.length || excluirLinhas.sites?.length)) fd.append("excluirLinhas", JSON.stringify(excluirLinhas));
-          const resp = await fetch(`${API_BASE}/api/upload/transformar-planilha`, { method: "POST", body: fd });
+          const resp = await apiFetch(`${API_BASE}/api/upload/transformar-planilha`, { method: "POST", body: fd });
           const data = await resp.json();
           if (!data.sucesso) { alert("Erro: " + (data.erro || "Desconhecido")); return data; }
           return data;
@@ -1562,7 +1598,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (aliquotas.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas que não deseja incluir."); return; }
                   transformarExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
                   if (aliquotas.length > 0) {
-                    const r = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
+                    const r = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
                     const res = await r.json(); if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
                   }
                   divCadastro.innerHTML = "<p>Regenerando...</p>";
@@ -1595,7 +1631,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (enderecos.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites que não deseja incluir."); return; }
                   transformarExcluirAcumulado.sites = excluir.sites || [];
                   if (enderecos.length > 0) {
-                    const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                    const rr = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
                     const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                   }
                   divCadastro.innerHTML = "<p>Regenerando...</p>";
@@ -1636,7 +1672,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               if (aliquotas.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas que não deseja incluir."); return; }
               transformarExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
               if (aliquotas.length > 0) {
-                const r = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, {
+                const r = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, {
                   method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas })
                 });
                 const res = await r.json();
@@ -1676,7 +1712,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (enderecos.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
                   transformarExcluirAcumulado.sites = excluir.sites || [];
                   if (enderecos.length > 0) {
-                    const r = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                    const r = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
                     const res = await r.json();
                     if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
                   }
@@ -1700,7 +1736,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                         if (arr.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas."); return; }
                         transformarExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
                         if (arr.length > 0) {
-                          const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
+                          const rr = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
                           const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                         }
                         divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
@@ -1720,7 +1756,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                         if (arr.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
                         transformarExcluirAcumulado.sites = (transformarExcluirAcumulado.sites || []).concat(excluir.sites || []);
                         if (arr.length > 0) {
-                          const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos: arr }) });
+                          const rr = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos: arr }) });
                           const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                         }
                         divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
@@ -1769,7 +1805,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               if (enderecos.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
               transformarExcluirAcumulado.sites = excluir.sites || [];
               if (enderecos.length > 0) {
-                const r = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                const r = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
                 const res = await r.json();
                 if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
               }
@@ -1793,7 +1829,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                     if (arr.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas."); return; }
                     transformarExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
                     if (arr.length > 0) {
-                      const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
+                      const rr = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
                       const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                     }
                     divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
@@ -1813,7 +1849,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                     if (arr.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
                     transformarExcluirAcumulado.sites = (transformarExcluirAcumulado.sites || []).concat(excluir.sites || []);
                     if (arr.length > 0) {
-                      const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos: arr }) });
+                      const rr = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos: arr }) });
                       const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                     }
                     divCadastro.innerHTML = "<p>Regenerando planilha...</p>";
@@ -1847,7 +1883,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               fd.append("arquivo", arquivo);
               const controller = new AbortController();
               const timeoutId = setTimeout(() => controller.abort(), 120000);
-              const resp = await fetch(API_BASE + "/api/upload/atualizar-planilha-com-nfs", { method: "POST", body: fd, signal: controller.signal });
+              const resp = await apiFetch(API_BASE + "/api/upload/atualizar-planilha-com-nfs", { method: "POST", body: fd, signal: controller.signal });
               clearTimeout(timeoutId);
               const text = await resp.text();
               let res = {};
@@ -1982,7 +2018,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 
         async function carregarLista() {
           try {
-            const r = await fetch(`${API_BASE}/api/municipios-aliquotas`);
+            const r = await apiFetch(`${API_BASE}/api/municipios-aliquotas`);
             listaCompleta = await r.json();
             if (!Array.isArray(listaCompleta)) listaCompleta = [];
             renderizarTabela(listaCompleta);
@@ -2001,7 +2037,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           const aliquota = parseFloat(String(aliquotaEl.value).replace(",", "."));
           if (codigo.length !== 7) { alert("Código IBGE deve ter 7 dígitos."); return; }
           if (isNaN(aliquota)) { alert("Informe a alíquota em %."); return; }
-          const r = await fetch(`${API_BASE}/api/municipios-aliquotas`, {
+          const r = await apiFetch(`${API_BASE}/api/municipios-aliquotas`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ codigo_ibge: codigo, cidade: cidadeEl.value.trim(), uf: ufEl.value.trim().toUpperCase().slice(0, 2), aliquota })
           });
@@ -2207,7 +2243,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           }
           listaEnderecos.innerHTML = "<p class=\"enderecos-empty\"><i class=\"fa-solid fa-spinner fa-spin\"></i> Buscando...</p>";
           try {
-            const r = await fetch(`${API_BASE}/api/site-enderecos?q=${encodeURIComponent(termo)}`);
+            const r = await apiFetch(`${API_BASE}/api/site-enderecos?q=${encodeURIComponent(termo)}`);
             listaEnderecosCompleta = await r.json();
             if (!Array.isArray(listaEnderecosCompleta)) listaEnderecosCompleta = [];
             renderizarTabelaEnderecos(listaEnderecosCompleta);
@@ -2230,7 +2266,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           if (!site) { alert("Informe o Site Code."); return; }
           if (!uf) { alert("Informe a UF (2 letras)."); return; }
           if (cep.length < 8) { alert("CEP da obra deve ter 8 dígitos."); return; }
-          const r = await fetch(`${API_BASE}/api/site-enderecos`, {
+          const r = await apiFetch(`${API_BASE}/api/site-enderecos`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               site_code: site,
@@ -2520,7 +2556,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           fd.append("arquivo", arquivo);
           if (Array.isArray(codigosPrestacao) && codigosPrestacao.length > 0) fd.append("codigosPrestacao", JSON.stringify(codigosPrestacao));
           if (excluirLinhas && typeof excluirLinhas === "object" && (excluirLinhas.municipiosCodigo?.length || excluirLinhas.municipiosAliquota?.length || excluirLinhas.sites?.length)) fd.append("excluirLinhas", JSON.stringify(excluirLinhas));
-          const resp = await fetch(`${API_BASE}/api/upload/transformar-planilha`, { method: "POST", body: fd });
+          const resp = await apiFetch(`${API_BASE}/api/upload/transformar-planilha`, { method: "POST", body: fd });
           const data = await resp.json();
           if (!data.sucesso) { alert("Erro: " + (data.erro || "Desconhecido")); return data; }
           return data;
@@ -2534,13 +2570,13 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           divTransfResultado.innerHTML = emitirHtmlPlanilhaPronta(data);
           if (data.downloadUrl) {
             try {
-              const r = await fetch(API_BASE + data.downloadUrl);
+              const r = await apiFetch(API_BASE + data.downloadUrl);
               if (r.ok) window.__emitPlanilhaBlob = await r.blob();
             } catch (e) { console.error(e); }
           }
           if (data.downloadUrlOriginal) {
             try {
-              const r = await fetch(API_BASE + data.downloadUrlOriginal);
+              const r = await apiFetch(API_BASE + data.downloadUrlOriginal);
               if (r.ok) window.__emitPlanilhaClienteBlob = await r.blob();
             } catch (e) { console.error(e); }
           }
@@ -2601,7 +2637,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (aliquotas.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas."); return; }
                   emitExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
                   if (aliquotas.length > 0) {
-                    const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
+                    const rr = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
                     const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                   }
                   divTransfCadastro.innerHTML = "<p>Regenerando...</p>";
@@ -2623,7 +2659,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (enderecos.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
                   emitExcluirAcumulado.sites = excluir.sites || [];
                   if (enderecos.length > 0) {
-                    const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                    const rr = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
                     const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                   }
                   divTransfCadastro.innerHTML = "<p>Regenerando...</p>";
@@ -2658,7 +2694,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               if (aliquotas.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas."); return; }
               emitExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
               if (aliquotas.length > 0) {
-                const r = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
+                const r = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas }) });
                 const res = await r.json();
                 if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
               }
@@ -2679,7 +2715,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (enderecos.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
                   emitExcluirAcumulado.sites = excluir.sites || [];
                   if (enderecos.length > 0) {
-                    const rr = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                    const rr = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
                     const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                   }
                   divTransfCadastro.innerHTML = "<p>Regenerando planilha...</p>";
@@ -2709,7 +2745,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               if (enderecos.length === 0 && (!excluir.sites || excluir.sites.length === 0)) { alert("Preencha CEP, Logradouro, Número, Bairro e UF para ao menos um endereço ou exclua os sites."); return; }
               emitExcluirAcumulado.sites = excluir.sites || [];
               if (enderecos.length > 0) {
-                const r = await fetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
+                const r = await apiFetch(`${API_BASE}/api/site-enderecos/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enderecos }) });
                 const res = await r.json(); if (!res.ok) { alert("Erro ao salvar: " + (res.erro || "")); return; }
               }
               divTransfCadastro.innerHTML = "<p>Endereços salvos. Regenerando planilha...</p>";
@@ -2729,7 +2765,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                   if (arr.length === 0 && (!excluir.municipiosAliquota || excluir.municipiosAliquota.length === 0)) { alert("Informe ao menos uma alíquota ou exclua as linhas."); return; }
                   emitExcluirAcumulado.municipiosAliquota = excluir.municipiosAliquota || [];
                   if (arr.length > 0) {
-                    const rr = await fetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
+                    const rr = await apiFetch(`${API_BASE}/api/municipios-aliquotas/cadastrar-varios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aliquotas: arr }) });
                     const j = await rr.json(); if (!j.ok) { alert("Erro: " + (j.erro || "")); return; }
                   }
                   divTransfCadastro.innerHTML = "<p>Regenerando planilha...</p>";
@@ -2743,8 +2779,8 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
 
           if (data.downloadUrl && !data.precisaCadastro) {
             divTransfResultado.innerHTML = emitirHtmlPlanilhaPronta(data);
-            if (data.downloadUrl) { try { const respFile = await fetch(API_BASE + data.downloadUrl); if (respFile.ok) { const blob = await respFile.blob(); window.__emitPlanilhaBlob = blob; } } catch (e) {} }
-            if (data.downloadUrlOriginal) { try { const respOrig = await fetch(API_BASE + data.downloadUrlOriginal); if (respOrig.ok) { const blobOrig = await respOrig.blob(); window.__emitPlanilhaClienteBlob = blobOrig; } } catch (e) {} }
+            if (data.downloadUrl) { try { const respFile = await apiFetch(API_BASE + data.downloadUrl); if (respFile.ok) { const blob = await respFile.blob(); window.__emitPlanilhaBlob = blob; } } catch (e) {} }
+            if (data.downloadUrlOriginal) { try { const respOrig = await apiFetch(API_BASE + data.downloadUrlOriginal); if (respOrig.ok) { const blobOrig = await respOrig.blob(); window.__emitPlanilhaClienteBlob = blobOrig; } } catch (e) {} }
             goToStep(2);
           }
         });
@@ -2768,7 +2804,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           );
           fd.append("arquivo", arquivo);
           try {
-            const resp = await fetch(`${API_BASE}/api/upload/atualizar-planilha-com-nfs`, { method: "POST", body: fd });
+            const resp = await apiFetch(`${API_BASE}/api/upload/atualizar-planilha-com-nfs`, { method: "POST", body: fd });
             const res = await resp.json();
             if (!res.sucesso || !res.downloadUrl) {
               divAtualizar.innerHTML = "<p class=\"text-warning\">Erro ao atualizar planilha: " + (res.erro || "desconhecido") + "</p>";
@@ -2793,7 +2829,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
         (async function() {
           const div = document.getElementById("relatorioResumo");
           try {
-            const res = await fetch(API_BASE + "/api/dashboard/resumo");
+            const res = await apiFetch(API_BASE + "/api/dashboard/resumo");
             const data = await res.json();
             div.innerHTML = `
               <div class="indicators" style="display:flex; flex-wrap:wrap; gap:16px; margin-top:16px;">
@@ -2822,7 +2858,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
         (async function() {
           const divGraficos = document.getElementById("relatorioGraficos");
           try {
-            const res = await fetch(API_BASE + "/api/dashboard/mensal");
+            const res = await apiFetch(API_BASE + "/api/dashboard/mensal");
             if (!res.ok) throw new Error("Erro ao buscar totais mensais");
             const data = await res.json();
             const meses = data.meses || [];
@@ -2861,7 +2897,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
             renderizarGraficoBarras("graficoComparativo", meses, [SERIE_SERVICOS, SERIE_COMPRAS], ano, { empilhado: true, mostrarTotal: true });
 
             try {
-              const resCategorias = await fetch(API_BASE + "/api/nfe-recebidas/categorias");
+              const resCategorias = await apiFetch(API_BASE + "/api/nfe-recebidas/categorias");
               if (!resCategorias.ok) throw new Error("Erro ao buscar categorias");
               const dataCategorias = await resCategorias.json();
               const itensCategorias = (dataCategorias.categorias || []).map(c => ({
@@ -2893,8 +2929,11 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
       });
     });
 
-    // Carrega HOME na inicialização
-    loadPage("home");
+    // Carrega a página inicial (Home, ou a definida pra perfis restritos)
+    const paginaInicial = PAGINA_INICIAL_POR_ROLE[usuarioLogado?.role] || "home";
+    document.querySelector(".sidebar .active")?.classList.remove("active");
+    document.querySelector(`.sidebar li[data-target="${paginaInicial}"]`)?.classList.add("active");
+    loadPage(paginaInicial);
   </script>
   <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script src="/js/upload.js?v=3000"></script>
