@@ -115,8 +115,8 @@ router.post('/usuarios', autenticar, permitir('admin'), async (req, res) => {
 
 /**
  * PATCH /api/auth/usuarios/:id
- * Atualiza role e/ou ativo. Somente admin.
- * Body: { role?, ativo? }
+ * Atualiza role, ativo e/ou senha. Somente admin.
+ * Body: { role?, ativo?, senha? }
  */
 router.patch('/usuarios/:id', autenticar, permitir('admin'), async (req, res) => {
   try {
@@ -125,9 +125,9 @@ router.patch('/usuarios/:id', autenticar, permitir('admin'), async (req, res) =>
       return res.status(400).json({ erro: 'ID inválido.' });
     }
 
-    const { role, ativo } = req.body || {};
-    if (role == null && ativo == null) {
-      return res.status(400).json({ erro: 'Informe role e/ou ativo para atualizar.' });
+    const { role, ativo, senha } = req.body || {};
+    if (role == null && ativo == null && senha == null) {
+      return res.status(400).json({ erro: 'Informe role, ativo e/ou senha para atualizar.' });
     }
 
     const campos = [];
@@ -141,6 +141,14 @@ router.patch('/usuarios/:id', autenticar, permitir('admin'), async (req, res) =>
     if (ativo != null) {
       campos.push(`ativo = $${idx++}`);
       valores.push(Boolean(ativo));
+    }
+    if (senha != null) {
+      if (String(senha).length < 6) {
+        return res.status(400).json({ erro: 'Senha deve ter pelo menos 6 caracteres.' });
+      }
+      const hash = await bcrypt.hash(String(senha), 10);
+      campos.push(`senha_hash = $${idx++}`);
+      valores.push(hash);
     }
     valores.push(id);
 
