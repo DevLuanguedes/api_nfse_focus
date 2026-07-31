@@ -14,7 +14,7 @@
 
   <!-- AG Grid (Community) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32/styles/ag-grid.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32/styles/ag-theme-quartz.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32/styles/ag-theme-balham.css">
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32/dist/ag-grid-community.min.js"></script>
 
   <style>
@@ -112,6 +112,33 @@
     @media (max-width: 900px) {
       .graficos-grid { grid-template-columns: 1fr; }
     }
+
+    /* Menu de contexto (botão direito) das tabelas */
+    .grid-context-menu {
+      position: fixed;
+      z-index: 2000;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      padding: 6px;
+      min-width: 180px;
+    }
+    .grid-context-menu button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #333;
+    }
+    .grid-context-menu button:hover { background: #f0f2f5; }
+    .grid-context-menu button i { width: 16px; color: #666; }
 
     /* Lista ranqueada (ex.: compras por categoria NCM) */
     .ranking-lista { display: flex; flex-direction: column; gap: 12px; max-height: 420px; overflow-y: auto; }
@@ -339,9 +366,62 @@
         pagination: false,
         suppressCellFocus: true,
         animateRows: true,
+        rowHeight: 26,
+        headerHeight: 30,
         overlayNoRowsTemplate: '<span style="padding:12px;color:#888;">Nenhum registro encontrado.</span>',
       }, extraOptions);
       return agGrid.createGrid(containerEl, gridOptions);
+    }
+
+    // ===== MENU DE CONTEXTO (botão direito) COM EXPORTAR CSV/EXCEL =====
+    // AG Grid Community não tem menu de contexto nativo (é recurso Enterprise) — este é
+    // um equivalente próprio, usando exportDataAsCsv (Community) e a lib xlsx já carregada.
+    let menuContextoAtual = null;
+    function fecharMenuContexto() {
+      if (menuContextoAtual) {
+        menuContextoAtual.remove();
+        menuContextoAtual = null;
+      }
+    }
+    document.addEventListener("click", fecharMenuContexto);
+    document.addEventListener("scroll", fecharMenuContexto, true);
+
+    function habilitarMenuContextoGrid(containerEl, gridApi, nomeArquivo) {
+      containerEl.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        fecharMenuContexto();
+
+        const menu = document.createElement("div");
+        menu.className = "grid-context-menu";
+        menu.innerHTML = `
+          <button type="button" data-acao="csv"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
+          <button type="button" data-acao="xlsx"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+        `;
+        document.body.appendChild(menu);
+
+        const larguraMenu = menu.offsetWidth;
+        const alturaMenu = menu.offsetHeight;
+        menu.style.left = Math.min(e.clientX, window.innerWidth - larguraMenu - 8) + "px";
+        menu.style.top = Math.min(e.clientY, window.innerHeight - alturaMenu - 8) + "px";
+        menuContextoAtual = menu;
+
+        const colunasExportaveis = gridApi.getColumnDefs()
+          .filter((c) => c.headerName !== "Ações")
+          .map((c) => c.colId || c.field);
+
+        menu.querySelector('[data-acao="csv"]').addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          gridApi.exportDataAsCsv({ fileName: nomeArquivo + ".csv", columnKeys: colunasExportaveis });
+          fecharMenuContexto();
+        });
+        menu.querySelector('[data-acao="xlsx"]').addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const csv = gridApi.getDataAsCsv({ columnKeys: colunasExportaveis });
+          const wb = XLSX.read(csv, { type: "string" });
+          XLSX.writeFile(wb, nomeArquivo + ".xlsx");
+          fecharMenuContexto();
+        });
+      });
     }
 
     async function copiarTexto(texto, btnFeedback) {
@@ -946,7 +1026,7 @@ if (page === "consultar") {
       </a>
     </div>
 
-    <div id="gridConsultarNotas" class="grid-container ag-theme-quartz"></div>
+    <div id="gridConsultarNotas" class="grid-container ag-theme-balham"></div>
   `;
 
   const searchInput = document.getElementById("searchNF");
@@ -978,6 +1058,7 @@ if (page === "consultar") {
     paginationPageSize: 20,
     paginationPageSizeSelector: [20, 50, 100],
   });
+  habilitarMenuContextoGrid(gridEl, gridApiConsultar, "notas_emitidas");
 
   async function carregarNotas() {
     try {
@@ -1083,7 +1164,7 @@ if (page === "recebidas") {
 
     <div id="resumoRecebidas" class="text-small" style="margin-bottom:8px;"></div>
 
-    <div id="gridNotasRecebidas" class="grid-container ag-theme-quartz"></div>
+    <div id="gridNotasRecebidas" class="grid-container ag-theme-balham"></div>
 
     <div class="paginacao" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
       <button class="btn-small" id="btnPaginaAnteriorRecebida">
@@ -1131,6 +1212,7 @@ if (page === "recebidas") {
   ];
 
   const gridApiRecebida = criarGrid(gridElRecebida, columnDefsRecebida, []);
+  habilitarMenuContextoGrid(gridElRecebida, gridApiRecebida, "notas_servicos_recebidas");
 
   async function carregarNotasRecebidas() {
     const params = new URLSearchParams({
@@ -1244,7 +1326,7 @@ if (page === "nfe-recebidas") {
 
     <div id="resumoNFeRecebidas" class="text-small" style="margin-bottom:8px;"></div>
 
-    <div id="gridNFeRecebidas" class="grid-container ag-theme-quartz"></div>
+    <div id="gridNFeRecebidas" class="grid-container ag-theme-balham"></div>
 
     <div class="paginacao" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
       <button class="btn-small" id="btnPaginaAnteriorNFeRecebida">
@@ -1341,6 +1423,7 @@ if (page === "nfe-recebidas") {
   ];
 
   const gridApiNFeRecebida = criarGrid(gridElNFeRecebida, columnDefsNFeRecebida, []);
+  habilitarMenuContextoGrid(gridElNFeRecebida, gridApiNFeRecebida, "nfe_compras");
 
   async function carregarNFeRecebidas() {
     const params = new URLSearchParams({
