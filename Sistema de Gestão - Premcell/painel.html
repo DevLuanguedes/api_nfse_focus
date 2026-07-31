@@ -334,7 +334,7 @@
       const gridOptions = Object.assign({
         columnDefs,
         rowData,
-        defaultColDef: { resizable: true, sortable: true, filter: false, flex: 1, minWidth: 100 },
+        defaultColDef: { resizable: true, sortable: true, filter: true, floatingFilter: false, flex: 1, minWidth: 100 },
         domLayout: "normal",
         pagination: false,
         suppressCellFocus: true,
@@ -968,7 +968,7 @@ if (page === "consultar") {
       cellRenderer: p => formatDate(p.value),
     },
     {
-      headerName: "Ações", field: "id", flex: 0.7, sortable: false, resizable: false,
+      headerName: "Ações", field: "id", flex: 0.7, sortable: false, resizable: false, filter: false,
       cellRenderer: p => `<div class="grid-acoes">${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-nota", dataId: p.value })}</div>`,
     },
   ];
@@ -1121,7 +1121,7 @@ if (page === "recebidas") {
       cellRenderer: p => formatDate(p.value),
     },
     {
-      headerName: "Ações", field: "id", flex: 1, sortable: false, resizable: false,
+      headerName: "Ações", field: "id", flex: 1, sortable: false, resizable: false, filter: false,
       cellRenderer: p => `<div class="grid-acoes">
         ${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-recebida", dataId: p.value })}
         ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFSe em PDF", dataAction: "pdf-recebida", dataId: p.value })}
@@ -1329,7 +1329,7 @@ if (page === "nfe-recebidas") {
       cellRenderer: p => formatDate(p.value),
     },
     {
-      headerName: "Ações", field: "id", flex: 1.4, sortable: false, resizable: false,
+      headerName: "Ações", field: "id", flex: 1.4, sortable: false, resizable: false, filter: false,
       cellRenderer: p => `<div class="grid-acoes">
         ${criarBotaoAcao({ icone: "fa-eye", titulo: "Ver detalhes", dataAction: "ver-nfe", dataId: p.value })}
         ${criarBotaoAcao({ icone: "fa-file-pdf", titulo: "Ver DANFe em PDF", dataAction: "pdf-nfe", dataId: p.value })}
