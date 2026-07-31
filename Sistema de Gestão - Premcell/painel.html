@@ -340,6 +340,14 @@
       return `<span class="badge badge-blue">${status}</span>`;
     }
 
+    // Chave de acesso da NF-e (44 dígitos) traz o número da nota nas posições 26-34 (9 dígitos).
+    function numeroNfDaChave(chave) {
+      if (!chave || String(chave).length !== 44) return null;
+      const trecho = String(chave).slice(25, 34);
+      const numero = parseInt(trecho, 10);
+      return Number.isFinite(numero) ? numero : null;
+    }
+
     function manifestacaoToBadge(m) {
       if (!m) return `<span class="badge badge-blue">Pendente</span>`;
       if (m === "confirmacao" || m === "ciencia") return `<span class="badge badge-green">${m === "ciencia" ? "Ciência" : "Confirmada"}</span>`;
@@ -1395,6 +1403,7 @@ if (page === "nfe-recebidas") {
   const columnDefsNFeRecebida = [
     { headerName: "Emitente", field: "nome_emitente", flex: 1.2 },
     { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 0.8 },
+    { headerName: "Nº da NF", flex: 0.6, valueGetter: p => numeroNfDaChave(p.data.chave_nfe) },
     {
       headerName: "Chave de Acesso", field: "chave_nfe", flex: 2.5, minWidth: 400,
       cellRenderer: p => `<div style="display:flex;align-items:center;gap:6px;height:100%;">
