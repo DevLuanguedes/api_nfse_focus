@@ -340,6 +340,12 @@
       return `<span class="badge badge-blue">${status}</span>`;
     }
 
+    function formatarCnpj(cnpj) {
+      const digitos = String(cnpj ?? "").replace(/\D/g, "");
+      if (digitos.length !== 14) return cnpj || "-";
+      return digitos.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+    }
+
     // Chave de acesso da NF-e (44 dígitos) traz o número da nota nas posições 26-34 (9 dígitos).
     function numeroNfDaChave(chave) {
       if (!chave || String(chave).length !== 44) return null;
@@ -394,16 +400,24 @@
     document.addEventListener("click", fecharMenuContexto);
     document.addEventListener("scroll", fecharMenuContexto, true);
 
-    function habilitarMenuContextoGrid(containerEl, gridApi, nomeArquivo) {
+    /**
+     * @param {Function} [buscarTodasLinhas] - Para grids com paginação no servidor: função
+     *   assíncrona que retorna TODAS as linhas que batem com a busca/filtro atual (todas as
+     *   páginas). Se não informada, exporta só o que já está carregado no grid (uso normal
+     *   em grids que carregam tudo de uma vez, como Consultar Notas).
+     */
+    function habilitarMenuContextoGrid(containerEl, gridApi, nomeArquivo, buscarTodasLinhas) {
       containerEl.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         fecharMenuContexto();
 
         const menu = document.createElement("div");
         menu.className = "grid-context-menu";
+        const rotuloCsv = buscarTodasLinhas ? "Exportar tudo (CSV)" : "Exportar CSV";
+        const rotuloXlsx = buscarTodasLinhas ? "Exportar tudo (Excel)" : "Exportar Excel";
         menu.innerHTML = `
-          <button type="button" data-acao="csv"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
-          <button type="button" data-acao="xlsx"><i class="fa-solid fa-file-excel"></i> Exportar Excel</button>
+          <button type="button" data-acao="csv"><i class="fa-solid fa-file-csv"></i> ${rotuloCsv}</button>
+          <button type="button" data-acao="xlsx"><i class="fa-solid fa-file-excel"></i> ${rotuloXlsx}</button>
         `;
         document.body.appendChild(menu);
 
@@ -417,16 +431,46 @@
           .filter((c) => c.headerName !== "Ações")
           .map((c) => c.colId || c.field);
 
+        async function exportar(formato) {
+          let linhasParaRestaurar = null;
+
+          if (buscarTodasLinhas) {
+            linhasParaRestaurar = [];
+            gridApi.forEachNode((n) => linhasParaRestaurar.push(n.data));
+            gridApi.showLoadingOverlay();
+            try {
+              const todasLinhas = await buscarTodasLinhas();
+              gridApi.setGridOption("rowData", todasLinhas);
+            } catch (err) {
+              alert("Erro ao buscar todas as linhas para exportar: " + err.message);
+              gridApi.setGridOption("rowData", linhasParaRestaurar);
+              gridApi.hideOverlay();
+              return;
+            }
+          }
+
+          if (formato === "csv") {
+            gridApi.exportDataAsCsv({ fileName: nomeArquivo + ".csv", columnKeys: colunasExportaveis });
+          } else {
+            const csv = gridApi.getDataAsCsv({ columnKeys: colunasExportaveis });
+            const wb = XLSX.read(csv, { type: "string" });
+            XLSX.writeFile(wb, nomeArquivo + ".xlsx");
+          }
+
+          if (linhasParaRestaurar) {
+            gridApi.setGridOption("rowData", linhasParaRestaurar);
+            gridApi.hideOverlay();
+          }
+        }
+
         menu.querySelector('[data-acao="csv"]').addEventListener("click", (ev) => {
           ev.stopPropagation();
-          gridApi.exportDataAsCsv({ fileName: nomeArquivo + ".csv", columnKeys: colunasExportaveis });
+          exportar("csv");
           fecharMenuContexto();
         });
         menu.querySelector('[data-acao="xlsx"]').addEventListener("click", (ev) => {
           ev.stopPropagation();
-          const csv = gridApi.getDataAsCsv({ columnKeys: colunasExportaveis });
-          const wb = XLSX.read(csv, { type: "string" });
-          XLSX.writeFile(wb, nomeArquivo + ".xlsx");
+          exportar("xlsx");
           fecharMenuContexto();
         });
       });
@@ -1220,16 +1264,19 @@ if (page === "recebidas") {
   ];
 
   const gridApiRecebida = criarGrid(gridElRecebida, columnDefsRecebida, []);
-  habilitarMenuContextoGrid(gridElRecebida, gridApiRecebida, "notas_servicos_recebidas");
 
-  async function carregarNotasRecebidas() {
-    const params = new URLSearchParams({
-      pagina: String(paginaRecebida),
-      por_pagina: String(POR_PAGINA_RECEBIDA),
-    });
+  function parametrosFiltroRecebida() {
+    const params = new URLSearchParams();
     if (searchInputRecebida.value.trim()) params.set("busca", searchInputRecebida.value.trim());
     if (dataInicialRecebida.value) params.set("data_inicial", dataInicialRecebida.value);
     if (dataFinalRecebida.value) params.set("data_final", dataFinalRecebida.value);
+    return params;
+  }
+
+  async function carregarNotasRecebidas() {
+    const params = parametrosFiltroRecebida();
+    params.set("pagina", String(paginaRecebida));
+    params.set("por_pagina", String(POR_PAGINA_RECEBIDA));
 
     try {
       const response = await apiFetch(`${API_BASE}/api/notas-recebidas?${params.toString()}`);
@@ -1249,6 +1296,26 @@ if (page === "recebidas") {
       resumoRecebida.textContent = "Erro ao carregar notas recebidas. Verifique a API.";
     }
   }
+
+  async function buscarTodasNotasRecebidas() {
+    const todas = [];
+    let pagina = 1;
+    let totalPaginasBusca = 1;
+    do {
+      const params = parametrosFiltroRecebida();
+      params.set("pagina", String(pagina));
+      params.set("por_pagina", "200");
+      const response = await apiFetch(`${API_BASE}/api/notas-recebidas?${params.toString()}`);
+      if (!response.ok) throw new Error("Erro ao buscar notas recebidas na API");
+      const resposta = await response.json();
+      todas.push(...(resposta.dados || []));
+      totalPaginasBusca = resposta.total_paginas || 1;
+      pagina++;
+    } while (pagina <= totalPaginasBusca);
+    return todas;
+  }
+
+  habilitarMenuContextoGrid(gridElRecebida, gridApiRecebida, "notas_servicos_recebidas", buscarTodasNotasRecebidas);
 
   btnSearchRecebida.addEventListener("click", () => {
     paginaRecebida = 1;
@@ -1401,9 +1468,9 @@ if (page === "nfe-recebidas") {
   let idRecusaAtual = null;
 
   const columnDefsNFeRecebida = [
+    { headerName: "Nº NF", flex: 0.6, valueGetter: p => numeroNfDaChave(p.data.chave_nfe) },
+    { headerName: "CNPJ", field: "cnpj_emitente", flex: 0.9, valueFormatter: p => formatarCnpj(p.value) },
     { headerName: "Emitente", field: "nome_emitente", flex: 1.2 },
-    { headerName: "CNPJ Emitente", field: "cnpj_emitente", flex: 0.8 },
-    { headerName: "Nº da NF", flex: 0.6, valueGetter: p => numeroNfDaChave(p.data.chave_nfe) },
     {
       headerName: "Chave de Acesso", field: "chave_nfe", flex: 2.5, minWidth: 400,
       cellRenderer: p => `<div style="display:flex;align-items:center;gap:6px;height:100%;">
@@ -1432,16 +1499,19 @@ if (page === "nfe-recebidas") {
   ];
 
   const gridApiNFeRecebida = criarGrid(gridElNFeRecebida, columnDefsNFeRecebida, []);
-  habilitarMenuContextoGrid(gridElNFeRecebida, gridApiNFeRecebida, "nfe_compras");
 
-  async function carregarNFeRecebidas() {
-    const params = new URLSearchParams({
-      pagina: String(paginaNFeRecebida),
-      por_pagina: String(POR_PAGINA_NFE_RECEBIDA),
-    });
+  function parametrosFiltroNFe() {
+    const params = new URLSearchParams();
     if (searchInputNFeRecebida.value.trim()) params.set("busca", searchInputNFeRecebida.value.trim());
     if (dataInicialNFeRecebida.value) params.set("data_inicial", dataInicialNFeRecebida.value);
     if (dataFinalNFeRecebida.value) params.set("data_final", dataFinalNFeRecebida.value);
+    return params;
+  }
+
+  async function carregarNFeRecebidas() {
+    const params = parametrosFiltroNFe();
+    params.set("pagina", String(paginaNFeRecebida));
+    params.set("por_pagina", String(POR_PAGINA_NFE_RECEBIDA));
 
     try {
       const response = await apiFetch(`${API_BASE}/api/nfe-recebidas?${params.toString()}`);
@@ -1461,6 +1531,26 @@ if (page === "nfe-recebidas") {
       resumoNFeRecebida.textContent = "Erro ao carregar NF-e recebidas. Verifique a API.";
     }
   }
+
+  async function buscarTodasNFeRecebidas() {
+    const todas = [];
+    let pagina = 1;
+    let totalPaginasBusca = 1;
+    do {
+      const params = parametrosFiltroNFe();
+      params.set("pagina", String(pagina));
+      params.set("por_pagina", "200");
+      const response = await apiFetch(`${API_BASE}/api/nfe-recebidas?${params.toString()}`);
+      if (!response.ok) throw new Error("Erro ao buscar NF-e recebidas na API");
+      const resposta = await response.json();
+      todas.push(...(resposta.dados || []));
+      totalPaginasBusca = resposta.total_paginas || 1;
+      pagina++;
+    } while (pagina <= totalPaginasBusca);
+    return todas;
+  }
+
+  habilitarMenuContextoGrid(gridElNFeRecebida, gridApiNFeRecebida, "nfe_compras", buscarTodasNFeRecebidas);
 
   btnSearchNFeRecebida.addEventListener("click", () => {
     paginaNFeRecebida = 1;
