@@ -1776,8 +1776,8 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
         }
         function htmlPlanilhaPronta(data) {
           const msgVersao = (data && data.versaoTransformacao) ? " <small>(regras 070202 + colunas por nome)</small>" : "";
-          let links = "<a href=\"" + API_BASE + (data?.downloadUrl || "") + "\" download class=\"btn-primary\"><i class=\"fa-solid fa-download\"></i> Baixar planilha transformada</a>";
-          if (data?.downloadUrlOriginal) links += " <a href=\"" + API_BASE + data.downloadUrlOriginal + "\" download class=\"btn-primary\" style=\"margin-left:8px;\"><i class=\"fa-solid fa-download\"></i> Baixar original preenchida</a>";
+          let links = "<button type=\"button\" class=\"btn-primary\" onclick=\"abrirArquivoAutenticado('" + API_BASE + (data?.downloadUrl || "") + "', 'planilha_transformada.xlsx', 'download')\"><i class=\"fa-solid fa-download\"></i> Baixar planilha transformada</button>";
+          if (data?.downloadUrlOriginal) links += " <button type=\"button\" class=\"btn-primary\" style=\"margin-left:8px;\" onclick=\"abrirArquivoAutenticado('" + API_BASE + data.downloadUrlOriginal + "', 'planilha_original.xlsx', 'download')\"><i class=\"fa-solid fa-download\"></i> Baixar original preenchida</button>";
           return "<p class=\"text-success\"><strong>Planilha pronta!</strong>" + msgVersao + "<br><br>" + links + "<br><small>Original preenchida: submeta no portal. Transformada: use na emissão.</small></p>";
         }
 
@@ -2128,7 +2128,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               try { res = JSON.parse(text); } catch (_) { res = { sucesso: false, erro: resp.ok ? "Resposta inválida" : "HTTP " + resp.status }; }
               if (!resp.ok) throw new Error(res.erro || "HTTP " + resp.status);
               if (res.sucesso && res.downloadUrl) {
-                divAtualizarNfsResultado.innerHTML = "<p class=\"text-success\"><strong>Planilha atualizada com números NF!</strong> <a href=\"" + API_BASE + res.downloadUrl + "\" download class=\"btn-primary\"><i class=\"fa-solid fa-download\"></i> Baixar</a></p>";
+                divAtualizarNfsResultado.innerHTML = "<p class=\"text-success\"><strong>Planilha atualizada com números NF!</strong> <button type=\"button\" class=\"btn-primary\" onclick=\"abrirArquivoAutenticado('" + API_BASE + res.downloadUrl + "', 'planilha_atualizada.xlsx', 'download')\"><i class=\"fa-solid fa-download\"></i> Baixar</button></p>";
               } else {
                 divAtualizarNfsResultado.innerHTML = "<p class=\"text-warning\">Erro: " + (res.erro || "Falha ao processar.") + "</p>";
               }
@@ -3048,7 +3048,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               divAtualizar.innerHTML = "<p class=\"text-warning\">Erro ao atualizar planilha: " + (res.erro || "desconhecido") + "</p>";
               return;
             }
-            divAtualizar.innerHTML = "<p class=\"text-success\"><strong>Planilha do cliente atualizada com números NF!</strong> <a href=\"" + API_BASE + res.downloadUrl + "\" download class=\"btn-primary\"><i class=\"fa-solid fa-download\"></i> Baixar</a></p>";
+            divAtualizar.innerHTML = "<p class=\"text-success\"><strong>Planilha do cliente atualizada com números NF!</strong> <button type=\"button\" class=\"btn-primary\" onclick=\"abrirArquivoAutenticado('" + API_BASE + res.downloadUrl + "', 'planilha_cliente_atualizada.xlsx', 'download')\"><i class=\"fa-solid fa-download\"></i> Baixar</button></p>";
           } catch (err) {
             console.error(err);
             divAtualizar.innerHTML = "<p class=\"text-warning\">Erro ao atualizar planilha. Verifique a API.</p>";
