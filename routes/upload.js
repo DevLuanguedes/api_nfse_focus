@@ -270,10 +270,10 @@ function montarPayloadNfsen(linha) {
 
   let valorCp = getLinha(linha, "valor_inss");
   const situacaoTributariaPisCofins = "01"; // Operação Tributável com Alíquota Básica
-  // tpRetPisCofins: 1 = Retido, 2 = Não retido.
-  // Regra: para 7.02 e demais serviços, PIS/COFINS/CSLL NÃO são retidos (2).
-  // Somente para 7.03 aplicamos retenção (1).
-  let tipoRetencaoPisCofins = 2;
+  // tpRetPisCofins (NT 007/2026 — códigos 1 e 2 antigos foram substituídos por 0 e 3,
+  // que já contemplam CSLL explicitamente): 0 = PIS/COFINS/CSLL não retidos, 3 = todos retidos.
+  // Regra: para 7.02 e demais serviços, nada é retido (0). Somente para 7.03 aplicamos retenção (3).
+  let tipoRetencaoPisCofins = 0;
 
   // Alíquota (%)
   const pAliq = getLinha(linha, "aliquota_iss");
@@ -320,7 +320,7 @@ function montarPayloadNfsen(linha) {
     codigoMunicipioPrestacao = cMunBauru;
 
     // Para 7.03, PIS/COFINS/CSLL são retidos na fonte
-    tipoRetencaoPisCofins = 1;
+    tipoRetencaoPisCofins = 3;
 
     // 2) Não há INSS -> valor_cp = 0
     valorCp = 0;
