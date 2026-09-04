@@ -7,6 +7,8 @@ const db = require('../db');
 const STATUS_EMITIDA = ['emitida', 'autorizada', 'autorizado'];
 /** Status considerados como "pendente" (aguardando ação) */
 const STATUS_PENDENTE = ['pendente', 'processando', 'processando_autorizacao'];
+/** Status a excluir das somas de notas recebidas (não representam valor válido) */
+const STATUS_EXCLUIDO_RECEBIDAS = ['cancelado', 'cancelada', 'substituido', 'substituida'];
 
 /**
  * GET /api/dashboard/resumo
@@ -67,6 +69,7 @@ router.get('/mensal', async (req, res) => {
                SUM(valor_total) AS total
         FROM notas_recebidas
         WHERE EXTRACT(YEAR FROM COALESCE(data_emissao, criado_em)) = EXTRACT(YEAR FROM CURRENT_DATE)
+          AND LOWER(COALESCE(situacao, '')) NOT IN (${STATUS_EXCLUIDO_RECEBIDAS.map((_, i) => `$${i + 1}`).join(', ')})
         GROUP BY 1
       ),
       compras AS (
@@ -74,6 +77,7 @@ router.get('/mensal', async (req, res) => {
                SUM(valor_total) AS total
         FROM nfe_recebidas
         WHERE EXTRACT(YEAR FROM COALESCE(data_emissao, criado_em)) = EXTRACT(YEAR FROM CURRENT_DATE)
+          AND LOWER(COALESCE(situacao, '')) NOT IN (${STATUS_EXCLUIDO_RECEBIDAS.map((_, i) => `$${i + 1}`).join(', ')})
         GROUP BY 1
       )
       SELECT
@@ -84,7 +88,7 @@ router.get('/mensal', async (req, res) => {
       LEFT JOIN servicos s ON s.mes = m.mes
       LEFT JOIN compras c ON c.mes = m.mes
       ORDER BY m.mes
-    `);
+    `, STATUS_EXCLUIDO_RECEBIDAS);
 
     res.json({
       ano: new Date().getFullYear(),

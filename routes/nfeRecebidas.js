@@ -11,6 +11,8 @@ const FOCUS_TOKEN = process.env.FOCUS_TOKEN;
 const FOCUS_URL_RECEBIDAS = 'https://api.focusnfe.com.br/v2/nfes_recebidas';
 
 const TIPOS_MANIFESTO_VALIDOS = ['ciencia', 'confirmacao', 'desconhecimento', 'nao_realizada'];
+/** Status a excluir das somas (não representam compra válida) */
+const STATUS_EXCLUIDO = ['cancelado', 'cancelada', 'substituido', 'substituida'];
 
 /**
  * GET /api/nfe-recebidas/categorias
@@ -30,10 +32,11 @@ router.get('/categorias', async (req, res) => {
       FROM nfe_recebidas_itens i
       JOIN nfe_recebidas n ON n.id = i.nfe_recebida_id
       WHERE EXTRACT(YEAR FROM COALESCE(n.data_emissao, n.criado_em)) = $1
+        AND LOWER(COALESCE(n.situacao, '')) NOT IN ($2, $3, $4, $5)
       GROUP BY 1
       ORDER BY total DESC
       `,
-      [ano]
+      [ano, ...STATUS_EXCLUIDO]
     );
 
     const categorias = result.rows.map((r) => ({

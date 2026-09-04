@@ -24,6 +24,7 @@ const municipiosAliquotasRoutes = require('./routes/municipiosAliquotas');
 const siteEnderecosRoutes = require('./routes/siteEnderecos');
 const webhookRoutes = require("./routes/webhook");
 const { autenticar, permitir } = require('./middleware/auth');
+const { importarItensPendentes } = require('./services/importarItensNfe');
 
 app.use("/webhook", webhookRoutes);
 
@@ -61,6 +62,28 @@ app.use('/api/site-enderecos', autenticar, permitir(...ROLES_COMPLETAS), siteEnd
 // Painel (frontend): http://localhost:3000/painel.html (depois das rotas de API)
 app.use(express.static(path.join(__dirname, 'Sistema de Gestão - Premcell')));
 
+// ===== IMPORTAÇÃO AUTOMÁTICA DE ITENS DE NF-E (alimenta o gráfico de categorias/NCM) =====
+// Sem isso, o gráfico só atualizava quando alguém rodava o script manualmente.
+const INTERVALO_IMPORTAR_ITENS_MS = 2 * 60 * 60 * 1000; // 2 horas
+let importandoItens = false;
+
+async function rodarImportacaoItensNfe() {
+  if (importandoItens) return; // evita rodar em paralelo se uma execução anterior ainda não terminou
+  importandoItens = true;
+  try {
+    const resultado = await importarItensPendentes();
+    if (resultado.total > 0) {
+      console.log(
+        `[itens-nfe] Total: ${resultado.total} | Importadas: ${resultado.sucesso} | Sem itens: ${resultado.semItens} | Erros: ${resultado.erros}`
+      );
+    }
+  } catch (err) {
+    console.error('[itens-nfe] Erro na importação automática:', err.message);
+  } finally {
+    importandoItens = false;
+  }
+}
+
 // ===== SOBE O SERVIDOR =====
 const VERSAO_SERVIDOR = '3';
 const db = require('./db');
@@ -72,4 +95,8 @@ app.listen(PORT, async () => {
   } catch (err) {
     console.error('[db] Erro:', err.message);
   }
+
+  // Primeira passada 30s após subir (dá tempo do processo estabilizar), depois a cada 2h.
+  setTimeout(rodarImportacaoItensNfe, 30 * 1000);
+  setInterval(rodarImportacaoItensNfe, INTERVALO_IMPORTAR_ITENS_MS);
 });
