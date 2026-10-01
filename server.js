@@ -23,6 +23,7 @@ const uploadRoutes = require('./routes/upload');
 const municipiosAliquotasRoutes = require('./routes/municipiosAliquotas');
 const siteEnderecosRoutes = require('./routes/siteEnderecos');
 const webhookRoutes = require("./routes/webhook");
+const danfePublicoRoutes = require("./routes/danfePublico");
 const { autenticar, permitir } = require('./middleware/auth');
 const { importarItensPendentes } = require('./services/importarItensNfe');
 
@@ -55,6 +56,7 @@ app.use('/api/nfe-recebidas', autenticar, permitir(...TODAS_ROLES), nfeRecebidas
 app.use('/api/dashboard', autenticar, permitir(...ROLES_COMPLETAS), dashboardRoutes);
 app.use('/api/debug', debugRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/danfe-publico', danfePublicoRoutes);
 app.use('/api/upload', autenticar, permitir(...ROLES_COMPLETAS), uploadRoutes);
 app.use('/api/municipios-aliquotas', autenticar, permitir(...ROLES_COMPLETAS), municipiosAliquotasRoutes);
 app.use('/api/site-enderecos', autenticar, permitir(...ROLES_COMPLETAS), siteEnderecosRoutes);
