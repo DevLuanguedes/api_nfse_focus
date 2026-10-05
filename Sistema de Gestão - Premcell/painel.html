@@ -2691,7 +2691,7 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               const qtdDivergentes = previewRows.length;
               let html = "<div class=\"emit-resumo-box\"><p><strong>" + linhas.length + " notas</strong> serão emitidas. <strong>Valor total estimado: R$ " + totalValor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "</strong></p>";
               if (qtdDivergentes > 0) {
-                html += "<p class=\"text-muted small\">Corrija os códigos abaixo (<strong>" + qtdDivergentes + " linha(s) com divergência</strong>). <strong>Mun. Prestação</strong>, <strong>Local de incidência</strong> e <strong>Mun. Obra</strong> estão diferentes — revise e corrija manualmente. Local de incidência deve ser igual ao Mun. Prestação (na emissão será usado o Mun. Prestação para ambos).</p>" +
+                html += "<p class=\"text-muted small\">Corrija os códigos abaixo (<strong>" + qtdDivergentes + " linha(s) com divergência</strong>). <strong>Mun. Prestação</strong>, <strong>Local de incidência</strong> e <strong>Mun. Obra</strong> estão diferentes — revise e corrija manualmente. Na emissão, Local de incidência e Mun. Obra são sempre forçados a ficar iguais ao Mun. Prestação (a cidade da PO).</p>" +
                   "<div class=\"emit-preview-table-wrap\"><table class=\"table table-sm\" id=\"emit-preview-table\"><thead><tr><th>Ref</th><th>Site</th><th>Valor</th><th>Mun. Prestação (IBGE)</th><th>Local incidência (IBGE)</th><th>Mun. Obra (IBGE)</th></tr></thead><tbody>" + previewRows.join("") + "</tbody></table></div>";
               } else {
                 html += "<p class=\"text-success small\"><i class=\"fa-solid fa-check-circle\"></i> Nenhuma divergência. Mun. Prestação, Local de incidência e Mun. Obra estão consistentes. Pode prosseguir.</p>";
@@ -2703,8 +2703,11 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
               div.querySelectorAll("input.emit-codigo-prestacao").forEach(function(inp) {
                 inp.addEventListener("input", function() {
                   var tr = inp.closest("tr");
+                  var valor = inp.value.replace(/\D/g, "").slice(0, 7);
                   var inc = tr && tr.querySelector("input.emit-codigo-incidencia");
-                  if (inc) inc.value = inp.value.replace(/\D/g, "").slice(0, 7);
+                  if (inc) inc.value = valor;
+                  var obra = tr && tr.querySelector("input.emit-codigo-obra");
+                  if (obra) obra.value = valor;
                 });
               });
             } catch (e) {
