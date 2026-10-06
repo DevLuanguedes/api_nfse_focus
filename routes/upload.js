@@ -488,9 +488,16 @@ if (isServico703) {
     ...(ibsCbsSituacaoTributaria ? { ibs_cbs_situacao_tributaria: ibsCbsSituacaoTributaria } : {}),
     ...(ibsCbsClassificacaoTributaria ? { ibs_cbs_classificacao_tributaria: ibsCbsClassificacaoTributaria } : {}),
   };
-  // Valor líquido = valor do serviço menos todos os tributos retidos (vLiq no XML)
+  // Valor líquido (vLiq no XML). A Focus/SEFAZ calcula o vLiq oficial da NFSe
+  // usando só IRRF + CSLL (+ ISS quando retido pelo tomador) — PIS/COFINS, mesmo
+  // retidos, são reportados à parte (bloco piscofins) e não entram no vLiq.
+  // Para o 7.03 o ISS é sempre "não retido" (tipoRetencaoIss=1): o prestador recebe
+  // o valor cheio e recolhe o ISS por fora depois, então não subtraímos aqui.
+  // Para os demais serviços (7.02) mantemos o comportamento original (sempre
+  // subtrai o ISS informado), que já estava correto.
   const valorIssRetido = parseMoney(getLinha(linha, "valor_iss_retido")) || 0;
-  const totalRetencoes = valorPis + valorCofins + valorRetidoIrrf + valorRetidoCsll + valorIssRetido;
+  const issEntraNoLiquido = isServico703 ? tipoRetencaoIss !== 1 : true;
+  const totalRetencoes = valorRetidoIrrf + valorRetidoCsll + (issEntraNoLiquido ? valorIssRetido : 0);
   payload.valor_liquido = round2(Math.max(0, valorServico - totalRetencoes));
 
   // Local de incidência = município de prestação (obrigatório)
