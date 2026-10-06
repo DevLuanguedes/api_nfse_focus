@@ -359,14 +359,10 @@ if (isServico703) {
     basePisCofins * aliqIr
   );
 
-  // IMPORTANTE:
-  // Para esta regra, valor_csll representa:
-  // PIS + COFINS + CSLL
-  valorRetidoCsll = round2(
-    valorPis +
-    valorCofins +
-    valorCsllPropria
-  );
+  // valor_csll representa só a CSLL retida (vRetCSLL no XML). PIS e COFINS já
+  // são enviados à Focus em campos próprios (valor_pis/valor_cofins) — somá-los
+  // aqui de novo duplicaria esses valores no documento fiscal.
+  valorRetidoCsll = valorCsllPropria;
 
   // Total dos tributos federais:
   // IRRF + PIS + COFINS + CSLL
@@ -421,15 +417,9 @@ if (isServico703) {
     codigo_opcao_simples_nacional: parseBoolean(getLinha(linha, "optante_simples_nacional")) ? 3 : 1,
     regime_especial_tributacao: 0,
 
-    valor_total_tributos_federais: round2(
-    Number(valorTotalTributosFederais) || 0
-      ),
-
-      valor_total_tributos_estaduais: undefined,
-
-      valor_total_tributos_municipais: parseMoney(
-        getLinha(linha, "valor_iss_retido")
-      ) || 0,
+    valor_total_tributos_federais: round2((Number(valorTotalTributosFederais) || 0) + (Number(valorCbs) || 0)),
+    valor_total_tributos_estaduais: valorIbsUf > 0 ? valorIbsUf : undefined,
+    valor_total_tributos_municipais: round2((parseMoney(getLinha(linha, "valor_iss_retido")) || 0) + (Number(valorIbsMun) || 0)),
 
     informacoes_complementares: [
       codigoNbs ? `NBS: ${codigoNbs}` : null,
@@ -502,13 +492,6 @@ if (isServico703) {
 //               - COFINS 3,00%
 //               - IRRF 1,50%
 //               - CSLL 1,00%
-//
-// IMPORTANTE:
-// O campo valor_csll enviado à Focus representa
-// PIS + COFINS + CSLL para esta regra.
-// Porém, para calcular o valor líquido,
-// usamos os valores individuais para deixar
-// a regra explícita e evitar qualquer dupla interpretação.
 // ==========================================================
 
 const valorIssRetido =
