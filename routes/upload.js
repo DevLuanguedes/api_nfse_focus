@@ -479,13 +479,16 @@ if (isServico703) {
     situacao_tributaria_pis_cofins: situacaoTributariaPisCofins,
     tipo_retencao_pis_cofins: tipoRetencaoPisCofins,
     base_calculo_pis_cofins: parseMoney(getLinha(linha, "valor_servico")),
-    aliquota_pis: aliquotaPisEnvio,
-    aliquota_cofins: aliquotaCofinsEnvio,
-    // valor_pis/valor_cofins têm que bater com base_calculo_pis_cofins x
-    // aliquota_pis/aliquota_cofins (validação E0694 do Emissor Nacional) —
-    // não dá pra zerar mantendo a alíquota, mesmo quando retidos na fonte.
-    valor_pis: valorPis,
-    valor_cofins: valorCofins,
+    // Quando PIS/COFINS são 100% retidos na fonte (tipoRetencaoPisCofins=3), o
+    // "Débito de Apuração Própria" fica zerado (confirmado no DANFE de uma nota
+    // emitida manualmente) — o valor retido de verdade vai todo somado em
+    // valor_csll (Contribuições Sociais Retidas). Pra não cair na validação
+    // E0694 (valor_pis precisa bater com base_calculo_pis_cofins x aliquota_pis),
+    // zeramos a alíquota junto com o valor, não só o valor sozinho.
+    aliquota_pis: tipoRetencaoPisCofins === 3 ? 0 : aliquotaPisEnvio,
+    aliquota_cofins: tipoRetencaoPisCofins === 3 ? 0 : aliquotaCofinsEnvio,
+    valor_pis: tipoRetencaoPisCofins === 3 ? 0 : valorPis,
+    valor_cofins: tipoRetencaoPisCofins === 3 ? 0 : valorCofins,
     // Focus: valor_irrf -> vRetIRRF, valor_csll -> vRetCSLL (Documentação Focus NFSe Nacional)
     valor_irrf: valorRetidoIrrf,
     valor_csll: valorRetidoCsll,
