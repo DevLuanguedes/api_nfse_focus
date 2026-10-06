@@ -481,8 +481,11 @@ if (isServico703) {
     base_calculo_pis_cofins: parseMoney(getLinha(linha, "valor_servico")),
     aliquota_pis: aliquotaPisEnvio,
     aliquota_cofins: aliquotaCofinsEnvio,
-    valor_pis: valorPis,
-    valor_cofins: valorCofins,
+    // "Débito de Apuração Própria": quando PIS/COFINS são 100% retidos na fonte
+    // (tipoRetencaoPisCofins=3), não sobra débito próprio nenhum — o valor
+    // retido de verdade vai todo em valor_csll (Contribuições Sociais Retidas).
+    valor_pis: tipoRetencaoPisCofins === 3 ? 0 : valorPis,
+    valor_cofins: tipoRetencaoPisCofins === 3 ? 0 : valorCofins,
     // Focus: valor_irrf -> vRetIRRF, valor_csll -> vRetCSLL (Documentação Focus NFSe Nacional)
     valor_irrf: valorRetidoIrrf,
     valor_csll: valorRetidoCsll,
