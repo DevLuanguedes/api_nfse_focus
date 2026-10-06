@@ -554,11 +554,12 @@ payload.valor_liquido = round2(
     const complementoObra = getLinha(linha, "Complemento_Obra", "complemento_obra");
     const bairroObra = getLinha(linha, "Bairro_Obra", "bairro_obra");
 
-    // Se não existir Codigo_Municipio_Obra, tentamos usar o municipio do serviço da planilha (Casa Branca)
-    const cMunObraRaw = getLinha(linha, "Codigo_Municipio_Obra", "codigo_municipio_obra", "codigo_municipio_servico");
-    const cMunObra = ibge7(cMunObraRaw);
-
-    const ufObra = getLinha(linha, "UF_Obra", "uf_obra", "UF_Servico");
+    // Município/UF da obra sempre igual ao município/UF de prestação do serviço (a cidade da PO).
+    // Nunca usamos a cidade cadastrada em site_endereco_obra aqui: o cadastro do site pode ter o
+    // endereço real (ex.: Ilhéus), diferente da cidade que a PO do cliente espera (ex.: Salvador),
+    // e a Focus/SEFAZ rejeita a nota quando Mun. Prestação e Mun. Obra divergem.
+    const cMunObra = ibge7(codigoMunicipioPrestacao);
+    const ufObra = getLinha(linha, "UF_Servico", "UF Serviço");
 
     
 
@@ -683,7 +684,7 @@ router.post("/emitir", upload.single("arquivo"), async (req, res) => {
       }
 
       // 2) Envia
-      const url = `${FOCUS_URL}/v2/nfsen?ref=${encodeURIComponent(ref)}`;
+      const url = `${FOCUS_URL}?ref=${encodeURIComponent(ref)}`;
       console.log("ENVIANDO PARA FOCUS:", url);
 
       try {
