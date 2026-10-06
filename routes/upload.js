@@ -17,7 +17,7 @@ const prestador = require("../config/prestador");
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-const FOCUS_URL = "https://homologacao.focusnfe.com.br";
+const FOCUS_URL = "https://api.focusnfe.com.br/v2/nfsen";
 const FOCUS_TOKEN = process.env.FOCUS_TOKEN;
 
 /* ================================
