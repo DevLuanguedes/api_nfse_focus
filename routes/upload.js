@@ -9,6 +9,7 @@ const db = require("../db");
 const { salvarAliquotaMunicipio } = require("../services/aliquotasMunicipio");
 const { transformarPlanilhaClienteParaAutomacao, atualizarPlanilhaOriginalComNfs } = require("../services/planilhaClienteParaAutomacao");
 const { varreduraConsolidar, indiceColuna, COL } = require("../services/varreduraConsolidar");
+const { isSubitemObra } = require("../services/isSubitemObra");
 const parseMoney = require("../utils/parseMoney");
 const parseBoolean = require("../utils/parseBoolean");
 const parseData = require("../utils/parseData");
@@ -177,26 +178,6 @@ async function sincronizarRefsDaPlanilhaComFocus(buffer) {
   } catch (err) {
     console.warn("[atualizar-planilha-com-nfs] Erro geral ao sincronizar refs com Focus:", err.message);
   }
-}
-
-function isSubitemObra(ctn6) {
-  // Subitens citados no erro E0370 (07.02.01, 07.02.02, 07.04.01, 07.05.01, 07.05.02, 07.06.01, 07.06.02, 07.07.01, 07.08.01, 07.17.01, 07.19.01)
-  // No formato da Focus: 070201, 070202, 070401, 070501, 070502, 070601, 070602, 070701, 070801, 071701, 071901
-  const s = String(ctn6 || "").replace(/\D/g, "").padStart(6, "0");
-  const list = new Set([
-    "070201",
-    "070202",
-    "070401",
-    "070501",
-    "070502",
-    "070601",
-    "070602",
-    "070701",
-    "070801",
-    "071701",
-    "071901",
-  ]);
-  return list.has(s);
 }
 
 /**

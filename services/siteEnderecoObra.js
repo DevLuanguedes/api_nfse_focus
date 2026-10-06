@@ -3,6 +3,8 @@
  * Usado na transformação da planilha para preencher CEP_Obra, Logradouro_Obra, Numero_Obra, Bairro_Obra, UF_Obra, Codigo_Municipio_Obra.
  */
 
+const { isSubitemObra } = require("./isSubitemObra");
+
 let _db = null;
 function getDb() {
   if (_db === null) {
@@ -107,11 +109,10 @@ async function preencherEnderecosObra(consolidado) {
     const site = String(linha.site ?? linha["Site Code"] ?? "").trim();
     const uf = String(linha.UF_Servico ?? "").trim().toUpperCase().slice(0, 2);
 
-    // Para serviços 7.03 (070203), não é necessário endereço de obra: pular totalmente
-    let codigo = String(linha.item_lista_servico ?? "").replace(/\D/g, "");
-    if (codigo.length > 6) codigo = codigo.slice(0, 6);
-    if (codigo.length < 6) codigo = codigo.padStart(6, "0");
-    if (codigo === "070203") {
+    // Só pede endereço de obra pros subitens que realmente exigem Grupo Obra
+    // (mesma lista usada na emissão, em routes/upload.js). Qualquer outro
+    // serviço (7.03 e variações como 7.03.02, etc.) pula totalmente.
+    if (!isSubitemObra(linha.item_lista_servico)) {
       continue;
     }
     if (!site || !uf) continue;
