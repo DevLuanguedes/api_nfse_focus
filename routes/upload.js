@@ -359,10 +359,11 @@ if (isServico703) {
     basePisCofins * aliqIr
   );
 
-  // valor_csll representa só a CSLL retida (vRetCSLL no XML). PIS e COFINS já
-  // são enviados à Focus em campos próprios (valor_pis/valor_cofins) — somá-los
-  // aqui de novo duplicaria esses valores no documento fiscal.
-  valorRetidoCsll = valorCsllPropria;
+  // valor_csll (vRetCSLL no XML / "Contribuições Sociais - Retidas") representa
+  // PIS + COFINS + CSLL somados: não existe campo próprio de retenção de PIS/
+  // COFINS nesse XML, só "débito de apuração própria" (valor_pis/valor_cofins,
+  // enviados à parte). A retenção de fato dos três entra toda aqui.
+  valorRetidoCsll = round2(valorPis + valorCofins + valorCsllPropria);
 
   // Total dos tributos federais:
   // IRRF + PIS + COFINS + CSLL
@@ -496,9 +497,11 @@ if (isServico703) {
   // descontando PIS, COFINS, IRRF e CSLL sempre, e ISS só quando de fato
   // retido (no 7.03 o ISS é "não retido": o prestador recebe o valor cheio e
   // recolhe o ISS por fora depois, então não entra aqui).
+  // Usa valorCsllPropria (só CSLL) aqui, não valorRetidoCsll (que já inclui
+  // PIS+COFINS) — senão PIS e COFINS seriam descontados em dobro.
   const valorIssRetido = parseMoney(getLinha(linha, "valor_iss_retido")) || 0;
   const issEntraNoLiquido = isServico703 ? tipoRetencaoIss !== 1 : true;
-  const totalRetencoes = valorPis + valorCofins + valorRetidoIrrf + valorRetidoCsll + (issEntraNoLiquido ? valorIssRetido : 0);
+  const totalRetencoes = valorPis + valorCofins + valorRetidoIrrf + valorCsllPropria + (issEntraNoLiquido ? valorIssRetido : 0);
   payload.valor_liquido = round2(Math.max(0, valorServico - totalRetencoes));
 
   // Local de incidência = município de prestação (obrigatório)
