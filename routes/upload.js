@@ -436,6 +436,10 @@ if (isServico703) {
         ? `Cidade Obra: ${getLinha(linha, "Cidade_Servico")}`
         : null,
 
+      valorCbs > 0 || valorIbsTotal > 0
+        ? "CBS 0,9%| IBS 0,1%"
+        : null,
+
       isServico703
         ? `Tributos federais retidos: IR 1,5% + PIS 0,65% + COFINS 3,0% + CSLL 1,0% | CBS 0,9% | IBS 0,1%`
         : null,
