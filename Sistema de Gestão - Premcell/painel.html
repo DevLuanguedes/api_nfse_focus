@@ -2671,45 +2671,13 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
                 return;
               }
               const getVal = (l, ...keys) => { for (const k of keys) { const v = l?.[k]; if (v !== undefined && v !== null && v !== "") return v; } return null; };
-              const codPrest = (l) => String(getVal(l, "codigo_municipio_servico", "Codigo_Municipio_Servico") ?? "").replace(/\D/g, "").slice(0, 7);
-              const codIncidencia = (l) => { const v = getVal(l, "codigo_local_incidencia", "codigo_municipio_incidencia", "Codigo_Local_Incidencia"); return v != null ? String(v).replace(/\D/g, "").slice(0, 7) : codPrest(l); };
-              const codObra = (l) => String(getVal(l, "Codigo_Municipio_Obra", "codigo_municipio_obra") ?? "").replace(/\D/g, "").slice(0, 7);
               let totalValor = 0;
-              const allPreviewRows = linhas.map((l, i) => {
-                const ref = getVal(l, "Ref", "ref") || "-";
-                const site = getVal(l, "SITE", "Site", "Site Code", "Ref Site", "ref_site") || "-";
+              linhas.forEach((l) => {
                 const val = getVal(l, "valor_servico", "Valor_Servico");
                 totalValor += parseValor(val);
-                const p = codPrest(l);
-                const inc = codIncidencia(l);
-                const o = codObra(l);
-                const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-                const temDivergencia = p !== inc || p !== o || inc !== o;
-                return { row: "<tr data-row-index=\"" + i + "\"><td>" + esc(ref) + "</td><td>" + esc(site) + "</td><td>" + (val != null ? "R$ " + parseValor(val).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-") + "</td><td><input type=\"text\" class=\"input emit-codigo-prestacao\" value=\"" + esc(p) + "\" placeholder=\"7 dígitos\" maxlength=\"7\" title=\"Município de prestação (IBGE)\" style=\"width:90px\"></td><td><input type=\"text\" class=\"input emit-codigo-incidencia\" value=\"" + esc(inc) + "\" placeholder=\"= Prestação\" maxlength=\"7\" title=\"Local de incidência (igual ao município de prestação)\" style=\"width:90px\"></td><td><input type=\"text\" class=\"input emit-codigo-obra\" value=\"" + esc(o) + "\" placeholder=\"7 dígitos\" maxlength=\"7\" title=\"Município da obra (IBGE)\" style=\"width:90px\"></td></tr>", temDivergencia };
               });
-              const previewRows = allPreviewRows.filter(x => x.temDivergencia).map(x => x.row);
-              const qtdDivergentes = previewRows.length;
-              let html = "<div class=\"emit-resumo-box\"><p><strong>" + linhas.length + " notas</strong> serão emitidas. <strong>Valor total estimado: R$ " + totalValor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "</strong></p>";
-              if (qtdDivergentes > 0) {
-                html += "<p class=\"text-muted small\">Corrija os códigos abaixo (<strong>" + qtdDivergentes + " linha(s) com divergência</strong>). <strong>Mun. Prestação</strong>, <strong>Local de incidência</strong> e <strong>Mun. Obra</strong> estão diferentes — revise e corrija manualmente. Na emissão, Local de incidência e Mun. Obra são sempre forçados a ficar iguais ao Mun. Prestação (a cidade da PO).</p>" +
-                  "<div class=\"emit-preview-table-wrap\"><table class=\"table table-sm\" id=\"emit-preview-table\"><thead><tr><th>Ref</th><th>Site</th><th>Valor</th><th>Mun. Prestação (IBGE)</th><th>Local incidência (IBGE)</th><th>Mun. Obra (IBGE)</th></tr></thead><tbody>" + previewRows.join("") + "</tbody></table></div>";
-              } else {
-                html += "<p class=\"text-success small\"><i class=\"fa-solid fa-check-circle\"></i> Nenhuma divergência. Mun. Prestação, Local de incidência e Mun. Obra estão consistentes. Pode prosseguir.</p>";
-                html += "<div class=\"emit-preview-table-wrap\" id=\"emit-preview-table-wrap\" style=\"display:none;\"><table class=\"table table-sm\" id=\"emit-preview-table\"><thead><tr><th>Ref</th><th>Site</th><th>Valor</th><th>Mun. Prestação (IBGE)</th><th>Local incidência (IBGE)</th><th>Mun. Obra (IBGE)</th></tr></thead><tbody>" + allPreviewRows.map(x => x.row).join("") + "</tbody></table></div>";
-              }
-              html += "</div>";
-              div.innerHTML = html;
+              div.innerHTML = "<div class=\"emit-resumo-box\"><p><strong>" + linhas.length + " notas</strong> serão emitidas. <strong>Valor total estimado: R$ " + totalValor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "</strong></p><p class=\"text-success small\"><i class=\"fa-solid fa-check-circle\"></i> Município de prestação, local de incidência e município da obra são ajustados automaticamente na emissão.</p></div>";
               window.__emitPreviewLinhasCount = linhas.length;
-              div.querySelectorAll("input.emit-codigo-prestacao").forEach(function(inp) {
-                inp.addEventListener("input", function() {
-                  var tr = inp.closest("tr");
-                  var valor = inp.value.replace(/\D/g, "").slice(0, 7);
-                  var inc = tr && tr.querySelector("input.emit-codigo-incidencia");
-                  if (inc) inc.value = valor;
-                  var obra = tr && tr.querySelector("input.emit-codigo-obra");
-                  if (obra) obra.value = valor;
-                });
-              });
             } catch (e) {
               console.error("Erro ao ler resumo da planilha:", e);
               div.innerHTML = "<p class=\"text-muted\"><i class=\"fa-solid fa-info-circle\"></i> Planilha pronta para emissão. Clique em Processar Notas quando estiver pronto.</p>";
@@ -2718,62 +2686,6 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
           reader.readAsArrayBuffer(window.__emitPlanilhaBlob);
         }
 
-        async function aplicarEditsPreviewEEnviar() {
-          const preview = document.getElementById("emit-etapa2-preview");
-          const table = preview && preview.querySelector("#emit-preview-table");
-          if (!table || !preview.querySelector("input.emit-codigo-prestacao")) return;
-          const XLSX = window.XLSX || (typeof XLSX !== "undefined" ? XLSX : null);
-          if (!XLSX) { document.getElementById("btnUpload").click(); return; }
-          const blob = window.__emitPlanilhaBlob;
-          if (!(blob instanceof Blob)) { document.getElementById("btnUpload").click(); return; }
-          const buf = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsArrayBuffer(blob); });
-          const wb = XLSX.read(buf, { type: "array" });
-          const sheet = wb.Sheets[wb.SheetNames[0]];
-          if (!sheet || !sheet["!ref"]) { document.getElementById("btnUpload").click(); return; }
-          const range = XLSX.utils.decode_range(sheet["!ref"]);
-          const headers = [];
-          for (let c = 0; c <= range.e.c; c++) {
-            const cell = sheet[XLSX.utils.encode_cell({ r: 0, c: c })];
-            headers.push(cell && cell.v != null ? String(cell.v).trim() : "");
-          }
-          const idxPrest = headers.findIndex(h => (h || "").toLowerCase() === "codigo_municipio_servico" || (h || "").toLowerCase() === "codigo_municipio_prestacao");
-          const idxObra = headers.findIndex(h => (h || "").toLowerCase() === "codigo_municipio_obra");
-          const rows = table.querySelectorAll("tbody tr[data-row-index]");
-          for (const tr of rows) {
-            const rowIndex = parseInt(tr.getAttribute("data-row-index"), 10);
-            if (isNaN(rowIndex)) continue;
-            const excelRow = rowIndex + 1;
-            const inpPrest = tr.querySelector("input.emit-codigo-prestacao");
-            const inpObra = tr.querySelector("input.emit-codigo-obra");
-            const valPrest = inpPrest ? String(inpPrest.value || "").replace(/\D/g, "").slice(0, 7) : "";
-            const valObra = inpObra ? String(inpObra.value || "").replace(/\D/g, "").slice(0, 7) : "";
-            if (idxPrest >= 0 && valPrest.length === 7) {
-              const cellAddr = XLSX.utils.encode_cell({ r: excelRow, c: idxPrest });
-              sheet[cellAddr] = { t: "s", v: valPrest };
-            }
-            if (idxObra >= 0 && valObra.length === 7) {
-              const cellAddr = XLSX.utils.encode_cell({ r: excelRow, c: idxObra });
-              sheet[cellAddr] = { t: "s", v: valObra };
-            }
-          }
-          const outBuf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
-          window.__emitPlanilhaBlob = new Blob([outBuf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-          window.__emitPreviewEditsApplied = true;
-          document.getElementById("btnUpload").click();
-        }
-
-        document.addEventListener("click", function(e) {
-          if (e.target.id !== "btnUpload") return;
-          if (window.__emitPreviewEditsApplied) {
-            window.__emitPreviewEditsApplied = false;
-            return;
-          }
-          var preview = document.getElementById("emit-etapa2-preview");
-          if (!preview || !preview.querySelector("input.emit-codigo-prestacao")) return;
-          e.preventDefault();
-          e.stopPropagation();
-          aplicarEditsPreviewEEnviar();
-        }, true);
 
         // Expõe função global para outras partes (upload.js) poderem avançar a etapa
         window.__emitGoToStep = goToStep;
