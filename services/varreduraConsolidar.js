@@ -228,10 +228,9 @@ function varreduraConsolidar(rows, headers, opts = {}) {
     const parcelaStr = (row[col.parcelaAC] != null && row[col.parcelaAC] !== "") ? String(row[col.parcelaAC]).trim() : "";
     const refLinha = [poStr, lineStr, parcelaStr].filter(Boolean).join("-");
 
-    // 7.03: agrupar só pelo prefixo da PO (parte antes do "-"), independente do Site. Ex.: 6211HG2963610-171 e 6211HG2963610-172 → 1 NF.
-    const poPrefix = (poStr.indexOf("-") >= 0 ? poStr.split("-")[0] : poStr).trim() || poStr;
+    // 7.03: agrupar tudo numa única NF, independente de PO ou Site.
     const chaveAgrupamento = (codigoServico === "070203")
-      ? "703|" + poPrefix
+      ? "703"
       : chave;
 
     if (dictTexto.has(chaveAgrupamento)) {
@@ -285,13 +284,13 @@ function varreduraConsolidar(rows, headers, opts = {}) {
   const resultado = [];
   for (const chave of dictTexto.keys()) {
     const firstRow = dictFirstRow.get(chave);
-    // Para 7.03 a chave é "703|prefixoPO" (sem site); site para exibição vem da primeira linha do grupo
+    // Para 7.03 a chave é fixa ("703", sem site); site para exibição vem da primeira linha do grupo
     let sitePuro = chave;
-    if (chave.startsWith("703|")) {
+    if (chave === "703") {
       const raw = firstRow[col.chave];
       if (raw != null && String(raw).indexOf("<!>") >= 0) sitePuro = extrairSiteCodeEntreSegundoDelimitador(raw) || String(raw).trim();
       else sitePuro = String(raw ?? "").trim();
-    } else if (chave.indexOf("|703|") >= 0) sitePuro = chave.split("|703|")[0];
+    }
     // Ref = PO + "-" + Line + "-" + Parcela/AC + "-" + Valor (primeira linha + valor consolidado do grupo)
     const poR = (firstRow[col.po] != null && firstRow[col.po] !== "") ? String(firstRow[col.po]).trim() : "";
     const lineR = (firstRow[col.line] != null && firstRow[col.line] !== "") ? String(firstRow[col.line]).trim() : "";
