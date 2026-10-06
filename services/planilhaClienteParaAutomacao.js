@@ -161,16 +161,22 @@ function montarDescricaoServico(linha) {
     const aliqCof = 0.03;     // 3,0%
     const aliqIr = 0.015;     // 1,5%
     const aliqCsll = 0.01;    // 1,0%
+    const aliq_Cbs = 0.009;   // 0,9%
+    const aliq_Ibs = 0.001;   // 0,1%
 
     const vPis = round2(base * aliqPis).toFixed(2);
     const vCof = round2(base * aliqCof).toFixed(2);
     const vIr = round2(base * aliqIr).toFixed(2);
     const vCsll = round2(base * aliqCsll).toFixed(2);
+    const vCbs = round2(base * aliq_Cbs).toFixed(2);
+    const vIbs = round2(base * aliq_Ibs).toFixed(2);
+
 
     const partes703 = [
-      "Elaboração de projetos de obras de construção civil e elétrica, referente a adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular,",
+      "Elaboração de projetos ... telefonia celular,",
       "conforme pedidos de compra abaixo: " + poLineTexto,
-      `Retenções: PIS 0,65% R$ ${vPis} COFINS 3% R$ ${vCof} IRRF 1,5% R$ ${vIr} CSLL 1% R$ ${vCsll}`,
+      `Retenções: PIS 0,65% R$ ${vPis} COFINS 3% R$ ${vCof} IRRF 1,5% R$ ${vIr} CSLL 1% R$ ${vCsll}
+      CBS 0,9% R$ ${vCbs} IBS 0,1% R$ ${vIbs}`,
     ];
     return partes703.filter(Boolean).join(" ");
   }
