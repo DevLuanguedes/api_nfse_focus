@@ -17,7 +17,7 @@ const prestador = require("../config/prestador");
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-const FOCUS_URL = "https://api.focusnfe.com.br/v2/nfsen";
+const FOCUS_URL = "https://homologacao.focusnfe.com.br";
 const FOCUS_TOKEN = process.env.FOCUS_TOKEN;
 
 /* ================================
@@ -319,64 +319,27 @@ function montarPayloadNfsen(linha) {
   let aliquotaPisEnvio = aliquotaPis;
   let aliquotaCofinsEnvio = aliquotaCofins;
 
-if (isServico703) {
-  // 1) Município de prestação = Bauru (sempre)
-  codigoMunicipioPrestacao = cMunBauru;
+  if (isServico703) {
+    // 1) Município de prestação = Bauru
+    codigoMunicipioPrestacao = cMunBauru;
 
-  valorCbs703 = round2(basePisCofins * 0.009);
-  valorIbs703 = round2(basePisCofins * 0.001);
+    valorCbs703 = round2(basePisCofins * 0.009);
+    valorIbs703 = round2(basePisCofins * 0.001);
 
-  // Para 7.03, PIS/COFINS/CSLL são retidos na fonte
-  tipoRetencaoPisCofins = 3;
+    // 2) Sem INSS
+    valorCp = 0;
 
-  // 2) Não há INSS -> valor_cp = 0
-  valorCp = 0;
+    // 3) Retenções (só calculadas; não vão como campos separados)
+    const pisCalc    = round2(basePisCofins * 0.0065);
+    const cofinsCalc = round2(basePisCofins * 0.03);
+    const irrfCalc   = round2(basePisCofins * 0.015);
+    const csllCalc   = round2(basePisCofins * 0.01);
 
-  // 3) PIS/COFINS
-  const aliquotaPisPercent = 0.65;
-  const aliquotaCofinsPercent = 3;
-
-  aliquotaPisEnvio = aliquotaPisPercent;
-  aliquotaCofinsEnvio = aliquotaCofinsPercent;
-
-  valorPis = round2(
-    basePisCofins * (aliquotaPisPercent / 100)
-  );
-
-  valorCofins = round2(
-    basePisCofins * (aliquotaCofinsPercent / 100)
-  );
-
-  // 4) IRRF 1,5% e CSLL 1%
-  const aliqIr = 0.015;
-  const aliqCsll = 0.01;
-
-  valorCsllPropria = round2(
-    basePisCofins * aliqCsll
-  );
-
-  valorRetidoIrrf = round2(
-    basePisCofins * aliqIr
-  );
-
-  // valor_csll representa só a CSLL retida (vRetCSLL no XML). PIS e COFINS já
-  // são enviados à Focus em campos próprios (valor_pis/valor_cofins) — somá-los
-  // aqui de novo duplicaria esses valores no documento fiscal.
-  valorRetidoCsll = valorCsllPropria;
-
-  // Total dos tributos federais:
-  // IRRF + PIS + COFINS + CSLL
-  const totalFed =
-    basePisCofins *
-    (
-      aliqIr +
-      aliqCsll +
-      (aliquotaPisPercent / 100) +
-      (aliquotaCofinsPercent / 100)
-    );
-
-  valorTotalTributosFederais = round2(totalFed);
-  } else if (cTribNac === "070202") {
+    // Contribuições sociais enviadas à Focus = PIS + COFINS + IRRF + CSLL
+    valorRetidoCsll = round2(pisCalc + cofinsCalc + irrfCalc + csllCalc);
+    valorRetidoIrrf = 0; // já está dentro do valor acima
+    valorTotalTributosFederais = valorRetidoCsll;
+    } else if (cTribNac === "070202") {
     // 7.02: codigo_municipio_prestacao é obrigatório (preenchido na transformação via IBGE ou pelo usuário)
     if (!codigoMunicipioPrestacao || codigoMunicipioPrestacao.length !== 7) {
       const cidade = getLinha(linha, "Cidade_Servico", "Cidade Serviço");
@@ -417,9 +380,15 @@ if (isServico703) {
     codigo_opcao_simples_nacional: parseBoolean(getLinha(linha, "optante_simples_nacional")) ? 3 : 1,
     regime_especial_tributacao: 0,
 
-    valor_total_tributos_federais: round2((Number(valorTotalTributosFederais) || 0) + (Number(valorCbs) || 0)),
-    valor_total_tributos_estaduais: valorIbsUf > 0 ? valorIbsUf : undefined,
-    valor_total_tributos_municipais: round2((parseMoney(getLinha(linha, "valor_iss_retido")) || 0) + (Number(valorIbsMun) || 0)),
+    valor_total_tributos_federais: round2(
+    Number(valorTotalTributosFederais) || 0
+      ),
+
+      valor_total_tributos_estaduais: undefined,
+
+      valor_total_tributos_municipais: parseMoney(
+        getLinha(linha, "valor_iss_retido")
+      ) || 0,
 
     informacoes_complementares: [
       codigoNbs ? `NBS: ${codigoNbs}` : null,
@@ -470,14 +439,6 @@ if (isServico703) {
     tributacao_iss: tributacaoIss,
     tipo_retencao_iss: tipoRetencaoIss,
     percentual_aliquota_relativa_municipio: pAliq,
-    valor_cp: valorCp,
-    situacao_tributaria_pis_cofins: situacaoTributariaPisCofins,
-    tipo_retencao_pis_cofins: tipoRetencaoPisCofins,
-    base_calculo_pis_cofins: parseMoney(getLinha(linha, "valor_servico")),
-    aliquota_pis: aliquotaPisEnvio,
-    aliquota_cofins: aliquotaCofinsEnvio,
-    valor_pis: valorPis,
-    valor_cofins: valorCofins,
     // Focus: valor_irrf -> vRetIRRF, valor_csll -> vRetCSLL (Documentação Focus NFSe Nacional)
     valor_irrf: valorRetidoIrrf,
     valor_csll: valorRetidoCsll,
@@ -492,29 +453,21 @@ if (isServico703) {
 //               - COFINS 3,00%
 //               - IRRF 1,50%
 //               - CSLL 1,00%
+//
+// IMPORTANTE:
+// O campo valor_csll enviado à Focus representa
+// PIS + COFINS + CSLL para esta regra.
+// Porém, para calcular o valor líquido,
+// usamos os valores individuais para deixar
+// a regra explícita e evitar qualquer dupla interpretação.
 // ==========================================================
 
 const valorIssRetido =
   parseMoney(getLinha(linha, "valor_iss_retido")) || 0;
 
-let totalRetencoes;
-
-if (isServico703) {
-  totalRetencoes = round2(
-    valorPis +
-    valorCofins +
-    valorRetidoIrrf +
-    valorCsllPropria
-  );
-} else {
-  totalRetencoes = round2(
-    valorPis +
-    valorCofins +
-    valorRetidoIrrf +
-    valorRetidoCsll +
-    valorIssRetido
-  );
-}
+const totalRetencoes = isServico703
+  ? valorRetidoCsll
+  : round2(valorPis + valorCofins + valorRetidoIrrf + valorRetidoCsll + valorIssRetido);
 
 payload.valor_liquido = round2(
   Math.max(0, valorServico - totalRetencoes)
@@ -537,12 +490,11 @@ payload.valor_liquido = round2(
     const complementoObra = getLinha(linha, "Complemento_Obra", "complemento_obra");
     const bairroObra = getLinha(linha, "Bairro_Obra", "bairro_obra");
 
-    // Município/UF da obra sempre igual ao município/UF de prestação do serviço (a cidade da PO).
-    // Nunca usamos a cidade cadastrada em site_endereco_obra aqui: o cadastro do site pode ter o
-    // endereço real (ex.: Ilhéus), diferente da cidade que a PO do cliente espera (ex.: Salvador),
-    // e a Focus/SEFAZ rejeita a nota quando Mun. Prestação e Mun. Obra divergem.
-    const cMunObra = ibge7(codigoMunicipioPrestacao);
-    const ufObra = getLinha(linha, "UF_Servico", "UF Serviço");
+    // Se não existir Codigo_Municipio_Obra, tentamos usar o municipio do serviço da planilha (Casa Branca)
+    const cMunObraRaw = getLinha(linha, "Codigo_Municipio_Obra", "codigo_municipio_obra", "codigo_municipio_servico");
+    const cMunObra = ibge7(cMunObraRaw);
+
+    const ufObra = getLinha(linha, "UF_Obra", "uf_obra", "UF_Servico");
 
     
 
@@ -667,7 +619,7 @@ router.post("/emitir", upload.single("arquivo"), async (req, res) => {
       }
 
       // 2) Envia
-      const url = `${FOCUS_URL}?ref=${encodeURIComponent(ref)}`;
+      const url = `${FOCUS_URL}/v2/nfsen?ref=${encodeURIComponent(ref)}`;
       console.log("ENVIANDO PARA FOCUS:", url);
 
       try {
