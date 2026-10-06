@@ -488,41 +488,10 @@ if (isServico703) {
     ...(ibsCbsSituacaoTributaria ? { ibs_cbs_situacao_tributaria: ibsCbsSituacaoTributaria } : {}),
     ...(ibsCbsClassificacaoTributaria ? { ibs_cbs_classificacao_tributaria: ibsCbsClassificacaoTributaria } : {}),
   };
-// ==========================================================
-// VALOR LÍQUIDO
-// Para o serviço 7.03:
-// Valor líquido = Valor do serviço
-//               - PIS 0,65%
-//               - COFINS 3,00%
-//               - IRRF 1,50%
-//               - CSLL 1,00%
-// ==========================================================
-
-const valorIssRetido =
-  parseMoney(getLinha(linha, "valor_iss_retido")) || 0;
-
-let totalRetencoes;
-
-if (isServico703) {
-  totalRetencoes = round2(
-    valorPis +
-    valorCofins +
-    valorRetidoIrrf +
-    valorCsllPropria
-  );
-} else {
-  totalRetencoes = round2(
-    valorPis +
-    valorCofins +
-    valorRetidoIrrf +
-    valorRetidoCsll +
-    valorIssRetido
-  );
-}
-
-payload.valor_liquido = round2(
-  Math.max(0, valorServico - totalRetencoes)
-);
+  // Valor líquido = valor do serviço menos todos os tributos retidos (vLiq no XML)
+  const valorIssRetido = parseMoney(getLinha(linha, "valor_iss_retido")) || 0;
+  const totalRetencoes = valorPis + valorCofins + valorRetidoIrrf + valorRetidoCsll + valorIssRetido;
+  payload.valor_liquido = round2(Math.max(0, valorServico - totalRetencoes));
 
   // Local de incidência = município de prestação (obrigatório)
   payload.codigo_local_incidencia = codigoMunicipioPrestacao;
