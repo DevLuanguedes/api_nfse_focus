@@ -173,7 +173,7 @@ function montarDescricaoServico(linha) {
 
 
     const partes703 = [
-      "Elaboração de projetos ... telefonia celular,",
+      "Elaboração de projetos de obras de construção civil e elétrica, referente a adequação de infraestrutura, instalação e montagem de equipamentos de rede de telefonia celular,",
       "conforme pedidos de compra abaixo: " + poLineTexto,
       `Retenções: PIS 0,65% R$ ${vPis} COFINS 3% R$ ${vCof} IRRF 1,5% R$ ${vIr} CSLL 1% R$ ${vCsll}
       CBS 0,9% R$ ${vCbs} IBS 0,1% R$ ${vIbs}`,
