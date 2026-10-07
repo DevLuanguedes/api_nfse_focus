@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Entrando...</title>
+  <style>
+    body {
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #0B1229;
+      background: #F6F8FC;
+    }
+  </style>
+</head>
+<body>
+  <p>Entrando...</p>
+  <script>
+    (function () {
+      function irParaLogin() {
+        window.location.replace("/login.html");
+      }
+
+      var hash = window.location.hash.replace(/^#/, "");
+      var token = new URLSearchParams(hash).get("token");
+
+      if (!token) {
+        irParaLogin();
+        return;
+      }
+
+      try {
+        var partes = token.split(".");
+        if (partes.length !== 3) throw new Error("token malformado");
+
+        var b64 = partes[1].replace(/-/g, "+").replace(/_/g, "/");
+        var payloadJson = decodeURIComponent(
+          atob(b64)
+            .split("")
+            .map(function (c) {
+              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join("")
+        );
+        var payload = JSON.parse(payloadJson);
+
+        if (!payload || !payload.id || !payload.email) {
+          throw new Error("payload do token sem os campos esperados");
+        }
+
+        localStorage.setItem("auth_token", token);
+        localStorage.setItem(
+          "usuario_logado",
+          JSON.stringify({
+            id: payload.id,
+            nome: payload.nome,
+            email: payload.email,
+            role: payload.role,
+          })
+        );
+      } catch (e) {
+        console.error("SSO: falha ao processar token", e);
+        irParaLogin();
+        return;
+      }
+
+      window.location.replace("/painel.html");
+    })();
+  </script>
+</body>
+</html>
