@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SIG - Painel</title>
 
+  <!-- Fontes da marca (Archivo / Inter / IBM Plex Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <!-- CSS -->
   <link rel="stylesheet" href="/css/style.css">
 
@@ -18,6 +23,24 @@
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32/dist/ag-grid-community.min.js"></script>
 
   <style>
+    /* Tema AG Grid com as cores da marca (Rollout Pro) */
+    .ag-theme-balham {
+      --ag-font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+      --ag-header-background-color: var(--pc-cloud, #F6F8FC);
+      --ag-header-foreground-color: var(--pc-ink, #0B1229);
+      --ag-header-column-separator-color: var(--pc-steel, #8A93A6);
+      --ag-borders: solid 1px;
+      --ag-border-color: rgba(138,147,166,0.28);
+      --ag-row-hover-color: var(--pc-primary-soft, rgba(17,49,155,0.06));
+      --ag-selected-row-background-color: var(--pc-primary-light, rgba(17,49,155,0.12));
+      --ag-range-selection-border-color: var(--pc-primary, #11319B);
+      border-radius: var(--radius-lg, 14px);
+      overflow: hidden;
+    }
+    .ag-theme-balham .ag-cell-value,
+    .ag-theme-balham .ag-cell { font-variant-numeric: tabular-nums; }
+    .ag-theme-balham .ag-header-cell-text { font-weight: 700; }
+
     .grid-container {
       height: 520px;
       width: 100%;
