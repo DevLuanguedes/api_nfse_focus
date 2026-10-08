@@ -214,25 +214,18 @@
             <i class="fa-solid fa-house"></i>
             <span class="label">Home</span>
           </li>
+        </ul>
 
-          <li data-target="consultar">
-            <i class="fa-solid fa-file-invoice"></i>
-            <span class="label">Consultar Notas</span>
-          </li>
-
+        <div class="sidebar-section-label">Contas a Receber</div>
+        <ul>
           <li data-target="emitir">
             <i class="fa-solid fa-file-circle-plus"></i>
             <span class="label">Emitir Notas</span>
           </li>
 
-          <li data-target="recebidas">
-            <i class="fa-solid fa-inbox"></i>
-            <span class="label">Notas Serviços</span>
-          </li>
-
-          <li data-target="nfe-recebidas">
-            <i class="fa-solid fa-truck-ramp-box"></i>
-            <span class="label">NF-e Compras</span>
+          <li data-target="consultar">
+            <i class="fa-solid fa-file-invoice"></i>
+            <span class="label">Consultar Notas</span>
           </li>
 
           <li data-target="aliquotas">
@@ -245,11 +238,31 @@
             <span class="label">Endereços Obra</span>
           </li>
 
-          <li data-target="relatorios">
+          <li data-target="relatorio-faturamento">
             <i class="fa-solid fa-chart-line"></i>
-            <span class="label">Relatórios</span>
+            <span class="label">Relatório de Faturamento</span>
+          </li>
+        </ul>
+
+        <div class="sidebar-section-label">Contas a Pagar</div>
+        <ul>
+          <li data-target="recebidas">
+            <i class="fa-solid fa-inbox"></i>
+            <span class="label">Notas Serviços</span>
           </li>
 
+          <li data-target="nfe-recebidas">
+            <i class="fa-solid fa-truck-ramp-box"></i>
+            <span class="label">NF-e Compras</span>
+          </li>
+
+          <li data-target="relatorio-compras">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="label">Relatório de Compras</span>
+          </li>
+        </ul>
+
+        <ul>
           <li data-target="admin" class="admin-only" style="display:none;">
             <i class="fa-solid fa-user-shield"></i>
             <span class="label">Admin</span>
@@ -847,7 +860,8 @@
       "nfe-recebidas": { icone: "fa-truck-ramp-box", titulo: "NF-e Compras", subtitulo: "NF-e (modelo 55) emitidas por terceiros contra o CNPJ da empresa (evento nfe_recebida da Focus NFe)." },
       "aliquotas": { icone: "fa-percent", titulo: "Cadastro de Alíquotas ISS por Município", subtitulo: "Cadastre aqui as alíquotas de ISS. Quando você transformar uma planilha ou emitir notas, os municípios que faltarem serão pedidos na hora e gravados aqui automaticamente." },
       "enderecos-obra": { icone: "fa-map-location-dot", titulo: "Cadastro de Endereços de Obra por Site e UF", subtitulo: "Cadastre aqui o endereço da obra por site e UF do serviço. Na transformação da planilha, os campos CEP_Obra, Logradouro_Obra, Numero_Obra, Bairro_Obra, UF_Obra e Codigo_Municipio_Obra serão preenchidos automaticamente. Se faltar algum, o sistema pede o cadastro na hora." },
-      "relatorios": { icone: "fa-chart-line", titulo: "Relatórios", subtitulo: "Resumo atualizado a partir do banco de dados." },
+      "relatorio-faturamento": { icone: "fa-chart-line", titulo: "Relatório de Faturamento", subtitulo: "Resumo de notas emitidas e faturamento, atualizado em tempo real." },
+      "relatorio-compras": { icone: "fa-chart-pie", titulo: "Relatório de Compras", subtitulo: "Notas recebidas por mês e compras por categoria (NCM), atualizado em tempo real." },
       "admin": { icone: "fa-user-shield", titulo: "Administração de Usuários" },
       "transformar": { icone: "fa-file-export", titulo: "Transformar Planilha", subtitulo: "Envie a planilha do portal (formato do cliente). A planilha original terá Ref, ISS_City, ISS_State, ISS_Base, ISS Rate e valor preenchidos para submissão no portal. A planilha transformada é usada na emissão. Se algum município não tiver alíquota ou site+UF não tiver endereço, o sistema pede o cadastro na hora." },
     };
@@ -2994,13 +3008,12 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
         });
       }
 
-      // ===================== RELATÓRIOS =====================
-      if (page === "relatorios") {
+      // ============== RELATÓRIO DE FATURAMENTO (Contas a Receber) ==============
+      if (page === "relatorio-faturamento") {
         view.innerHTML = `
           <div id="relatorioResumo" class="relatorio-resumo">
             <p class="enderecos-empty"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</p>
           </div>
-          <div id="relatorioGraficos" class="viz-root" style="margin-top:24px;"></div>
         `;
         (async function() {
           const div = document.getElementById("relatorioResumo");
@@ -3030,7 +3043,13 @@ DATA EMISSÃO: ${formatDate(nota.data_emissao)}
             div.innerHTML = "<p class=\"enderecos-empty\">Erro ao carregar resumo. Verifique a API.</p>";
           }
         })();
+      }
 
+      // ============== RELATÓRIO DE COMPRAS (Contas a Pagar) ==============
+      if (page === "relatorio-compras") {
+        view.innerHTML = `
+          <div id="relatorioGraficos" class="viz-root"></div>
+        `;
         (async function() {
           const divGraficos = document.getElementById("relatorioGraficos");
           try {
