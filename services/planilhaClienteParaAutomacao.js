@@ -443,7 +443,7 @@ function preencherPlanilhaOriginal(workbook, sheetName, headers, consolidado, ro
         if (idxIssType != null) sheet[colunaParaLetra(idxIssType) + excelRow] = { t: "s", v: "SUBSTITUTE" };
         if (idxInvoiceTypeBr != null) sheet[colunaParaLetra(idxInvoiceTypeBr) + excelRow] = { t: "s", v: "141-SP" };
         if (idxDocFiscal != null) sheet[colunaParaLetra(idxDocFiscal) + excelRow] = { t: "s", v: "NFS_E" };
-        if (idxSeries != null) sheet[colunaParaLetra(idxSeries) + excelRow] = { t: "s", v: "0" };
+        if (idxSeries != null) sheet[colunaParaLetra(idxSeries) + excelRow] = { t: "s", v: "BR" };
         if (idxInssBaseCn != null && item.valor_servico != null) sheet[colunaParaLetra(idxInssBaseCn) + excelRow] = celulaNumeroOriginal(item.valor_servico);
         if (idxInssRateCn != null) sheet[colunaParaLetra(idxInssRateCn) + excelRow] = { t: "s", v: "3.5" };
         if (idxIrTaxCn != null) sheet[colunaParaLetra(idxIrTaxCn) + excelRow] = { t: "s", v: "4" };
@@ -458,7 +458,7 @@ function preencherPlanilhaOriginal(workbook, sheetName, headers, consolidado, ro
         if (idxIssType != null) sheet[colunaParaLetra(idxIssType) + excelRow] = { t: "s", v: "NORMAL" };
         if (idxInvoiceTypeBr != null) sheet[colunaParaLetra(idxInvoiceTypeBr) + excelRow] = { t: "s", v: "141-SP" };
         if (idxDocFiscal != null) sheet[colunaParaLetra(idxDocFiscal) + excelRow] = { t: "s", v: "NFS_E" };
-        if (idxSeries != null) sheet[colunaParaLetra(idxSeries) + excelRow] = { t: "s", v: "0" };
+        if (idxSeries != null) sheet[colunaParaLetra(idxSeries) + excelRow] = { t: "s", v: "BR" };
         if (idxInssBaseCn != null) sheet[colunaParaLetra(idxInssBaseCn) + excelRow] = celulaNumeroOriginal(0);
         if (idxInssRateCn != null) sheet[colunaParaLetra(idxInssRateCn) + excelRow] = celulaNumeroOriginal(0);
         if (idxIrTaxCn != null) sheet[colunaParaLetra(idxIrTaxCn) + excelRow] = { t: "s", v: "1" };
