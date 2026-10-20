@@ -60,21 +60,14 @@ async function codigoMunicipioPorCidadeEUf(nomeCidade, uf) {
 
   const municipios = await buscarMunicipiosPorUF(uf);
 
-  // 1ª passada: só correspondência exata. Nunca parar numa cidade "parecida"
-  // antes de varrer a lista toda — ex.: "Tibau" (RN) é prefixo de "Tibau do
-  // Sul" (RN); se "Tibau" aparecer primeiro na lista e a função retornasse no
-  // primeiro match por substring, o código de "Tibau" seria usado por engano
-  // pra uma nota de "Tibau do Sul".
+  // Só correspondência exata (sem acento/caixa). Nunca "aproximar" por
+  // substring: código de município define a jurisdição fiscal da nota, e
+  // cidades com nomes parecidos (ex.: "Tibau" e "Tibau do Sul", ambas em RN)
+  // são municípios diferentes de verdade. Se não achar exato, retorna null —
+  // o fluxo de emissão já pede pro usuário informar o código manualmente
+  // nesse caso, em vez de arriscar usar o código de outra cidade.
   for (const m of municipios) {
     if (normalizarNome(m.nome) === nomeNorm) return String(m.id).padStart(7, "0");
-  }
-
-  // 2ª passada: só cai em correspondência por substring se nenhuma exata existir.
-  for (const m of municipios) {
-    const nomeMun = normalizarNome(m.nome);
-    if (nomeMun.includes(nomeNorm) || nomeNorm.includes(nomeMun)) {
-      return String(m.id).padStart(7, "0");
-    }
   }
   return null;
 }
