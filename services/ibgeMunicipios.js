@@ -59,9 +59,19 @@ async function codigoMunicipioPorCidadeEUf(nomeCidade, uf) {
   if (!nomeNorm) return null;
 
   const municipios = await buscarMunicipiosPorUF(uf);
+
+  // 1ª passada: só correspondência exata. Nunca parar numa cidade "parecida"
+  // antes de varrer a lista toda — ex.: "Tibau" (RN) é prefixo de "Tibau do
+  // Sul" (RN); se "Tibau" aparecer primeiro na lista e a função retornasse no
+  // primeiro match por substring, o código de "Tibau" seria usado por engano
+  // pra uma nota de "Tibau do Sul".
+  for (const m of municipios) {
+    if (normalizarNome(m.nome) === nomeNorm) return String(m.id).padStart(7, "0");
+  }
+
+  // 2ª passada: só cai em correspondência por substring se nenhuma exata existir.
   for (const m of municipios) {
     const nomeMun = normalizarNome(m.nome);
-    if (nomeMun === nomeNorm) return String(m.id).padStart(7, "0");
     if (nomeMun.includes(nomeNorm) || nomeNorm.includes(nomeMun)) {
       return String(m.id).padStart(7, "0");
     }
